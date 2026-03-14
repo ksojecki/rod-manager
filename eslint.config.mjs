@@ -9,6 +9,19 @@ import jsoncParser from 'jsonc-eslint-parser';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
+const typedTsConfigs = [
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.strictTypeChecked,
+].map((config) => ({
+  ...config,
+  files: ['**/*.{ts,tsx,mts,cts}'],
+  ignores: [
+    '**/*.config.{js,cjs,mjs,ts,cts,mts}',
+    '**/vite.config.*',
+    '**/eslint.config.*',
+  ],
+}));
+
 export default [
   {
     ignores: [
@@ -16,11 +29,17 @@ export default [
       '**/dist/**',
       '**/coverage/**',
       '**/.nx/**',
+      '**/build',
+      '**/.react-router',
+      '**/vite.config.*.timestamp*',
+      // Config files are not part of any TS project — skip typed linting
+      '**/vite.config.{ts,mts,js,mjs,cjs}',
+      '**/eslint.config.{ts,mts,js,mjs,cjs}',
+      '**/react-router.config.{ts,mts,js,mjs,cjs}',
     ],
   },
   js.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  ...tseslint.configs.strictTypeChecked,
+  ...typedTsConfigs,
   {
     files: ['**/*.{ts,tsx,mts,cts}'],
     languageOptions: {
@@ -33,6 +52,7 @@ export default [
       },
     },
     plugins: {
+      '@typescript-eslint': tseslint.plugin,
       jsdoc,
     },
     rules: {
@@ -70,11 +90,13 @@ export default [
         {
           publicOnly: true,
           require: {
+            FunctionDeclaration: false,
             MethodDefinition: true,
           },
         },
       ],
       'jsdoc/require-description': 'error',
+      '@typescript-eslint/require-await': 'off',
     },
   },
   {

@@ -1,0 +1,16 @@
+{
+  "name": "@rod-manager/web",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "targets": {
+      "typecheck": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "packages/web",
+          "command": "node ../../node_modules/typescript/bin/tsc --build --emitDeclarationOnly"
+        }
+      }
+    }
+  }
+}
