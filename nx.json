@@ -8,6 +8,12 @@
   "nxCloudId": "69b5d5bae931dbf500d14b47",
   "plugins": [
     {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
+    {
       "plugin": "@nx/js/typescript",
       "options": {
         "typecheck": {
