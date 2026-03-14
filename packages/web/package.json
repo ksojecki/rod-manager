@@ -10,6 +10,16 @@
           "cwd": "packages/web",
           "command": "node ../../node_modules/typescript/bin/tsc --build --emitDeclarationOnly"
         }
+      },
+      "build-server": {
+        "executor": "nx:run-commands",
+        "outputs": [
+          "{projectRoot}/dist/server"
+        ],
+        "options": {
+          "cwd": "packages/web",
+          "command": "node ../../node_modules/vite/bin/vite.js build --ssr src/entry-server.tsx --outDir dist/server"
+        }
       }
     }
   }

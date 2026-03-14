@@ -37,6 +37,31 @@ npx nx <target> <project-name>
 
 These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
 
+## SSR workflow (Fastify + React)
+
+Use one command for local SSR development:
+
+```sh
+npm run dev:ssr
+```
+
+Build production SSR artifacts (web client + web server bundle + API server):
+
+```sh
+npm run build:ssr
+```
+
+Start the production SSR server after building:
+
+```sh
+npm run start:ssr
+```
+
+Quick checks after startup:
+
+- `http://localhost:3000/` returns HTML rendered by SSR.
+- `http://localhost:3000/api` returns JSON from Fastify API.
+
 [More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
 ## Versioning and releasing
