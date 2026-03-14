@@ -5,6 +5,12 @@
 - This is an Nx 22 workspace (`nx`, `@nx/js` in `package.json`) with npm workspaces (`packages/*`).
 - `packages/` is currently empty (`packages/.gitkeep`), so this repo is in bootstrap state.
 - Treat root config as source of truth until first package is generated.
+- Extended docs for agents and architecture are in `docs/` (`docs/agents/`, `docs/architecture/`, `docs/operations/`).
+
+## Language Policy
+
+- All documentation must be written in English.
+- All generated code must use English for identifiers, comments, and user-facing messages.
 
 ## Big Picture Architecture
 
