@@ -5,6 +5,8 @@ const en: TranslationResources = {
     appName: 'Rod Manager',
     menuHome: 'Home',
     menuAccount: 'Account',
+    menuLogin: 'Log in',
+    menuLogout: 'Log out',
     languageLabel: 'Language',
     languageEnglish: 'EN',
     languagePolish: 'PL',
@@ -17,6 +19,18 @@ const en: TranslationResources = {
   },
   account: {
     title: 'Account',
+    welcome: 'Welcome, {{name}}.',
+    fallbackUserName: 'User',
+  },
+  auth: {
+    title: 'Log in',
+    hint: 'Use the demo credentials to sign in.',
+    emailLabel: 'Email',
+    passwordLabel: 'Password',
+    submit: 'Sign in',
+    submitting: 'Signing in...',
+    checkingSession: 'Checking session...',
+    unexpectedError: 'Unexpected server error.',
   },
 };
 

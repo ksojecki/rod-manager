@@ -112,6 +112,7 @@
     }
   },
   "dependencies": {
+    "@rod-manager/shared": "workspace:*",
     "@fastify/autoload": "~6.0.3",
     "@fastify/middie": "^9.0.3",
     "@fastify/sensible": "~6.0.2",

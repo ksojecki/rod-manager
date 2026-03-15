@@ -3,6 +3,8 @@ const pl = {
     appName: 'Rod Manager',
     menuHome: 'Strona glowna',
     menuAccount: 'Konto',
+    menuLogin: 'Zaloguj',
+    menuLogout: 'Wyloguj',
     languageLabel: 'Jezyk',
     languageEnglish: 'EN',
     languagePolish: 'PL',
@@ -15,6 +17,18 @@ const pl = {
   },
   account: {
     title: 'Konto',
+    welcome: 'Witaj, {{name}}.',
+    fallbackUserName: 'Uzytkownik',
+  },
+  auth: {
+    title: 'Logowanie',
+    hint: 'Uzyj konta demo, aby sie zalogowac.',
+    emailLabel: 'Email',
+    passwordLabel: 'Haslo',
+    submit: 'Zaloguj sie',
+    submitting: 'Logowanie...',
+    checkingSession: 'Sprawdzanie sesji...',
+    unexpectedError: 'Nieoczekiwany blad serwera.',
   },
 };
 

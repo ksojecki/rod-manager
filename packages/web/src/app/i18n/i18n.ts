@@ -8,6 +8,7 @@ const ns = [
   'layout',
   'home',
   'account',
+  'auth',
 ] as const satisfies readonly Namespaces[];
 
 export const defaultNS = 'layout' as const;
