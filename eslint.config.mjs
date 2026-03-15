@@ -18,6 +18,7 @@ const typedTsConfigs = [
   ignores: [
     '**/*.config.{js,cjs,mjs,ts,cts,mts}',
     '**/vite.config.*',
+    '**/vitest.config.*',
     '**/eslint.config.*',
   ],
 }));
@@ -34,6 +35,7 @@ export default [
       '**/vite.config.*.timestamp*',
       // Config files are not part of any TS project — skip typed linting
       '**/vite.config.{ts,mts,js,mjs,cjs}',
+      '**/vitest.config.{ts,mts,js,mjs,cjs}',
       '**/eslint.config.{ts,mts,js,mjs,cjs}',
       '**/react-router.config.{ts,mts,js,mjs,cjs}',
     ],
@@ -97,6 +99,13 @@ export default [
       ],
       'jsdoc/require-description': 'error',
       '@typescript-eslint/require-await': 'off',
+    },
+  },
+  {
+    files: ['**/*.{spec,test}.{ts,tsx,mts,cts}'],
+    rules: {
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
     },
   },
   {

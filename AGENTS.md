@@ -21,13 +21,14 @@
 
 ## Critical Workflows
 
+- When running Nx commands as an AI agent, always pass `--no-tui`.
 - Install deps: `npm ci` (used in CI).
 - Run lint via npm script: `npm run lint` (delegates to Nx `lint` target inference).
 - Run formatting checks: `npm run format:check`; auto-fix formatting: `npm run format`.
-- Run CI-equivalent checks locally: `npx nx run-many -t lint test build typecheck`.
-- Apply Nx Cloud CI remediation hints: `npx nx fix-ci`.
-- Explore project/task graph: `npx nx graph`.
-- Keep TS project refs consistent after adding projects: `npx nx sync` (or `npx nx sync:check` in CI).
+- Run CI-equivalent checks locally: `npx nx run-many -t lint test build typecheck --no-tui`.
+- Apply Nx Cloud CI remediation hints: `npx nx fix-ci --no-tui`.
+- Explore project/task graph: `npx nx graph --no-tui`.
+- Keep TS project refs consistent after adding projects: `npx nx sync --no-tui` (or `npx nx sync:check --no-tui` in CI).
 
 ## Project-Specific Conventions
 
@@ -44,11 +45,11 @@
 
 - CI runs on GitHub Actions (`.github/workflows/ci.yml`) with Node 20 and npm cache.
 - Nx Cloud is configured (`nxCloudId` in `nx.json`); distributed agents are prepared but currently commented in CI.
-- Release flow is expected via `npx nx release` (documented in `README.md`).
+- Release flow is expected via `npx nx release --no-tui` (documented in `README.md`).
 
 ## When Adding the First Package
 
 - Prefer Nx generators (example from `README.md`):
-  - `npx nx g @nx/js:lib packages/<name> --publishable --importPath=@my-org/<name>`
-- After generation, validate inferred targets with `npx nx show project <project-name>` and run `build` + `typecheck`.
+  - `npx nx g @nx/js:lib packages/<name> --publishable --importPath=@my-org/<name> --no-tui`
+- After generation, validate inferred targets with `npx nx show project <project-name> --no-tui` and run `build` + `typecheck`.
 - Keep new package configs aligned with root TS/Nx conventions instead of overriding defaults unless necessary.

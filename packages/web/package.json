@@ -20,6 +20,13 @@
           "cwd": "packages/web",
           "command": "node ../../node_modules/vite/bin/vite.js build --ssr src/entry-server.tsx --outDir dist/server"
         }
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "packages/web",
+          "command": "node ../../node_modules/vitest/vitest.mjs run --config vite.config.mts"
+        }
       }
     }
   }

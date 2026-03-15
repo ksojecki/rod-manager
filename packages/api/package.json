@@ -101,6 +101,13 @@
           "cwd": "packages/api",
           "command": "node ../../node_modules/typescript/bin/tsc --build --emitDeclarationOnly"
         }
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "packages/api",
+          "command": "node ../../node_modules/vitest/vitest.mjs run --config vitest.config.mts"
+        }
       }
     }
   },

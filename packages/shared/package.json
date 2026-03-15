@@ -37,6 +37,13 @@
           "cwd": "packages/shared",
           "command": "node ../../node_modules/typescript/bin/tsc --build tsconfig.lib.json"
         }
+      },
+      "test": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "packages/shared",
+          "command": "node ../../node_modules/vitest/vitest.mjs run --config vitest.config.mts"
+        }
       }
     }
   }
