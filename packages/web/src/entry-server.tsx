@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { renderToString } from 'react-dom/server';
-import App from './app/app';
+import { StaticRouter } from 'react-router';
+import { AppRoutes } from './app/routes';
 
 /**
  * Renders the application for a requested URL on the server.
@@ -8,7 +9,9 @@ import App from './app/app';
 export function render(_url: string): string {
   return renderToString(
     <StrictMode>
-      <App />
+      <StaticRouter location={_url}>
+        <AppRoutes />
+      </StaticRouter>
     </StrictMode>,
   );
 }

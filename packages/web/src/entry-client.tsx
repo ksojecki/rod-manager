@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
-import App from './app/app';
+import { BrowserRouter } from 'react-router';
+import { AppRoutes } from './app/routes';
 
 /**
  * Starts the browser application and hydrates server-rendered HTML when available.
@@ -14,7 +15,9 @@ export function startClient() {
 
   const app = (
     <StrictMode>
-      <App />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
     </StrictMode>
   );
 
