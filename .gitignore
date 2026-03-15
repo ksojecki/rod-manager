@@ -42,3 +42,6 @@ Thumbs.db
 .nx/workspace-data
 
 vite.config.*.timestamp*
+
+# local development TLS certificates
+.cert

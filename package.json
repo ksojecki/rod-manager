@@ -6,7 +6,11 @@
     "lint": "node ./node_modules/nx/bin/nx.js run-many -t lint",
     "format": "node ./node_modules/prettier/bin/prettier.cjs --write .",
     "format:check": "node ./node_modules/prettier/bin/prettier.cjs --check .",
-    "postinstall": "node ./node_modules/husky/bin.js"
+    "postinstall": "node ./scripts/postinstall.mjs",
+    "setup:certs": "node ./scripts/setup-dev-certs.mjs",
+    "dev:ssr": "NODE_ENV=development HTTPS_KEY_PATH=.cert/localhost-key.pem HTTPS_CERT_PATH=.cert/localhost-cert.pem node ./node_modules/nx/bin/nx.js run @rod-manager/api:serve",
+    "build:ssr": "node ./node_modules/nx/bin/nx.js run @rod-manager/web:build && node ./node_modules/nx/bin/nx.js run @rod-manager/web:build-server && node ./node_modules/nx/bin/nx.js run @rod-manager/api:build:production",
+    "start:ssr": "NODE_ENV=production HTTPS_KEY_PATH=.cert/localhost-key.pem HTTPS_CERT_PATH=.cert/localhost-cert.pem node packages/api/dist/main.js"
   },
   "private": true,
   "devDependencies": {
@@ -29,6 +33,7 @@
     "@vitejs/plugin-react": "^4.2.0",
     "@vitest/ui": "^4.0.0",
     "ajv": "^8.0.0",
+    "mkcert-cli": "^1.5.0",
     "esbuild": "^0.19.2",
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",

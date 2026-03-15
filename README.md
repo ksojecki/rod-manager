@@ -39,10 +39,22 @@ These targets are either [inferred automatically](https://nx.dev/concepts/inferr
 
 ## SSR workflow (Fastify + React)
 
-Use one command for local SSR development:
+Use one command for local SSR development over HTTPS:
 
 ```sh
 npm run dev:ssr
+```
+
+During dependency installation, the workspace creates `.cert/localhost-key.pem` and `.cert/localhost-cert.pem` if they do not exist.
+
+Certificates are prepared during `npm install` using the npm `mkcert-cli` package and local CA registration.
+
+Certificate setup is skipped for production installs (`NODE_ENV=production` or `npm install --omit=dev`).
+
+If you need to recreate certificates manually:
+
+```sh
+npm run setup:certs
 ```
 
 Build production SSR artifacts (web client + web server bundle + API server):
@@ -59,8 +71,8 @@ npm run start:ssr
 
 Quick checks after startup:
 
-- `http://localhost:3000/` returns HTML rendered by SSR.
-- `http://localhost:3000/api` returns JSON from Fastify API.
+- `https://localhost:3000/` returns HTML rendered by SSR.
+- `https://localhost:3000/api` returns JSON from Fastify API.
 
 [More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
