@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
+import './app/i18n/i18n';
 import { AppRoutes } from './app/routes';
 
 /**

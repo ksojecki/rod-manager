@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router';
+import './app/i18n/i18n';
 import { AppRoutes } from './app/routes';
 
 /**
