@@ -12,7 +12,7 @@
         "defaultConfiguration": "production",
         "options": {
           "platform": "node",
-          "outputPath": "packages/api/dist",
+          "outputPath": "dist/packages/api",
           "format": [
             "cjs"
           ],
@@ -48,8 +48,8 @@
         "cache": true,
         "executor": "@nx/js:prune-lockfile",
         "outputs": [
-          "{workspaceRoot}/packages/api/dist/package.json",
-          "{workspaceRoot}/packages/api/dist/package-lock.json"
+          "{workspaceRoot}/dist/packages/api/package.json",
+          "{workspaceRoot}/dist/packages/api/package-lock.json"
         ],
         "options": {
           "buildTarget": "build"
@@ -61,7 +61,7 @@
         ],
         "cache": true,
         "outputs": [
-          "{workspaceRoot}/packages/api/dist/workspace_modules"
+          "{workspaceRoot}/dist/packages/api/workspace_modules"
         ],
         "executor": "@nx/js:copy-workspace-modules",
         "options": {

@@ -29,8 +29,11 @@ export default async function (fastify: FastifyInstance) {
   const isProduction = process.env.NODE_ENV === 'production';
 
   if (isProduction) {
-    const clientRoot = path.join(webRoot, 'dist/client');
-    const serverEntryPath = path.join(webRoot, 'dist/server/entry-server.mjs');
+    const clientRoot = path.resolve(process.cwd(), 'dist/packages/web/client');
+    const serverEntryPath = path.resolve(
+      process.cwd(),
+      'dist/packages/web/server/entry-server.mjs',
+    );
     const templatePath = path.join(clientRoot, 'index.html');
     const template = await readFile(templatePath, 'utf-8');
 

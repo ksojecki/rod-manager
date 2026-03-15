@@ -14,11 +14,11 @@
       "build-server": {
         "executor": "nx:run-commands",
         "outputs": [
-          "{projectRoot}/dist/server"
+          "{workspaceRoot}/dist/packages/web/server"
         ],
         "options": {
           "cwd": "packages/web",
-          "command": "node ../../node_modules/vite/bin/vite.js build --ssr src/entry-server.tsx --outDir dist/server"
+          "command": "node ../../node_modules/vite/bin/vite.js build --ssr src/entry-server.tsx --outDir ../../dist/packages/web/server"
         }
       },
       "test": {

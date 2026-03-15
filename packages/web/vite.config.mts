@@ -19,7 +19,7 @@ export default defineConfig(() => ({
   //  plugins: [],
   // },
   build: {
-    outDir: './dist/client',
+    outDir: '../../dist/packages/web/client',
     emptyOutDir: true,
     reportCompressedSize: true,
     commonjsOptions: {

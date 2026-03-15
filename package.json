@@ -10,7 +10,7 @@
     "setup:certs": "node ./scripts/setup-dev-certs.mjs",
     "dev:ssr": "NODE_ENV=development HTTPS_KEY_PATH=.cert/localhost-key.pem HTTPS_CERT_PATH=.cert/localhost-cert.pem node ./node_modules/nx/bin/nx.js run @rod-manager/api:serve",
     "build:ssr": "node ./node_modules/nx/bin/nx.js run @rod-manager/web:build && node ./node_modules/nx/bin/nx.js run @rod-manager/web:build-server && node ./node_modules/nx/bin/nx.js run @rod-manager/api:build:production",
-    "start:ssr": "NODE_ENV=production HTTPS_KEY_PATH=.cert/localhost-key.pem HTTPS_CERT_PATH=.cert/localhost-cert.pem node packages/api/dist/main.js"
+    "start:ssr": "NODE_ENV=production HTTPS_KEY_PATH=.cert/localhost-key.pem HTTPS_CERT_PATH=.cert/localhost-cert.pem node dist/packages/api/main.js"
   },
   "private": true,
   "devDependencies": {
