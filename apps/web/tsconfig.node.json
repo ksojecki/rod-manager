@@ -4,8 +4,8 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "composite": true,
-    "outDir": "../../dist/packages/web",
-    "tsBuildInfoFile": "../../dist/packages/web/tsconfig.node.tsbuildinfo"
+    "outDir": "../../dist/apps/web",
+    "tsBuildInfoFile": "../../dist/apps/web/tsconfig.node.tsbuildinfo"
   },
   "include": ["vite.config.mts"]
 }

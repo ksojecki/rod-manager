@@ -2,9 +2,9 @@
 
 ## Repo Snapshot
 
-- This is an Nx 22 workspace (`nx`, `@nx/js` in `package.json`) with npm workspaces (`packages/*`).
-- `packages/` is currently empty (`packages/.gitkeep`), so this repo is in bootstrap state.
-- Treat root config as source of truth until first package is generated.
+- This is an Nx 22 workspace (`nx`, `@nx/js` in `package.json`) organized around `apps/` and `libs/`.
+- Application projects live in `apps/` (`apps/api`, `apps/web`), and reusable code lives in `libs/` (`libs/shared`).
+- Treat root config as source of truth unless a project-level config overrides it intentionally.
 - Extended docs for agents and architecture are in `docs/` (`docs/agents/`, `docs/architecture/`, `docs/operations/`).
 
 ## Language Policy
@@ -47,9 +47,10 @@
 - Nx Cloud is configured (`nxCloudId` in `nx.json`); distributed agents are prepared but currently commented in CI.
 - Release flow is expected via `npx nx release --no-tui` (documented in `README.md`).
 
-## When Adding the First Package
+## When Adding a New Project
 
 - Prefer Nx generators (example from `README.md`):
-  - `npx nx g @nx/js:lib packages/<name> --publishable --importPath=@my-org/<name> --no-tui`
+  - `npx nx g @nx/js:lib libs/<name> --publishable --importPath=@my-org/<name> --no-tui`
+  - `npx nx g @nx/react:app apps/<name> --bundler=vite --no-tui`
 - After generation, validate inferred targets with `npx nx show project <project-name> --no-tui` and run `build` + `typecheck`.
 - Keep new package configs aligned with root TS/Nx conventions instead of overriding defaults unless necessary.

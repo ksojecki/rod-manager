@@ -19,7 +19,7 @@ We choose:
 - Frontend: React + Vite
 - Backend: Fastify
 - Database: SQLite
-- Monorepo layout: `packages/web`, `packages/api`, `packages/shared`
+- Monorepo layout: `apps/web`, `apps/api`, `libs/shared`
 
 ## Consequences
 

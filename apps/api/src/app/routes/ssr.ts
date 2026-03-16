@@ -25,14 +25,14 @@ async function renderPage(
 }
 
 export default async function (fastify: FastifyInstance) {
-  const webRoot = path.resolve(process.cwd(), 'packages/web');
+  const webRoot = path.resolve(process.cwd(), 'apps/web');
   const isProduction = process.env.NODE_ENV === 'production';
 
   if (isProduction) {
-    const clientRoot = path.resolve(process.cwd(), 'dist/packages/web/client');
+    const clientRoot = path.resolve(process.cwd(), 'dist/apps/web/client');
     const serverEntryPath = path.resolve(
       process.cwd(),
-      'dist/packages/web/server/entry-server.mjs',
+      'dist/apps/web/server/entry-server.mjs',
     );
     const templatePath = path.join(clientRoot, 'index.html');
     const template = await readFile(templatePath, 'utf-8');
@@ -40,6 +40,7 @@ export default async function (fastify: FastifyInstance) {
     await fastify.register(fastifyStatic, {
       root: clientRoot,
       prefix: '/',
+      index: false,
       wildcard: false,
     });
 

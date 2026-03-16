@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
-  cacheDir: '../../node_modules/.vite/packages/web',
+  cacheDir: '../../node_modules/.vite/apps/web',
   server: {
     port: 4200,
     host: 'localhost',
@@ -20,7 +20,7 @@ export default defineConfig(() => ({
   //  plugins: [],
   // },
   build: {
-    outDir: '../../dist/packages/web/client',
+    outDir: '../../dist/apps/web/client',
     emptyOutDir: true,
     reportCompressedSize: true,
     commonjsOptions: {

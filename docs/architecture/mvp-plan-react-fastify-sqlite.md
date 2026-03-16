@@ -9,9 +9,9 @@ Build a community app with:
 
 ## Target monorepo layout (Nx)
 
-- `packages/web` - React frontend (Vite), routing, and views.
-- `packages/api` - Fastify backend (REST API, auth, validation).
-- `packages/shared` - shared DTO types and helpers.
+- `apps/web` - React frontend (Vite), routing, and views.
+- `apps/api` - Fastify backend (REST API, auth, validation).
+- `libs/shared` - shared DTO types and helpers.
 
 ## Frontend (React)
 
@@ -40,7 +40,7 @@ Minimum tables:
 1. Frontend fetches public announcements without authentication.
 2. Login creates a session and cookie.
 3. After authentication, the user can create threads and posts.
-4. API returns stable DTOs from `packages/shared`.
+4. API returns stable DTOs from `libs/shared`.
 
 ## Non-functional MVP requirements
 

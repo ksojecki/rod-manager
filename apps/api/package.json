@@ -12,15 +12,15 @@
         "defaultConfiguration": "production",
         "options": {
           "platform": "node",
-          "outputPath": "dist/packages/api",
+          "outputPath": "dist/apps/api",
           "format": [
             "cjs"
           ],
           "bundle": false,
-          "main": "packages/api/src/main.ts",
-          "tsConfig": "packages/api/tsconfig.app.json",
+          "main": "apps/api/src/main.ts",
+          "tsConfig": "apps/api/tsconfig.app.json",
           "assets": [
-            "packages/api/src/assets"
+            "apps/api/src/assets"
           ],
           "esbuildOptions": {
             "sourcemap": true,
@@ -48,8 +48,8 @@
         "cache": true,
         "executor": "@nx/js:prune-lockfile",
         "outputs": [
-          "{workspaceRoot}/dist/packages/api/package.json",
-          "{workspaceRoot}/dist/packages/api/package-lock.json"
+          "{workspaceRoot}/dist/apps/api/package.json",
+          "{workspaceRoot}/dist/apps/api/package-lock.json"
         ],
         "options": {
           "buildTarget": "build"
@@ -61,7 +61,7 @@
         ],
         "cache": true,
         "outputs": [
-          "{workspaceRoot}/dist/packages/api/workspace_modules"
+          "{workspaceRoot}/dist/apps/api/workspace_modules"
         ],
         "executor": "@nx/js:copy-workspace-modules",
         "options": {
@@ -98,26 +98,25 @@
       "typecheck": {
         "executor": "nx:run-commands",
         "options": {
-          "cwd": "packages/api",
-          "command": "node ../../node_modules/typescript/bin/tsc --build --emitDeclarationOnly"
+          "cwd": "apps/api",
+          "command": "node ../../node_modules/typescript/bin/tsc --noEmit -p tsconfig.app.json && node ../../node_modules/typescript/bin/tsc --noEmit -p tsconfig.spec.json"
         }
       },
       "test": {
         "executor": "nx:run-commands",
         "options": {
-          "cwd": "packages/api",
+          "cwd": "apps/api",
           "command": "node ../../node_modules/vitest/vitest.mjs run --config vitest.config.mts"
         }
       }
     }
   },
   "dependencies": {
-    "@rod-manager/shared": "workspace:*",
     "@fastify/autoload": "~6.0.3",
     "@fastify/middie": "^9.0.3",
     "@fastify/sensible": "~6.0.2",
     "@fastify/static": "^8.3.0",
-    "fastify": "~5.2.1",
+    "fastify": "5.8.1",
     "fastify-plugin": "~5.0.1"
   }
 }

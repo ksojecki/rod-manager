@@ -18,7 +18,13 @@
 ## Generate a library
 
 ```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+npx nx g @nx/js:lib libs/pkg1 --publishable --importPath=@my-org/pkg1 --no-tui
+```
+
+## Generate an application
+
+```sh
+npx nx g @nx/react:app apps/my-app --bundler=vite --no-tui
 ```
 
 ## Run tasks
