@@ -1,10 +1,20 @@
 import Fastify from 'fastify';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import databasePlugin from '../plugins/database';
 import authRoutes from './auth';
 
 describe('auth routes', () => {
+  beforeEach(() => {
+    process.env.AUTH_DB_PATH = ':memory:';
+  });
+
+  afterEach(() => {
+    delete process.env.AUTH_DB_PATH;
+  });
+
   it('creates a session on successful login and returns it', async () => {
     const server = Fastify();
+    await server.register(databasePlugin);
 
     authRoutes(server);
 
@@ -48,6 +58,7 @@ describe('auth routes', () => {
 
   it('returns unauthorized for wrong credentials', async () => {
     const server = Fastify();
+    await server.register(databasePlugin);
 
     authRoutes(server);
 

@@ -6,27 +6,9 @@ import type {
   SessionResponse,
 } from '@rod-manager/shared';
 
-interface SessionRecord {
-  user: AuthUser;
-  expiresAt: number;
-}
-
 const SESSION_COOKIE_NAME = 'rod_manager_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 8;
 const SESSION_TTL_MS = SESSION_TTL_SECONDS * 1000;
-
-const demoUserCredentials = {
-  email: process.env.AUTH_DEMO_EMAIL ?? 'demo@rod-manager.local',
-  password: process.env.AUTH_DEMO_PASSWORD ?? 'demo1234',
-};
-
-const demoUser: AuthUser = {
-  id: 'demo-user',
-  email: demoUserCredentials.email,
-  displayName: 'Demo User',
-};
-
-const sessionStore = new Map<string, SessionRecord>();
 
 function createSessionToken(): string {
   return `${randomUUID()}-${randomBytes(16).toString('hex')}`;
@@ -56,12 +38,11 @@ function parseCookies(
 function setSessionCookie(token: string, shouldExpireNow = false): string {
   const maxAge = shouldExpireNow ? 0 : SESSION_TTL_SECONDS;
   const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
-  const cookieValue = `${SESSION_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${String(maxAge)}${secure}`;
 
-  return cookieValue;
+  return `${SESSION_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${String(maxAge)}${secure}`;
 }
 
-function getSessionFromRequest(cookieHeader: string | undefined) {
+function getSessionTokenFromRequest(cookieHeader: string | undefined) {
   const cookies = parseCookies(cookieHeader);
   const token = cookies[SESSION_COOKIE_NAME];
 
@@ -69,14 +50,7 @@ function getSessionFromRequest(cookieHeader: string | undefined) {
     return undefined;
   }
 
-  const session = sessionStore.get(token);
-
-  if (session === undefined || Date.now() > session.expiresAt) {
-    sessionStore.delete(token);
-    return undefined;
-  }
-
-  return { token, user: session.user };
+  return token;
 }
 
 export default function authRoutes(fastify: FastifyInstance) {
@@ -84,10 +58,11 @@ export default function authRoutes(fastify: FastifyInstance) {
     '/api/auth/login',
     async (request, reply) => {
       const { email, password } = request.body;
+      const user = fastify.authStore.findUserByEmail(email);
 
       if (
-        email !== demoUserCredentials.email ||
-        password !== demoUserCredentials.password
+        user === undefined ||
+        !fastify.authStore.verifyPassword(password, user.passwordHash)
       ) {
         await reply.status(401).send({ message: 'Invalid email or password.' });
         return;
@@ -95,15 +70,20 @@ export default function authRoutes(fastify: FastifyInstance) {
 
       const token = createSessionToken();
 
-      sessionStore.set(token, {
-        user: demoUser,
-        expiresAt: Date.now() + SESSION_TTL_MS,
-      });
+      fastify.authStore.createSession(
+        token,
+        user.id,
+        Date.now() + SESSION_TTL_MS,
+      );
 
       reply.header('set-cookie', setSessionCookie(token));
       const sessionResponse: SessionResponse = {
         authenticated: true,
-        user: demoUser,
+        user: {
+          id: user.id,
+          email: user.email,
+          displayName: user.displayName,
+        },
       };
 
       await reply.send(sessionResponse);
@@ -111,26 +91,41 @@ export default function authRoutes(fastify: FastifyInstance) {
   );
 
   fastify.get('/api/auth/session', async (request, reply) => {
-    const session = getSessionFromRequest(request.headers.cookie);
+    fastify.authStore.deleteExpiredSessions(Date.now());
+    const token = getSessionTokenFromRequest(request.headers.cookie);
 
-    if (session === undefined) {
+    if (token === undefined) {
       await reply.status(401).send({ message: 'Not authenticated.' });
       return;
     }
 
+    const session = fastify.authStore.findSession(token);
+
+    if (session === undefined || Date.now() > session.expiresAt) {
+      fastify.authStore.deleteSession(token);
+      await reply.status(401).send({ message: 'Not authenticated.' });
+      return;
+    }
+
+    const user: AuthUser = {
+      id: session.userId,
+      email: session.userEmail,
+      displayName: session.userDisplayName,
+    };
+
     const sessionResponse: SessionResponse = {
       authenticated: true,
-      user: session.user,
+      user,
     };
 
     await reply.send(sessionResponse);
   });
 
   fastify.post('/api/auth/logout', async (request, reply) => {
-    const session = getSessionFromRequest(request.headers.cookie);
+    const token = getSessionTokenFromRequest(request.headers.cookie);
 
-    if (session !== undefined) {
-      sessionStore.delete(session.token);
+    if (token !== undefined) {
+      fastify.authStore.deleteSession(token);
     }
 
     reply.header('set-cookie', setSessionCookie('', true));
