@@ -1,4 +1,9 @@
-import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import {
+  randomBytes,
+  randomUUID,
+  scryptSync,
+  timingSafeEqual,
+} from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import type { FastifyInstance } from 'fastify';
@@ -38,7 +43,7 @@ export interface AuthStoreSession {
 export interface AuthStore {
   findUserByEmail(email: string): AuthStoreUser | undefined;
   verifyPassword(password: string, passwordHash: string): boolean;
-  createSession(token: string, userId: string, expiresAt: number): void;
+  createSession(userId: string): string;
   findSession(token: string): AuthStoreSession | undefined;
   deleteSession(token: string): void;
   deleteExpiredSessions(now: number): void;
@@ -133,6 +138,10 @@ function seedDemoUser(db: Database.Database): void {
   });
 }
 
+function shouldSeedDemoUser(): boolean {
+  return process.env.AUTH_SEED_DEMO_USER === 'true';
+}
+
 function createStore(db: Database.Database): AuthStore {
   const findUserByEmailStatement = db.prepare<[string], UserRow>(
     `SELECT id, email, display_name, password_hash FROM users WHERE email = ?`,
@@ -173,8 +182,10 @@ function createStore(db: Database.Database): AuthStore {
       };
     },
     verifyPassword,
-    createSession(token, userId, expiresAt) {
-      createSessionStatement.run(token, userId, expiresAt);
+    createSession(userId) {
+      const token = createSessionToken();
+      createSessionStatement.run(token, userId, createSessionExpiration());
+      return token;
     },
     findSession(token) {
       const row = findSessionStatement.get(token);
@@ -207,7 +218,10 @@ export default fp(function databasePlugin(fastify: FastifyInstance) {
   const db = new Database(getDatabasePath());
 
   initializeSchema(db);
-  seedDemoUser(db);
+
+  if (shouldSeedDemoUser()) {
+    seedDemoUser(db);
+  }
 
   fastify.decorate('authStore', createStore(db));
 
@@ -215,3 +229,13 @@ export default fp(function databasePlugin(fastify: FastifyInstance) {
     db.close();
   });
 });
+
+function createSessionToken(): string {
+  return `${randomUUID()}-${randomBytes(16).toString('hex')}`;
+}
+
+const SESSION_TTL_SECONDS = 60 * 60 * 8;
+
+export function createSessionExpiration(now = Date.now()): number {
+  return now + SESSION_TTL_SECONDS * 1000;
+}

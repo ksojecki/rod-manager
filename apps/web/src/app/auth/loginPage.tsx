@@ -8,8 +8,8 @@ export function LoginPage() {
   const { login, status } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('demo@rod-manager.local');
-  const [password, setPassword] = useState('demo1234');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,7 +39,6 @@ export function LoginPage() {
   return (
     <section className="mx-auto w-full max-w-md rounded-box bg-base-100 p-6 shadow">
       <h1 className="text-2xl font-semibold">{t('title')}</h1>
-      <p className="mt-2 text-sm text-base-content/70">{t('hint')}</p>
 
       <form
         className="mt-6 space-y-4"

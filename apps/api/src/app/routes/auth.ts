@@ -1,57 +1,10 @@
-import { randomBytes, randomUUID } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import type {
   AuthUser,
   LoginRequestBody,
   SessionResponse,
 } from '@rod-manager/shared';
-
-const SESSION_COOKIE_NAME = 'rod_manager_session';
-const SESSION_TTL_SECONDS = 60 * 60 * 8;
-const SESSION_TTL_MS = SESSION_TTL_SECONDS * 1000;
-
-function createSessionToken(): string {
-  return `${randomUUID()}-${randomBytes(16).toString('hex')}`;
-}
-
-function parseCookies(
-  cookieHeader: string | undefined,
-): Partial<Record<string, string>> {
-  if (cookieHeader === undefined || cookieHeader.trim() === '') {
-    return {};
-  }
-
-  return cookieHeader
-    .split(';')
-    .reduce<Partial<Record<string, string>>>((acc, cookie) => {
-      const [rawName, ...rawValueParts] = cookie.trim().split('=');
-
-      if (rawName.length === 0 || rawValueParts.length === 0) {
-        return acc;
-      }
-
-      acc[rawName] = decodeURIComponent(rawValueParts.join('='));
-      return acc;
-    }, {});
-}
-
-function setSessionCookie(token: string, shouldExpireNow = false): string {
-  const maxAge = shouldExpireNow ? 0 : SESSION_TTL_SECONDS;
-  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
-
-  return `${SESSION_COOKIE_NAME}=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${String(maxAge)}${secure}`;
-}
-
-function getSessionTokenFromRequest(cookieHeader: string | undefined) {
-  const cookies = parseCookies(cookieHeader);
-  const token = cookies[SESSION_COOKIE_NAME];
-
-  if (token === undefined) {
-    return undefined;
-  }
-
-  return token;
-}
+import { SESSION_COOKIE_NAME } from '../plugins/cookie';
 
 export default function authRoutes(fastify: FastifyInstance) {
   fastify.post<{ Body: LoginRequestBody }>(
@@ -68,15 +21,8 @@ export default function authRoutes(fastify: FastifyInstance) {
         return;
       }
 
-      const token = createSessionToken();
-
-      fastify.authStore.createSession(
-        token,
-        user.id,
-        Date.now() + SESSION_TTL_MS,
-      );
-
-      reply.header('set-cookie', setSessionCookie(token));
+      const token = fastify.authStore.createSession(user.id);
+      reply.setSessionCookie(token);
       const sessionResponse: SessionResponse = {
         authenticated: true,
         user: {
@@ -92,7 +38,7 @@ export default function authRoutes(fastify: FastifyInstance) {
 
   fastify.get('/api/auth/session', async (request, reply) => {
     fastify.authStore.deleteExpiredSessions(Date.now());
-    const token = getSessionTokenFromRequest(request.headers.cookie);
+    const token = request.cookies[SESSION_COOKIE_NAME];
 
     if (token === undefined) {
       await reply.status(401).send({ message: 'Not authenticated.' });
@@ -122,13 +68,13 @@ export default function authRoutes(fastify: FastifyInstance) {
   });
 
   fastify.post('/api/auth/logout', async (request, reply) => {
-    const token = getSessionTokenFromRequest(request.headers.cookie);
+    const token = request.cookies[SESSION_COOKIE_NAME];
 
     if (token !== undefined) {
       fastify.authStore.deleteSession(token);
     }
 
-    reply.header('set-cookie', setSessionCookie('', true));
+    reply.clearSessionCookie();
     await reply.status(204).send();
   });
 }

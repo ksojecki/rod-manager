@@ -1,19 +1,24 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import databasePlugin from '../plugins/database';
+import cookiePlugin from '../plugins/cookie';
 import authRoutes from './auth';
+import { SESSION_COOKIE_NAME } from '../plugins/cookie';
 
 describe('auth routes', () => {
   beforeEach(() => {
     process.env.AUTH_DB_PATH = ':memory:';
+    process.env.AUTH_SEED_DEMO_USER = 'true';
   });
 
   afterEach(() => {
     delete process.env.AUTH_DB_PATH;
+    delete process.env.AUTH_SEED_DEMO_USER;
   });
 
   it('creates a session on successful login and returns it', async () => {
     const server = Fastify();
+    await server.register(cookiePlugin);
     await server.register(databasePlugin);
 
     authRoutes(server);
@@ -30,7 +35,7 @@ describe('auth routes', () => {
     expect(loginResponse.statusCode).toBe(200);
 
     const sessionCookie = loginResponse.cookies.find(
-      (cookie) => cookie.name === 'rod_manager_session',
+      (cookie) => cookie.name === SESSION_COOKIE_NAME,
     );
 
     expect(sessionCookie).toBeDefined();
@@ -39,7 +44,7 @@ describe('auth routes', () => {
       method: 'GET',
       url: '/api/auth/session',
       cookies: {
-        rod_manager_session: sessionCookie?.value ?? '',
+        [SESSION_COOKIE_NAME]: sessionCookie?.value ?? '',
       },
     });
 
@@ -58,6 +63,7 @@ describe('auth routes', () => {
 
   it('returns unauthorized for wrong credentials', async () => {
     const server = Fastify();
+    await server.register(cookiePlugin);
     await server.register(databasePlugin);
 
     authRoutes(server);
