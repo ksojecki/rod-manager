@@ -11,19 +11,6 @@ interface RenderModule {
   render: RenderFunction;
 }
 
-function isApiRequest(url: string): boolean {
-  return url === '/api' || url.startsWith('/api/');
-}
-
-async function renderPage(
-  url: string,
-  template: string,
-  render: RenderFunction,
-): Promise<string> {
-  const appHtml = await render(url);
-  return template.replace('<!--ssr-outlet-->', appHtml);
-}
-
 export default async function (fastify: FastifyInstance) {
   const webRoot = path.resolve(process.cwd(), 'apps/web');
   const isProduction = process.env.NODE_ENV === 'production';
@@ -118,4 +105,17 @@ export default async function (fastify: FastifyInstance) {
       return;
     }
   });
+}
+
+function isApiRequest(url: string): boolean {
+  return url === '/api' || url.startsWith('/api/');
+}
+
+async function renderPage(
+  url: string,
+  template: string,
+  render: RenderFunction,
+): Promise<string> {
+  const appHtml = await render(url);
+  return template.replace('<!--ssr-outlet-->', appHtml);
 }

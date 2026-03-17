@@ -10,21 +10,6 @@ import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import Database from 'better-sqlite3';
 
-interface UserRow {
-  id: string;
-  email: string;
-  display_name: string;
-  password_hash: string;
-}
-
-interface SessionRow {
-  token: string;
-  user_id: string;
-  expires_at: number;
-  email: string;
-  display_name: string;
-}
-
 export interface AuthStoreUser {
   id: string;
   email: string;
@@ -49,11 +34,51 @@ export interface AuthStore {
   deleteExpiredSessions(now: number): void;
 }
 
+interface UserRow {
+  id: string;
+  email: string;
+  display_name: string;
+  password_hash: string;
+}
+
+interface SessionRow {
+  token: string;
+  user_id: string;
+  expires_at: number;
+  email: string;
+  display_name: string;
+}
+
 declare module 'fastify' {
   interface FastifyInstance {
     authStore: AuthStore;
   }
 }
+
+const SESSION_TTL_SECONDS = 60 * 60 * 8;
+
+export function createSessionExpiration(now = Date.now()): number {
+  return now + SESSION_TTL_SECONDS * 1000;
+}
+
+/**
+ * Registers SQLite-backed store for authentication and session persistence.
+ */
+export default fp(function databasePlugin(fastify: FastifyInstance) {
+  const db = new Database(getDatabasePath());
+
+  initializeSchema(db);
+
+  if (shouldSeedDemoUser()) {
+    seedDemoUser(db);
+  }
+
+  fastify.decorate('authStore', createStore(db));
+
+  fastify.addHook('onClose', async () => {
+    db.close();
+  });
+});
 
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString('hex');
@@ -211,31 +236,6 @@ function createStore(db: Database.Database): AuthStore {
   };
 }
 
-/**
- * Registers SQLite-backed store for authentication and session persistence.
- */
-export default fp(function databasePlugin(fastify: FastifyInstance) {
-  const db = new Database(getDatabasePath());
-
-  initializeSchema(db);
-
-  if (shouldSeedDemoUser()) {
-    seedDemoUser(db);
-  }
-
-  fastify.decorate('authStore', createStore(db));
-
-  fastify.addHook('onClose', async () => {
-    db.close();
-  });
-});
-
 function createSessionToken(): string {
   return `${randomUUID()}-${randomBytes(16).toString('hex')}`;
-}
-
-const SESSION_TTL_SECONDS = 60 * 60 * 8;
-
-export function createSessionExpiration(now = Date.now()): number {
-  return now + SESSION_TTL_SECONDS * 1000;
 }

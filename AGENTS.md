@@ -37,6 +37,8 @@
 - Ignore generated artifacts in formatting and VCS (`.prettierignore`, `.gitignore` include `dist`, `coverage`, `.nx/*`).
 - ESLint uses flat config in `eslint.config.mjs` with Nx lint inference from `@nx/eslint/plugin` in `nx.json`.
 - TypeScript lint enforces `@typescript-eslint/no-explicit-any` and `@typescript-eslint/no-floating-promises`.
+- Keep top-level declaration order as: exported types, local types, constants, exported functions, local functions.
+- Allow exceptions only when this order breaks compilation; in such cases add a local ESLint disable with a short reason.
 - Public class methods require JSDoc description (`jsdoc/require-jsdoc` + `jsdoc/require-description`).
 - TS output intent is declaration-focused (`emitDeclarationOnly: true` in `tsconfig.base.json`), so library packaging should expect `.d.ts` generation.
 - `customConditions` includes `@rod-manager/source`; keep this in mind when introducing conditional exports/resolution.

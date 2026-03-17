@@ -9,6 +9,13 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const defaultDevKeyPath = '.cert/localhost-key.pem';
 const defaultDevCertPath = '.cert/localhost-cert.pem';
+const httpsOptions = getHttpsOptions();
+
+// Instantiate Fastify with some config
+const server = Fastify({
+  logger: true,
+  https: httpsOptions,
+}) as FastifyInstance;
 
 function getHttpsOptions() {
   const httpsKeyPath =
@@ -35,13 +42,6 @@ function getHttpsOptions() {
     cert: readFileSync(httpsCertPath),
   };
 }
-const httpsOptions = getHttpsOptions();
-
-// Instantiate Fastify with some config
-const server = Fastify({
-  logger: true,
-  https: httpsOptions,
-}) as FastifyInstance;
 
 // Register your application as a normal plugin.
 server.register(app);

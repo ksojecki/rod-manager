@@ -85,6 +85,31 @@ export default [
         },
       ],
       'no-unused-vars': 'off',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "Program > :matches(VariableDeclaration[kind='const'],ExportNamedDeclaration:has(> VariableDeclaration[kind='const']),FunctionDeclaration,ExportNamedDeclaration:has(> FunctionDeclaration),ExportDefaultDeclaration:has(> FunctionDeclaration)) ~ :matches(TSInterfaceDeclaration,TSTypeAliasDeclaration,ExportNamedDeclaration:has(> TSInterfaceDeclaration),ExportNamedDeclaration:has(> TSTypeAliasDeclaration))",
+          message:
+            'Keep top-level declaration order as: exported types, local types, constants, exported functions, local functions.',
+        },
+        {
+          selector:
+            "Program > :matches(FunctionDeclaration,ExportNamedDeclaration:has(> FunctionDeclaration),ExportDefaultDeclaration:has(> FunctionDeclaration)) ~ :matches(VariableDeclaration[kind='const'],ExportNamedDeclaration:has(> VariableDeclaration[kind='const']))",
+          message:
+            'Keep top-level declaration order as: exported types, local types, constants, exported functions, local functions.',
+        },
+        {
+          selector:
+            'Program > :matches(TSInterfaceDeclaration,TSTypeAliasDeclaration) ~ :matches(ExportNamedDeclaration:has(> TSInterfaceDeclaration),ExportNamedDeclaration:has(> TSTypeAliasDeclaration))',
+          message: 'Place exported types before non-exported types.',
+        },
+        {
+          selector:
+            'Program > FunctionDeclaration ~ :matches(ExportNamedDeclaration:has(> FunctionDeclaration),ExportDefaultDeclaration:has(> FunctionDeclaration))',
+          message: 'Place exported functions before non-exported functions.',
+        },
+      ],
 
       // Public methods must have documented intent
       'jsdoc/require-jsdoc': [
