@@ -10,11 +10,24 @@ import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import Database from 'better-sqlite3';
 
+export type OAuthProviderType = 'google' | 'apple' | 'facebook';
+
 export interface AuthStoreUser {
   id: string;
   email: string;
   displayName: string;
   passwordHash: string;
+}
+
+export interface OAuthProviderData {
+  id: string;
+  userId: string;
+  provider: OAuthProviderType;
+  providerUserId: string;
+  accessToken: string;
+  refreshToken: string | null;
+  accessTokenExpiresAt: number;
+  createdAt: number;
 }
 
 export interface AuthStoreSession {
@@ -27,6 +40,36 @@ export interface AuthStoreSession {
 
 export interface AuthStore {
   findUserByEmail(email: string): AuthStoreUser | undefined;
+  findUserByOAuthProvider(
+    provider: OAuthProviderType,
+    providerUserId: string,
+  ): AuthStoreUser | undefined;
+  findOrCreateUserByOAuth(
+    provider: OAuthProviderType,
+    providerUserId: string,
+    email: string,
+    displayName: string,
+  ): AuthStoreUser;
+  linkOAuthProvider(
+    userId: string,
+    provider: OAuthProviderType,
+    providerUserId: string,
+    accessToken: string,
+    refreshToken: string | null,
+    accessTokenExpiresAt: number,
+  ): void;
+  unlinkOAuthProvider(userId: string, provider: OAuthProviderType): void;
+  getOAuthProvider(
+    userId: string,
+    provider: OAuthProviderType,
+  ): OAuthProviderData | undefined;
+  updateOAuthToken(
+    userId: string,
+    provider: OAuthProviderType,
+    accessToken: string,
+    refreshToken: string | null,
+    accessTokenExpiresAt: number,
+  ): void;
   verifyPassword(password: string, passwordHash: string): boolean;
   createSession(userId: string): string;
   findSession(token: string): AuthStoreSession | undefined;
@@ -47,6 +90,17 @@ interface SessionRow {
   expires_at: number;
   email: string;
   display_name: string;
+}
+
+interface OAuthProviderRow {
+  id: string;
+  user_id: string;
+  provider: OAuthProviderType;
+  provider_user_id: string;
+  access_token: string;
+  refresh_token: string | null;
+  access_token_expires_at: number;
+  created_at: number;
 }
 
 declare module 'fastify' {
@@ -141,7 +195,21 @@ function initializeSchema(db: Database.Database): void {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS oauth_providers (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      provider TEXT NOT NULL,
+      provider_user_id TEXT NOT NULL,
+      access_token TEXT NOT NULL,
+      refresh_token TEXT,
+      access_token_expires_at INTEGER NOT NULL,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      UNIQUE(provider, provider_user_id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
+    CREATE INDEX IF NOT EXISTS idx_oauth_providers_user_id ON oauth_providers(user_id);
   `);
 }
 
@@ -170,6 +238,43 @@ function shouldSeedDemoUser(): boolean {
 function createStore(db: Database.Database): AuthStore {
   const findUserByEmailStatement = db.prepare<[string], UserRow>(
     `SELECT id, email, display_name, password_hash FROM users WHERE email = ?`,
+  );
+
+  const findUserByOAuthProviderStatement = db.prepare<
+    [string, string],
+    UserRow
+  >(
+    `SELECT u.id, u.email, u.display_name, u.password_hash FROM users u
+      JOIN oauth_providers o ON u.id = o.user_id
+      WHERE o.provider = ? AND o.provider_user_id = ?`,
+  );
+
+  const createUserStatement = db.prepare(
+    `INSERT INTO users (id, email, password_hash, display_name)
+      VALUES (?, ?, ?, ?)`,
+  );
+
+  const createOAuthProviderStatement = db.prepare(
+    `INSERT INTO oauth_providers (id, user_id, provider, provider_user_id, access_token, refresh_token, access_token_expires_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  );
+
+  const getOAuthProviderStatement = db.prepare<
+    [string, string],
+    OAuthProviderRow
+  >(
+    `SELECT id, user_id, provider, provider_user_id, access_token, refresh_token, access_token_expires_at, created_at
+      FROM oauth_providers
+      WHERE user_id = ? AND provider = ?`,
+  );
+
+  const updateOAuthTokenStatement = db.prepare(
+    `UPDATE oauth_providers SET access_token = ?, refresh_token = ?, access_token_expires_at = ?
+      WHERE user_id = ? AND provider = ?`,
+  );
+
+  const deleteOAuthProviderStatement = db.prepare(
+    `DELETE FROM oauth_providers WHERE user_id = ? AND provider = ?`,
   );
 
   const createSessionStatement = db.prepare(
@@ -205,6 +310,110 @@ function createStore(db: Database.Database): AuthStore {
         displayName: row.display_name,
         passwordHash: row.password_hash,
       };
+    },
+    findUserByOAuthProvider(provider, providerUserId) {
+      const row = findUserByOAuthProviderStatement.get(
+        provider,
+        providerUserId,
+      );
+
+      if (row === undefined) {
+        return undefined;
+      }
+
+      return {
+        id: row.id,
+        email: row.email,
+        displayName: row.display_name,
+        passwordHash: row.password_hash,
+      };
+    },
+    findOrCreateUserByOAuth(provider, providerUserId, email, displayName) {
+      // Check if OAuth provider is already linked
+      const oauthUser = this.findUserByOAuthProvider(provider, providerUserId);
+      if (oauthUser !== undefined) {
+        return oauthUser;
+      }
+
+      // Check if user with this email exists
+      const existingUser = this.findUserByEmail(email);
+      const userId = existingUser?.id ?? randomUUID();
+
+      if (existingUser === undefined) {
+        // Create new user with random password (OAuth user doesn't have password)
+        const randomPassword = randomBytes(32).toString('hex');
+        createUserStatement.run(
+          userId,
+          email,
+          hashPassword(randomPassword),
+          displayName,
+        );
+      }
+
+      // Link OAuth provider
+      this.linkOAuthProvider(userId, provider, providerUserId, '', null, 0);
+
+      return {
+        id: userId,
+        email,
+        displayName,
+        passwordHash: '',
+      };
+    },
+    linkOAuthProvider(
+      userId,
+      provider,
+      providerUserId,
+      accessToken,
+      refreshToken,
+      accessTokenExpiresAt,
+    ) {
+      const id = randomUUID();
+      createOAuthProviderStatement.run(
+        id,
+        userId,
+        provider,
+        providerUserId,
+        accessToken,
+        refreshToken,
+        accessTokenExpiresAt,
+      );
+    },
+    unlinkOAuthProvider(userId, provider) {
+      deleteOAuthProviderStatement.run(userId, provider);
+    },
+    getOAuthProvider(userId, provider) {
+      const row = getOAuthProviderStatement.get(userId, provider);
+
+      if (row === undefined) {
+        return undefined;
+      }
+
+      return {
+        id: row.id,
+        userId: row.user_id,
+        provider: row.provider,
+        providerUserId: row.provider_user_id,
+        accessToken: row.access_token,
+        refreshToken: row.refresh_token,
+        accessTokenExpiresAt: row.access_token_expires_at,
+        createdAt: row.created_at,
+      };
+    },
+    updateOAuthToken(
+      userId,
+      provider,
+      accessToken,
+      refreshToken,
+      accessTokenExpiresAt,
+    ) {
+      updateOAuthTokenStatement.run(
+        accessToken,
+        refreshToken,
+        accessTokenExpiresAt,
+        userId,
+        provider,
+      );
     },
     verifyPassword,
     createSession(userId) {

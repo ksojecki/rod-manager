@@ -49,6 +49,47 @@
 - Nx Cloud is configured (`nxCloudId` in `nx.json`); distributed agents are prepared but currently commented in CI.
 - Release flow is expected via `npx nx release --no-tui` (documented in `README.md`).
 
+## Authentication & OAuth
+
+### Architecture Overview
+
+- **Backend (Fastify)**: OAuth plugin (`apps/api/src/app/plugins/oauth.ts`) handles provider communication via OAuth 2.0 with PKCE.
+- **Database**: SQLite `oauth_providers` table stores provider credentials per user; supports Google, Apple, and Facebook.
+- **Frontend (React)**: OAuth flow initiated on login page with state/code verifier stored in session storage; callback handler manages token exchange.
+- **Session Management**: After OAuth callback, standard session cookie is created (no OAuth tokens returned to frontend).
+
+### OAuth Environment Variables
+
+Provider credentials must be configured via environment variables:
+
+- `OAUTH_GOOGLE_CLIENT_ID` / `OAUTH_GOOGLE_CLIENT_SECRET` — Google OAuth 2.0 app credentials.
+- `OAUTH_APPLE_CLIENT_ID` / `OAUTH_APPLE_CLIENT_SECRET` / `OAUTH_APPLE_TEAM_ID` — Apple Sign In credentials.
+- `OAUTH_FACEBOOK_CLIENT_ID` / `OAUTH_FACEBOOK_CLIENT_SECRET` — Facebook app credentials.
+- `OAUTH_REDIRECT_BASE_URL` — Base URL for OAuth callbacks (default: `http://localhost:3000`); must match provider redirect URI config.
+
+### Adding a New OAuth Provider
+
+1. **Extend `OAuthProviderType`** in `libs/shared/src/lib/auth.dto.ts` to include new provider string literal.
+2. **Update OAuth plugin** (`apps/api/src/app/plugins/oauth.ts`):
+   - Add provider config block in `oauthPlugin` function.
+   - Implement user info parsing in `getUserInfo()` method (handle provider-specific response format).
+   - Implement token refresh in `refreshAccessToken()` if provider supports refresh tokens.
+3. **Update OAuth routes** (`apps/api/src/app/routes/oauth.ts`) if new authorization/callback flow differs from standard OAuth 2.0.
+4. **Update login page** (`apps/web/src/app/auth/loginPage.tsx`) to add provider button and call `initiateOAuth()`.
+
+### Code Structure
+
+- **Backend Routes**: `POST /api/auth/oauth/authorize/:provider` (initiate), `GET /api/auth/oauth/callback/:provider` (callback), `DELETE /api/auth/oauth/link/:provider` (unlink).
+- **Frontend Pages**: `LoginPage` (OAuth button trigger), `OAuthCallbackPage` (callback handler).
+- **Shared Types**: `OAuthProviderType`, `OAuthInitiateRequestBody`, `OAuthUserInfo` in `libs/shared/src/lib/auth.dto.ts`.
+
+### Security Considerations
+
+- PKCE (Proof Key for Code Exchange) used for all OAuth flows; code verifier generated per authorization and validated at callback.
+- OAuth state stored in browser `sessionStorage` with 10-minute expiration; validated on callback.
+- Access tokens NOT returned to frontend; stored server-side in database, refreshed as needed.
+- Email auto-verified on OAuth login (implicit account linking if email matches); explicit confirmation recommended for production.
+
 ## When Adding a New Project
 
 - Prefer Nx generators (example from `README.md`):
