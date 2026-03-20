@@ -8,12 +8,12 @@ import { SESSION_COOKIE_NAME } from '../plugins/cookie';
 describe('auth routes', () => {
   beforeEach(() => {
     process.env.AUTH_DB_PATH = ':memory:';
-    process.env.AUTH_SEED_DEMO_USER = 'true';
+    process.env.AUTH_SEED_INITIAL_USER = 'true';
   });
 
   afterEach(() => {
     delete process.env.AUTH_DB_PATH;
-    delete process.env.AUTH_SEED_DEMO_USER;
+    delete process.env.AUTH_SEED_INITIAL_USER;
   });
 
   it('creates a session on successful login and returns it', async () => {
@@ -27,8 +27,8 @@ describe('auth routes', () => {
       method: 'POST',
       url: '/api/auth/login',
       payload: {
-        email: 'demo@rod-manager.local',
-        password: 'demo1234',
+        email: 'admin@rod-manager.local',
+        password: 'admin1234',
       },
     });
 
@@ -52,9 +52,10 @@ describe('auth routes', () => {
     expect(sessionResponse.json()).toEqual({
       authenticated: true,
       user: {
-        id: 'demo-user',
-        email: 'demo@rod-manager.local',
-        displayName: 'Demo User',
+        id: 'initial-admin-user',
+        email: 'admin@rod-manager.local',
+        displayName: 'Administrator',
+        role: 'admin',
       },
     });
 
@@ -72,7 +73,7 @@ describe('auth routes', () => {
       method: 'POST',
       url: '/api/auth/login',
       payload: {
-        email: 'demo@rod-manager.local',
+        email: 'admin@rod-manager.local',
         password: 'wrong-password',
       },
     });

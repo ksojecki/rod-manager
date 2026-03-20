@@ -9,6 +9,7 @@ import { dirname, resolve } from 'node:path';
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import Database from 'better-sqlite3';
+import type { UserRole } from '@rod-manager/shared';
 
 export type OAuthProviderType = 'google' | 'apple' | 'facebook';
 
@@ -16,6 +17,7 @@ export interface AuthStoreUser {
   id: string;
   email: string;
   displayName: string;
+  role: UserRole;
   passwordHash: string;
 }
 
@@ -36,6 +38,7 @@ export interface AuthStoreSession {
   expiresAt: number;
   userEmail: string;
   userDisplayName: string;
+  userRole: UserRole;
 }
 
 export interface AuthStore {
@@ -81,6 +84,7 @@ interface UserRow {
   id: string;
   email: string;
   display_name: string;
+  role: UserRole;
   password_hash: string;
 }
 
@@ -90,6 +94,11 @@ interface SessionRow {
   expires_at: number;
   email: string;
   display_name: string;
+  role: UserRole;
+}
+
+interface CountRow {
+  count: number;
 }
 
 interface OAuthProviderRow {
@@ -122,10 +131,13 @@ export default fp(function databasePlugin(fastify: FastifyInstance) {
   const db = new Database(getDatabasePath());
 
   initializeSchema(db);
+  ensureUserRoleColumn(db);
 
-  if (shouldSeedDemoUser()) {
-    seedDemoUser(db);
+  if (shouldSeedInitialUser()) {
+    seedInitialUser(db);
   }
+
+  ensureAdministratorExists(db);
 
   fastify.decorate('authStore', createStore(db));
 
@@ -184,6 +196,7 @@ function initializeSchema(db: Database.Database): void {
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       display_name TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
       created_at INTEGER NOT NULL DEFAULT (unixepoch())
     );
 
@@ -213,45 +226,97 @@ function initializeSchema(db: Database.Database): void {
   `);
 }
 
-function seedDemoUser(db: Database.Database): void {
-  const demoEmail = process.env.AUTH_DEMO_EMAIL ?? 'demo@rod-manager.local';
-  const demoPassword = process.env.AUTH_DEMO_PASSWORD ?? 'demo1234';
+function ensureUserRoleColumn(db: Database.Database): void {
+  const userColumns = db
+    .prepare<[], { name: string }>(`PRAGMA table_info('users')`)
+    .all();
+
+  const hasRoleColumn = userColumns.some((column) => column.name === 'role');
+
+  if (!hasRoleColumn) {
+    db.exec(`ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'`);
+  }
 
   db.prepare(
-    `INSERT INTO users (id, email, password_hash, display_name)
-      VALUES (@id, @email, @password_hash, @display_name)
+    `UPDATE users SET role = 'user' WHERE role NOT IN ('admin', 'user')`,
+  ).run();
+}
+
+function seedInitialUser(db: Database.Database): void {
+  const initialUserEmail =
+    process.env.AUTH_INITIAL_USER_EMAIL ?? 'admin@rod-manager.local';
+  const initialUserPassword =
+    process.env.AUTH_INITIAL_USER_PASSWORD ?? 'admin1234';
+
+  db.prepare(
+    `INSERT INTO users (id, email, password_hash, display_name, role)
+      VALUES (@id, @email, @password_hash, @display_name, @role)
       ON CONFLICT(email) DO UPDATE SET
         password_hash = excluded.password_hash,
-        display_name = excluded.display_name`,
+        display_name = excluded.display_name,
+        role = excluded.role`,
   ).run({
-    id: 'demo-user',
-    email: demoEmail,
-    password_hash: hashPassword(demoPassword),
-    display_name: 'Demo User',
+    id: 'initial-admin-user',
+    email: initialUserEmail,
+    password_hash: hashPassword(initialUserPassword),
+    display_name: 'Administrator',
+    role: 'admin' satisfies UserRole,
   });
 }
 
-function shouldSeedDemoUser(): boolean {
-  return process.env.AUTH_SEED_DEMO_USER === 'true';
+function shouldSeedInitialUser(): boolean {
+  return process.env.AUTH_SEED_INITIAL_USER === 'true';
+}
+
+function ensureAdministratorExists(db: Database.Database): void {
+  const adminCount = db
+    .prepare<
+      [],
+      CountRow
+    >(`SELECT COUNT(*) AS count FROM users WHERE role = 'admin'`)
+    .get();
+
+  if ((adminCount?.count ?? 0) > 0) {
+    return;
+  }
+
+  db.prepare(
+    `UPDATE users
+      SET role = 'admin'
+      WHERE id = (
+        SELECT id
+        FROM users
+        ORDER BY created_at ASC, rowid ASC
+        LIMIT 1
+      )`,
+  ).run();
+}
+
+function getRoleForNewUser(db: Database.Database): UserRole {
+  const userCount = db
+    .prepare<[], CountRow>(`SELECT COUNT(*) AS count FROM users`)
+    .get();
+
+  return (userCount?.count ?? 0) === 0 ? 'admin' : 'user';
 }
 
 function createStore(db: Database.Database): AuthStore {
   const findUserByEmailStatement = db.prepare<[string], UserRow>(
-    `SELECT id, email, display_name, password_hash FROM users WHERE email = ?`,
+    `SELECT id, email, display_name, role, password_hash FROM users WHERE email = ?`,
   );
 
   const findUserByOAuthProviderStatement = db.prepare<
     [string, string],
     UserRow
   >(
-    `SELECT u.id, u.email, u.display_name, u.password_hash FROM users u
+    `SELECT u.id, u.email, u.display_name, u.role, u.password_hash FROM users u
       JOIN oauth_providers o ON u.id = o.user_id
       WHERE o.provider = ? AND o.provider_user_id = ?`,
   );
 
   const createUserStatement = db.prepare(
-    `INSERT INTO users (id, email, password_hash, display_name)
-      VALUES (?, ?, ?, ?)`,
+    `INSERT INTO users (id, email, password_hash, display_name, role)
+      VALUES (?, ?, ?, ?, ?)`,
   );
 
   const createOAuthProviderStatement = db.prepare(
@@ -282,7 +347,7 @@ function createStore(db: Database.Database): AuthStore {
   );
 
   const findSessionStatement = db.prepare<[string], SessionRow>(
-    `SELECT s.token, s.user_id, s.expires_at, u.email, u.display_name
+    `SELECT s.token, s.user_id, s.expires_at, u.email, u.display_name, u.role
       FROM sessions s
       JOIN users u ON u.id = s.user_id
       WHERE s.token = ?`,
@@ -308,6 +373,7 @@ function createStore(db: Database.Database): AuthStore {
         id: row.id,
         email: row.email,
         displayName: row.display_name,
+        role: row.role,
         passwordHash: row.password_hash,
       };
     },
@@ -325,6 +391,7 @@ function createStore(db: Database.Database): AuthStore {
         id: row.id,
         email: row.email,
         displayName: row.display_name,
+        role: row.role,
         passwordHash: row.password_hash,
       };
     },
@@ -342,12 +409,24 @@ function createStore(db: Database.Database): AuthStore {
       if (existingUser === undefined) {
         // Create new user with random password (OAuth user doesn't have password)
         const randomPassword = randomBytes(32).toString('hex');
+        const role = getRoleForNewUser(db);
         createUserStatement.run(
           userId,
           email,
           hashPassword(randomPassword),
           displayName,
+          role,
         );
+
+        this.linkOAuthProvider(userId, provider, providerUserId, '', null, 0);
+
+        return {
+          id: userId,
+          email,
+          displayName,
+          role,
+          passwordHash: '',
+        };
       }
 
       // Link OAuth provider
@@ -357,6 +436,7 @@ function createStore(db: Database.Database): AuthStore {
         id: userId,
         email,
         displayName,
+        role: existingUser.role,
         passwordHash: '',
       };
     },
@@ -434,6 +514,7 @@ function createStore(db: Database.Database): AuthStore {
         expiresAt: row.expires_at,
         userEmail: row.email,
         userDisplayName: row.display_name,
+        userRole: row.role,
       };
     },
     deleteSession(token) {

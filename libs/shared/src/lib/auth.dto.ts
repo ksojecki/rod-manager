@@ -1,9 +1,12 @@
 export type OAuthProviderType = 'google' | 'apple' | 'facebook';
 
+export type UserRole = 'admin' | 'user';
+
 export interface AuthUser {
   id: string;
   email: string;
   displayName: string;
+  role: UserRole;
 }
 
 export interface LoginRequestBody {

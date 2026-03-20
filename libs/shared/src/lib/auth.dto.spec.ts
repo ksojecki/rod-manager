@@ -4,13 +4,13 @@ import type { LoginRequestBody, SessionResponse } from './auth.dto';
 describe('auth dto', () => {
   it('matches expected login payload shape', () => {
     const payload: LoginRequestBody = {
-      email: 'demo@rod-manager.local',
-      password: 'demo1234',
+      email: 'admin@rod-manager.local',
+      password: 'admin1234',
     };
 
     expect(payload).toEqual({
-      email: 'demo@rod-manager.local',
-      password: 'demo1234',
+      email: 'admin@rod-manager.local',
+      password: 'admin1234',
     });
   });
 
@@ -18,12 +18,13 @@ describe('auth dto', () => {
     const response: SessionResponse = {
       authenticated: true,
       user: {
-        id: 'demo-user',
-        email: 'demo@rod-manager.local',
-        displayName: 'Demo User',
+        id: 'initial-admin-user',
+        email: 'admin@rod-manager.local',
+        displayName: 'Administrator',
+        role: 'admin',
       },
     };
 
-    expect(response.user.email).toBe('demo@rod-manager.local');
+    expect(response.user.email).toBe('admin@rod-manager.local');
   });
 });

@@ -29,6 +29,7 @@ export default function authRoutes(fastify: FastifyInstance) {
           id: user.id,
           email: user.email,
           displayName: user.displayName,
+          role: user.role,
         },
       };
 
@@ -57,6 +58,7 @@ export default function authRoutes(fastify: FastifyInstance) {
       id: session.userId,
       email: session.userEmail,
       displayName: session.userDisplayName,
+      role: session.userRole,
     };
 
     const sessionResponse: SessionResponse = {
