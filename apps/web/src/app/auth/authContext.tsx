@@ -21,6 +21,7 @@ interface AuthContextValue {
   status: AuthStatus;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -62,8 +63,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
       status,
       login,
       logout,
+      refreshSession,
     }),
-    [login, logout, status, user],
+    [login, logout, refreshSession, status, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -2,6 +2,8 @@ export type OAuthProviderType = 'google' | 'apple' | 'facebook';
 
 export type UserRole = 'admin' | 'user';
 
+export type OAuthIntent = 'login' | 'link';
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -26,10 +28,30 @@ export interface OAuthCallbackQueryParams {
   provider: OAuthProviderType;
 }
 
+export interface OAuthCallbackRequestBody {
+  code: string;
+  state: string;
+}
+
+export interface OAuthCallbackResponseBody {
+  intent: OAuthIntent;
+  redirectTo: string;
+  message?: string;
+}
+
 export interface OAuthTokenResponseBody {
   accessToken: string;
   accessTokenExpiresIn: number;
   refreshToken?: string;
+}
+
+export interface OAuthProviderStatus {
+  provider: OAuthProviderType;
+  linked: boolean;
+}
+
+export interface OAuthProvidersResponseBody {
+  providers: OAuthProviderStatus[];
 }
 
 export interface OAuthUserInfo {

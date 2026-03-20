@@ -1,7 +1,10 @@
 import type {
   ApiErrorResponse,
   LoginRequestBody,
+  OAuthCallbackRequestBody,
+  OAuthCallbackResponseBody,
   OAuthProviderType,
+  OAuthProvidersResponseBody,
   SessionResponse,
 } from '@rod-manager/shared';
 
@@ -30,6 +33,52 @@ export async function initiateOAuth(
       method: 'POST',
     },
   );
+}
+
+export async function linkOAuthProvider(
+  provider: OAuthProviderType,
+): Promise<OAuthInitiateResponse> {
+  return requestJson<OAuthInitiateResponse>(
+    `/api/auth/oauth/link/${provider}`,
+    {
+      method: 'POST',
+    },
+  );
+}
+
+export async function completeOAuthCallback(
+  provider: OAuthProviderType,
+  input: OAuthCallbackRequestBody,
+): Promise<OAuthCallbackResponseBody> {
+  return requestJson<OAuthCallbackResponseBody>(
+    `/api/auth/oauth/callback/${provider}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    },
+  );
+}
+
+export async function loadOAuthProviders(): Promise<OAuthProvidersResponseBody> {
+  return requestJson<OAuthProvidersResponseBody>('/api/auth/oauth/providers', {
+    method: 'GET',
+  });
+}
+
+export async function unlinkOAuthProvider(
+  provider: OAuthProviderType,
+): Promise<void> {
+  const response = await fetch(`/api/auth/oauth/link/${provider}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseErrorMessage(response));
+  }
 }
 
 export async function loadSession(): Promise<SessionResponse> {

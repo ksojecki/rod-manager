@@ -42,6 +42,7 @@ export interface AuthStoreSession {
 }
 
 export interface AuthStore {
+  findUserById(id: string): AuthStoreUser | undefined;
   findUserByEmail(email: string): AuthStoreUser | undefined;
   findUserByOAuthProvider(
     provider: OAuthProviderType,
@@ -73,6 +74,7 @@ export interface AuthStore {
     refreshToken: string | null,
     accessTokenExpiresAt: number,
   ): void;
+  listLinkedOAuthProviders(userId: string): OAuthProviderType[];
   verifyPassword(password: string, passwordHash: string): boolean;
   createSession(userId: string): string;
   findSession(token: string): AuthStoreSession | undefined;
@@ -99,6 +101,10 @@ interface SessionRow {
 
 interface CountRow {
   count: number;
+}
+
+interface OAuthProviderListRow {
+  provider: OAuthProviderType;
 }
 
 interface OAuthProviderRow {
@@ -301,6 +307,10 @@ function getRoleForNewUser(db: Database.Database): UserRole {
 }
 
 function createStore(db: Database.Database): AuthStore {
+  const findUserByIdStatement = db.prepare<[string], UserRow>(
+    `SELECT id, email, display_name, role, password_hash FROM users WHERE id = ?`,
+  );
+
   const findUserByEmailStatement = db.prepare<[string], UserRow>(
     `SELECT id, email, display_name, role, password_hash FROM users WHERE email = ?`,
   );
@@ -338,8 +348,21 @@ function createStore(db: Database.Database): AuthStore {
       WHERE user_id = ? AND provider = ?`,
   );
 
+  const updateLinkedOAuthProviderStatement = db.prepare(
+    `UPDATE oauth_providers
+      SET provider_user_id = ?, access_token = ?, refresh_token = ?, access_token_expires_at = ?
+      WHERE user_id = ? AND provider = ?`,
+  );
+
   const deleteOAuthProviderStatement = db.prepare(
     `DELETE FROM oauth_providers WHERE user_id = ? AND provider = ?`,
+  );
+
+  const listLinkedOAuthProvidersStatement = db.prepare<
+    [string],
+    OAuthProviderListRow
+  >(
+    `SELECT provider FROM oauth_providers WHERE user_id = ? ORDER BY provider ASC`,
   );
 
   const createSessionStatement = db.prepare(
@@ -362,6 +385,21 @@ function createStore(db: Database.Database): AuthStore {
   );
 
   return {
+    findUserById(id) {
+      const row = findUserByIdStatement.get(id);
+
+      if (row === undefined) {
+        return undefined;
+      }
+
+      return {
+        id: row.id,
+        email: row.email,
+        displayName: row.display_name,
+        role: row.role,
+        passwordHash: row.password_hash,
+      };
+    },
     findUserByEmail(email) {
       const row = findUserByEmailStatement.get(email);
 
@@ -448,6 +486,20 @@ function createStore(db: Database.Database): AuthStore {
       refreshToken,
       accessTokenExpiresAt,
     ) {
+      const existingProvider = getOAuthProviderStatement.get(userId, provider);
+
+      if (existingProvider !== undefined) {
+        updateLinkedOAuthProviderStatement.run(
+          providerUserId,
+          accessToken,
+          refreshToken,
+          accessTokenExpiresAt,
+          userId,
+          provider,
+        );
+        return;
+      }
+
       const id = randomUUID();
       createOAuthProviderStatement.run(
         id,
@@ -494,6 +546,11 @@ function createStore(db: Database.Database): AuthStore {
         userId,
         provider,
       );
+    },
+    listLinkedOAuthProviders(userId) {
+      return listLinkedOAuthProvidersStatement
+        .all(userId)
+        .map((row) => row.provider);
     },
     verifyPassword,
     createSession(userId) {

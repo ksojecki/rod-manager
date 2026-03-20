@@ -9,11 +9,15 @@ describe('auth routes', () => {
   beforeEach(() => {
     process.env.AUTH_DB_PATH = ':memory:';
     process.env.AUTH_SEED_INITIAL_USER = 'true';
+    process.env.AUTH_INITIAL_USER_EMAIL = 'admin@rod-manager.local';
+    process.env.AUTH_INITIAL_USER_PASSWORD = 'admin1234';
   });
 
   afterEach(() => {
     delete process.env.AUTH_DB_PATH;
     delete process.env.AUTH_SEED_INITIAL_USER;
+    delete process.env.AUTH_INITIAL_USER_EMAIL;
+    delete process.env.AUTH_INITIAL_USER_PASSWORD;
   });
 
   it('creates a session on successful login and returns it', async () => {

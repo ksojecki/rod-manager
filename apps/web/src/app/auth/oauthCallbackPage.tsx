@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
-import { loadSession } from './authApi';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
+import { completeOAuthCallback, retrieveOAuthState } from './authApi';
+import { useAuth } from './authContext';
+import type { OAuthProviderType } from '@rod-manager/shared';
 
 /**
  * OAuth callback handler page
@@ -9,6 +11,8 @@ import { loadSession } from './authApi';
 export function OAuthCallbackPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { provider } = useParams<{ provider: OAuthProviderType }>();
+  const { refreshSession, status } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,13 +33,22 @@ export function OAuthCallbackPage() {
         return;
       }
 
-      try {
-        // Session should be created by backend callback
-        // Load session to confirm authentication
-        await loadSession();
+      if (provider === undefined) {
+        setError('Missing OAuth provider parameter');
+        return;
+      }
 
-        // Redirect to home
-        await navigate('/', { replace: true });
+      try {
+        retrieveOAuthState(state);
+
+        const response = await completeOAuthCallback(provider, {
+          code,
+          state,
+        });
+
+        await refreshSession();
+
+        await navigate(response.redirectTo, { replace: true });
       } catch (err) {
         setError(
           err instanceof Error
@@ -46,11 +59,13 @@ export function OAuthCallbackPage() {
     };
 
     void handleCallback();
-  }, [searchParams, navigate]);
+  }, [navigate, provider, refreshSession, searchParams]);
 
   if (error) {
     const handleBackToLogin = () => {
-      void navigate('/login', { replace: true });
+      void navigate(status === 'authenticated' ? '/account' : '/login', {
+        replace: true,
+      });
     };
 
     return (
