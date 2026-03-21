@@ -130,6 +130,8 @@ async function completeOAuthFlow(
       userInfo.id,
       userInfo.email,
       userInfo.name,
+      // OAuth providers typically supply only a full name; surname is left empty.
+      '',
     );
 
     fastify.authStore.linkOAuthProvider(

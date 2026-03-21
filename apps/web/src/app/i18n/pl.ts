@@ -29,6 +29,21 @@ const pl = {
     submitting: 'Logowanie...',
     checkingSession: 'Sprawdzanie sesji...',
     unexpectedError: 'Nieoczekiwany blad serwera.',
+    noAccount: 'Nie masz konta?',
+    registerLink: 'Zarejestruj sie',
+    register: {
+      title: 'Utworz konto',
+      nameLabel: 'Imie',
+      surnameLabel: 'Nazwisko',
+      emailLabel: 'Email',
+      passwordLabel: 'Haslo (opcjonalne)',
+      passwordHint:
+        'Pozostaw puste, jesli chcesz logowac sie przez dostawce OAuth.',
+      submit: 'Utworz konto',
+      submitting: 'Tworzenie konta...',
+      alreadyHaveAccount: 'Masz juz konto?',
+      loginLink: 'Zaloguj sie',
+    },
   },
 };
 

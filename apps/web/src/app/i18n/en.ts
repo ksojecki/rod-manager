@@ -31,6 +31,21 @@ const en: TranslationResources = {
     submitting: 'Signing in...',
     checkingSession: 'Checking session...',
     unexpectedError: 'Unexpected server error.',
+    noAccount: "Don't have an account?",
+    registerLink: 'Register',
+    register: {
+      title: 'Create account',
+      nameLabel: 'First name',
+      surnameLabel: 'Last name',
+      emailLabel: 'Email',
+      passwordLabel: 'Password (optional)',
+      passwordHint:
+        'Leave blank if you want to sign in with an OAuth provider.',
+      submit: 'Create account',
+      submitting: 'Creating account...',
+      alreadyHaveAccount: 'Already have an account?',
+      loginLink: 'Log in',
+    },
   },
 };
 

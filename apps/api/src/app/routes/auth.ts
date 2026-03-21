@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import type {
   AuthUser,
   LoginRequestBody,
+  RegisterRequestBody,
   SessionResponse,
 } from '@rod-manager/shared';
 import { SESSION_COOKIE_NAME } from '../plugins/cookie';
@@ -28,12 +29,65 @@ export default function authRoutes(fastify: FastifyInstance) {
         user: {
           id: user.id,
           email: user.email,
+          name: user.name,
+          surname: user.surname,
           displayName: user.displayName,
           role: user.role,
         },
       };
 
       await reply.send(sessionResponse);
+    },
+  );
+
+  fastify.post<{ Body: RegisterRequestBody }>(
+    '/api/auth/register',
+    async (request, reply) => {
+      const { email, name, surname, password } = request.body;
+
+      if (!email || !name || !surname) {
+        await reply
+          .status(400)
+          .send({ message: 'Email, name, and surname are required.' });
+        return;
+      }
+
+      try {
+        const user = fastify.authStore.createUser(
+          email,
+          name,
+          surname,
+          password ?? null,
+        );
+
+        const token = fastify.authStore.createSession(user.id);
+        reply.setSessionCookie(token);
+
+        const sessionResponse: SessionResponse = {
+          authenticated: true,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            surname: user.surname,
+            displayName: user.displayName,
+            role: user.role,
+          },
+        };
+
+        await reply.status(201).send(sessionResponse);
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message === 'A user with this email already exists.'
+        ) {
+          await reply.status(409).send({ message: error.message });
+          return;
+        }
+
+        fastify.log.error(error);
+        await reply.status(500).send({ message: 'Registration failed.' });
+      }
     },
   );
 
@@ -57,6 +111,8 @@ export default function authRoutes(fastify: FastifyInstance) {
     const user: AuthUser = {
       id: session.userId,
       email: session.userEmail,
+      name: session.userName,
+      surname: session.userSurname,
       displayName: session.userDisplayName,
       role: session.userRole,
     };

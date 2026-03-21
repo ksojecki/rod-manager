@@ -20,6 +20,8 @@ describe('auth dto', () => {
       user: {
         id: 'initial-admin-user',
         email: 'admin@rod-manager.local',
+        name: 'Administrator',
+        surname: '',
         displayName: 'Administrator',
         role: 'admin',
       },

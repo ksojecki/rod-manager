@@ -1,6 +1,7 @@
 import type {
   ApiErrorResponse,
   LoginRequestBody,
+  RegisterRequestBody,
   OAuthCallbackRequestBody,
   OAuthCallbackResponseBody,
   OAuthProviderType,
@@ -16,6 +17,18 @@ export interface OAuthInitiateResponse {
 
 export async function login(input: LoginRequestBody): Promise<SessionResponse> {
   return requestJson<SessionResponse>('/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(input),
+  });
+}
+
+export async function register(
+  input: RegisterRequestBody,
+): Promise<SessionResponse> {
+  return requestJson<SessionResponse>('/api/auth/register', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
