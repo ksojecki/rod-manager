@@ -19,6 +19,15 @@
 - Shared cache inputs include `.github/workflows/ci.yml` via `namedInputs.sharedGlobals`; CI changes can invalidate task cache.
 - TypeScript baseline lives in `tsconfig.base.json` with strict + composite settings and NodeNext module system.
 
+## Terminal Command Handling
+
+**Important**: When running terminal commands that may trigger pagers, browser windows, or interactive output:
+
+- Git commands: use `git --no-pager` (e.g., `git log --no-pager`, `git diff --no-pager`, `git show --no-pager`)
+- Nx graph exploration: use `--json` flag instead of `--no-tui` (e.g., `npx nx graph --json`)
+- Pipe to `cat` or `head` for long outputs to prevent pager activation
+- These prevent output from being sent to `more`/`less` or browser windows, making results readable by agents
+
 ## Critical Workflows
 
 - When running Nx commands as an AI agent, always pass `--no-tui`.
@@ -27,7 +36,7 @@
 - Run formatting checks: `npm run format:check`; auto-fix formatting: `npm run format`.
 - Run CI-equivalent checks locally: `npx nx run-many -t lint test build typecheck --no-tui`.
 - Apply Nx Cloud CI remediation hints: `npx nx fix-ci --no-tui`.
-- Explore project/task graph: `npx nx graph --no-tui`.
+- Explore project/task graph: `npx nx graph --json --no-tui` (use `--json` to avoid browser).
 - Keep TS project refs consistent after adding projects: `npx nx sync --no-tui` (or `npx nx sync:check --no-tui` in CI).
 
 ## Project-Specific Conventions
