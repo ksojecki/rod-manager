@@ -50,3 +50,5 @@ vite.config.*.timestamp*
 
 # local development TLS certificates
 .cert
+
+vitest.config.*.timestamp*

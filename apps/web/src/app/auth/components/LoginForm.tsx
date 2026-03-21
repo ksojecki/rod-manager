@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@rod-manager/ui';
 import { useAuth } from '../authContext';
 import { AuthFormField } from './AuthFormField';
 import { loginSchema, type LoginFormValues } from './loginSchema';
@@ -62,13 +63,9 @@ export function LoginForm() {
           <p className="text-sm text-error">{errors.root.message}</p>
         ) : null}
 
-        <button
-          className="btn btn-primary w-full"
-          disabled={isSubmitting}
-          type="submit"
-        >
+        <Button fullWidth isLoading={isSubmitting} type="submit">
           {isSubmitting ? t('submitting') : t('submit')}
-        </button>
+        </Button>
       </form>
 
       <p className="mt-4 text-center text-sm">

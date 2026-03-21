@@ -33,11 +33,11 @@ export default [
       '**/build',
       '**/.react-router',
       '**/vite.config.*.timestamp*',
-      // Config files are not part of any TS project — skip typed linting
       '**/vite.config.{ts,mts,js,mjs,cjs}',
       '**/vitest.config.{ts,mts,js,mjs,cjs}',
       '**/eslint.config.{ts,mts,js,mjs,cjs}',
       '**/react-router.config.{ts,mts,js,mjs,cjs}',
+      '**/vitest.config.*.timestamp*',
     ],
   },
   js.configs.recommended,

@@ -46,11 +46,9 @@ export default function authRoutes(fastify: FastifyInstance) {
       const { email, name, surname, password } = request.body;
 
       if (!email || !name || !surname || !password) {
-        await reply
-          .status(400)
-          .send({
-            message: 'Email, name, surname, and password are required.',
-          });
+        await reply.status(400).send({
+          message: 'Email, name, surname, and password are required.',
+        });
         return;
       }
 

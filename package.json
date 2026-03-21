@@ -3,9 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "lint": "node ./node_modules/nx/bin/nx.js run-many -t lint",
-    "format": "node ./node_modules/prettier/bin/prettier.cjs --write .",
-    "format:check": "node ./node_modules/prettier/bin/prettier.cjs --check .",
+    "typecheck": "node ./node_modules/nx/bin/nx.js run-many -t typecheck --no-tui",
     "postinstall": "node ./scripts/postinstall.mjs",
     "setup:certs": "node ./scripts/setup-dev-certs.mjs"
   },
@@ -15,6 +13,8 @@
     "libs/*"
   ],
   "devDependencies": {
+    "@babel/core": "^7.14.5",
+    "@babel/preset-react": "^7.14.5",
     "@eslint/js": "^9.35.0",
     "@nx/esbuild": "22.5.4",
     "@nx/eslint": "22.5.4",
@@ -22,12 +22,14 @@
     "@nx/node": "^22.5.4",
     "@nx/react": "^22.5.4",
     "@nx/vite": "22.5.4",
+    "@nx/vitest": "22.5.4",
     "@nx/web": "22.5.4",
     "@react-router/dev": "^7.12.0",
     "@swc-node/register": "~1.11.1",
     "@swc/cli": "~0.8.0",
     "@swc/core": "~1.15.5",
     "@swc/helpers": "~0.5.18",
+    "@testing-library/dom": "10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -36,6 +38,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.2.0",
+    "@vitest/coverage-v8": "^4.0.0",
     "@vitest/ui": "^4.0.0",
     "ajv": "^8.0.0",
     "autoprefixer": "^10.4.21",
@@ -66,15 +69,6 @@
     "vite": "^7.0.0",
     "vite-plugin-dts": "~4.5.0",
     "vitest": "^4.0.0"
-  },
-  "lint-staged": {
-    "*.{ts,tsx,js,jsx,mjs,cjs,mts,cts}": [
-      "node ./node_modules/eslint/bin/eslint.js --fix --max-warnings=0 --no-warn-ignored --ignore-pattern eslint.config.mjs",
-      "node ./node_modules/prettier/bin/prettier.cjs --write"
-    ],
-    "*.{json,jsonc,md,yml,yaml,css,scss,html}": [
-      "node ./node_modules/prettier/bin/prettier.cjs --write"
-    ]
   },
   "dependencies": {
     "@fastify/autoload": "~6.0.3",

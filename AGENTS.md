@@ -3,7 +3,7 @@
 ## Repo Snapshot
 
 - This is an Nx 22 workspace (`nx`, `@nx/js` in `package.json`) organized around `apps/` and `libs/`.
-- Application projects live in `apps/` (`apps/api`, `apps/web`), and reusable code lives in `libs/` (`libs/shared`).
+- Application projects live in `apps/` (`apps/api`, `apps/web`), and reusable code lives in `libs/` (`libs/shared`, `libs/ui`).
 - Treat root config as source of truth unless a project-level config overrides it intentionally.
 - Extended docs for agents and architecture are in `docs/` (`docs/agents/`, `docs/architecture/`, `docs/operations/`).
 
@@ -42,6 +42,7 @@
 - Public class methods require JSDoc description (`jsdoc/require-jsdoc` + `jsdoc/require-description`).
 - TS output intent is declaration-focused (`emitDeclarationOnly: true` in `tsconfig.base.json`), so library packaging should expect `.d.ts` generation.
 - `customConditions` includes `@rod-manager/source`; keep this in mind when introducing conditional exports/resolution.
+- In `libs/ui`, prefer component names without a `Ui` prefix (for example `Button`, `Card`, `TextInput`).
 
 ## Integration Points
 

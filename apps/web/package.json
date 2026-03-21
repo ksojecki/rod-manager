@@ -27,6 +27,13 @@
           "cwd": "apps/web",
           "command": "node ../../node_modules/vitest/vitest.mjs run --config vite.config.mts"
         }
+      },
+      "format": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "apps/web",
+          "command": "node ../../node_modules/prettier/bin/prettier.cjs --write ."
+        }
       }
     }
   },
