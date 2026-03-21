@@ -7,6 +7,8 @@ export type OAuthIntent = 'login' | 'link';
 export interface AuthUser {
   id: string;
   email: string;
+  name: string;
+  surname: string;
   displayName: string;
   role: UserRole;
 }
@@ -14,6 +16,13 @@ export interface AuthUser {
 export interface LoginRequestBody {
   email: string;
   password: string;
+}
+
+export interface RegisterRequestBody {
+  email: string;
+  name: string;
+  surname: string;
+  password?: string;
 }
 
 export interface OAuthInitiateRequestBody {

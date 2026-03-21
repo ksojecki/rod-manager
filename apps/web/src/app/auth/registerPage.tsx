@@ -2,14 +2,20 @@ import { useState, type SyntheticEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './authContext';
-import { initiateOAuth, storeOAuthState } from './authApi';
+import {
+  initiateOAuth,
+  register as registerRequest,
+  storeOAuthState,
+} from './authApi';
 import type { OAuthProviderType } from '@rod-manager/shared';
 
-export function LoginPage() {
+export function RegisterPage() {
   const { t } = useTranslation('auth');
-  const { login, status } = useAuth();
+  const { refreshSession, status } = useAuth();
   const navigate = useNavigate();
 
+  const [name, setName] = useState('');
+  const [surname, setSurname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -25,7 +31,13 @@ export function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await login(email, password);
+      await registerRequest({
+        email,
+        name,
+        surname,
+        password: password.length > 0 ? password : undefined,
+      });
+      await refreshSession();
       await navigate('/account', { replace: true });
     } catch (error) {
       if (error instanceof Error) {
@@ -38,16 +50,13 @@ export function LoginPage() {
     }
   }
 
-  async function handleOAuthLogin(provider: OAuthProviderType) {
+  async function handleOAuthRegister(provider: OAuthProviderType) {
     setErrorMessage(null);
     try {
       const { authorizationUrl, state, codeVerifier } =
         await initiateOAuth(provider);
 
-      // Store state and code verifier for callback
       storeOAuthState(state, codeVerifier);
-
-      // Redirect to provider authorization endpoint
       window.location.href = authorizationUrl;
     } catch (error) {
       if (error instanceof Error) {
@@ -60,7 +69,7 @@ export function LoginPage() {
 
   return (
     <section className="mx-auto w-full max-w-md rounded-box bg-base-100 p-6 shadow">
-      <h1 className="text-2xl font-semibold">{t('title')}</h1>
+      <h1 className="text-2xl font-semibold">{t('register.title')}</h1>
 
       <form
         className="mt-6 space-y-4"
@@ -69,7 +78,33 @@ export function LoginPage() {
         }}
       >
         <label className="form-control w-full">
-          <span className="label-text">{t('emailLabel')}</span>
+          <span className="label-text">{t('register.nameLabel')}</span>
+          <input
+            className="input input-bordered w-full"
+            onChange={(event) => {
+              setName(event.currentTarget.value);
+            }}
+            required
+            type="text"
+            value={name}
+          />
+        </label>
+
+        <label className="form-control w-full">
+          <span className="label-text">{t('register.surnameLabel')}</span>
+          <input
+            className="input input-bordered w-full"
+            onChange={(event) => {
+              setSurname(event.currentTarget.value);
+            }}
+            required
+            type="text"
+            value={surname}
+          />
+        </label>
+
+        <label className="form-control w-full">
+          <span className="label-text">{t('register.emailLabel')}</span>
           <input
             className="input input-bordered w-full"
             onChange={(event) => {
@@ -82,16 +117,18 @@ export function LoginPage() {
         </label>
 
         <label className="form-control w-full">
-          <span className="label-text">{t('passwordLabel')}</span>
+          <span className="label-text">{t('register.passwordLabel')}</span>
           <input
             className="input input-bordered w-full"
             onChange={(event) => {
               setPassword(event.currentTarget.value);
             }}
-            required
             type="password"
             value={password}
           />
+          <span className="label-text-alt mt-1 text-base-content/60">
+            {t('register.passwordHint')}
+          </span>
         </label>
 
         {errorMessage !== null ? (
@@ -103,14 +140,14 @@ export function LoginPage() {
           disabled={isSubmitting}
           type="submit"
         >
-          {isSubmitting ? t('submitting') : t('submit')}
+          {isSubmitting ? t('register.submitting') : t('register.submit')}
         </button>
       </form>
 
       <p className="mt-4 text-center text-sm">
-        {t('noAccount')}{' '}
-        <Link className="link link-primary" to="/register">
-          {t('registerLink')}
+        {t('register.alreadyHaveAccount')}{' '}
+        <Link className="link link-primary" to="/login">
+          {t('register.loginLink')}
         </Link>
       </p>
 
@@ -122,7 +159,7 @@ export function LoginPage() {
         <button
           className="btn btn-outline w-full"
           onClick={() => {
-            void handleOAuthLogin('google');
+            void handleOAuthRegister('google');
           }}
           type="button"
         >
@@ -143,7 +180,7 @@ export function LoginPage() {
         <button
           className="btn btn-outline w-full"
           onClick={() => {
-            void handleOAuthLogin('apple');
+            void handleOAuthRegister('apple');
           }}
           type="button"
         >
@@ -161,7 +198,7 @@ export function LoginPage() {
         <button
           className="btn btn-outline w-full"
           onClick={() => {
-            void handleOAuthLogin('facebook');
+            void handleOAuthRegister('facebook');
           }}
           type="button"
         >

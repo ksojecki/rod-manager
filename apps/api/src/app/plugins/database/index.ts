@@ -5,6 +5,7 @@ import {
   getDatabasePath,
   initializeSchema,
   ensureUserRoleColumn,
+  ensureNameColumns,
   seedInitialUser,
   shouldSeedInitialUser,
   ensureAdministratorExists,
@@ -28,6 +29,7 @@ export default fp(function databasePlugin(fastify: FastifyInstance) {
 
   initializeSchema(db);
   ensureUserRoleColumn(db);
+  ensureNameColumns(db);
 
   if (shouldSeedInitialUser()) {
     seedInitialUser(db);

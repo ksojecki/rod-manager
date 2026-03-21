@@ -62,25 +62,25 @@ export function getRoleForNewUser(db: Database.Database): UserRole {
 
 export function createStore(db: Database.Database): AuthStore {
   const findUserByIdStatement = db.prepare<[string], UserRow>(
-    `SELECT id, email, display_name, role, password_hash FROM users WHERE id = ?`,
+    `SELECT id, email, first_name, last_name, display_name, role, password_hash FROM users WHERE id = ?`,
   );
 
   const findUserByEmailStatement = db.prepare<[string], UserRow>(
-    `SELECT id, email, display_name, role, password_hash FROM users WHERE email = ?`,
+    `SELECT id, email, first_name, last_name, display_name, role, password_hash FROM users WHERE email = ?`,
   );
 
   const findUserByOAuthProviderStatement = db.prepare<
     [string, string],
     UserRow
   >(
-    `SELECT u.id, u.email, u.display_name, u.role, u.password_hash FROM users u
+    `SELECT u.id, u.email, u.first_name, u.last_name, u.display_name, u.role, u.password_hash FROM users u
       JOIN oauth_providers o ON u.id = o.user_id
       WHERE o.provider = ? AND o.provider_user_id = ?`,
   );
 
   const createUserStatement = db.prepare(
-    `INSERT INTO users (id, email, password_hash, display_name, role)
-      VALUES (?, ?, ?, ?, ?)`,
+    `INSERT INTO users (id, email, password_hash, first_name, last_name, display_name, role)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`,
   );
 
   const createOAuthProviderStatement = db.prepare(
@@ -124,7 +124,7 @@ export function createStore(db: Database.Database): AuthStore {
   );
 
   const findSessionStatement = db.prepare<[string], SessionRow>(
-    `SELECT s.token, s.user_id, s.expires_at, u.email, u.display_name, u.role
+    `SELECT s.token, s.user_id, s.expires_at, u.email, u.first_name, u.last_name, u.display_name, u.role
       FROM sessions s
       JOIN users u ON u.id = s.user_id
       WHERE s.token = ?`,
@@ -149,6 +149,8 @@ export function createStore(db: Database.Database): AuthStore {
       return {
         id: row.id,
         email: row.email,
+        name: row.first_name,
+        surname: row.last_name,
         displayName: row.display_name,
         role: row.role,
         passwordHash: row.password_hash,
@@ -164,6 +166,8 @@ export function createStore(db: Database.Database): AuthStore {
       return {
         id: row.id,
         email: row.email,
+        name: row.first_name,
+        surname: row.last_name,
         displayName: row.display_name,
         role: row.role,
         passwordHash: row.password_hash,
@@ -182,12 +186,50 @@ export function createStore(db: Database.Database): AuthStore {
       return {
         id: row.id,
         email: row.email,
+        name: row.first_name,
+        surname: row.last_name,
         displayName: row.display_name,
         role: row.role,
         passwordHash: row.password_hash,
       };
     },
-    findOrCreateUserByOAuth(provider, providerUserId, email, displayName) {
+    createUser(email, name, surname, password) {
+      const existingUser = this.findUserByEmail(email);
+      if (existingUser !== undefined) {
+        throw new Error('A user with this email already exists.');
+      }
+
+      const userId = randomUUID();
+      const role = getRoleForNewUser(db);
+      const displayName = [name, surname].filter(Boolean).join(' ') || email;
+      const passwordHash =
+        password !== null && password.length > 0
+          ? hashPassword(password)
+          : hashPassword(
+              randomBytes(OAUTH_USER_PASSWORD_BYTES).toString('hex'),
+            );
+
+      createUserStatement.run(
+        userId,
+        email,
+        passwordHash,
+        name,
+        surname,
+        displayName,
+        role,
+      );
+
+      return {
+        id: userId,
+        email,
+        name,
+        surname,
+        displayName,
+        role,
+        passwordHash,
+      };
+    },
+    findOrCreateUserByOAuth(provider, providerUserId, email, name, surname) {
       // Check if OAuth provider is already linked
       const oauthUser = this.findUserByOAuthProvider(provider, providerUserId);
       if (oauthUser !== undefined) {
@@ -197,6 +239,7 @@ export function createStore(db: Database.Database): AuthStore {
       // Check if user with this email exists
       const existingUser = this.findUserByEmail(email);
       const userId = existingUser?.id ?? randomUUID();
+      const displayName = [name, surname].filter(Boolean).join(' ') || email;
 
       if (existingUser === undefined) {
         // Create new user with random password (OAuth user doesn't have password)
@@ -208,6 +251,8 @@ export function createStore(db: Database.Database): AuthStore {
           userId,
           email,
           hashPassword(randomPassword),
+          name,
+          surname,
           displayName,
           role,
         );
@@ -217,6 +262,8 @@ export function createStore(db: Database.Database): AuthStore {
         return {
           id: userId,
           email,
+          name,
+          surname,
           displayName,
           role,
           passwordHash: '',
@@ -229,7 +276,9 @@ export function createStore(db: Database.Database): AuthStore {
       return {
         id: userId,
         email,
-        displayName,
+        name: existingUser.name,
+        surname: existingUser.surname,
+        displayName: existingUser.displayName,
         role: existingUser.role,
         passwordHash: '',
       };
@@ -326,6 +375,8 @@ export function createStore(db: Database.Database): AuthStore {
         userId: row.user_id,
         expiresAt: row.expires_at,
         userEmail: row.email,
+        userName: row.first_name,
+        userSurname: row.last_name,
         userDisplayName: row.display_name,
         userRole: row.role,
       };

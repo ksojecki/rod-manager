@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import type { SessionResponse } from '@rod-manager/shared';
 import databasePlugin from '../plugins/database';
 import cookiePlugin from '../plugins/cookie';
 import authRoutes from './auth';
@@ -58,6 +59,8 @@ describe('auth routes', () => {
       user: {
         id: 'initial-admin-user',
         email: 'admin@rod-manager.local',
+        name: 'Administrator',
+        surname: '',
         displayName: 'Administrator',
         role: 'admin',
       },
@@ -84,6 +87,117 @@ describe('auth routes', () => {
 
     expect(response.statusCode).toBe(401);
     expect(response.json()).toEqual({ message: 'Invalid email or password.' });
+
+    await server.close();
+  });
+
+  it('registers a new user and creates a session', async () => {
+    const server = Fastify();
+    await server.register(cookiePlugin);
+    await server.register(databasePlugin);
+
+    authRoutes(server);
+
+    const response = await server.inject({
+      method: 'POST',
+      url: '/api/auth/register',
+      payload: {
+        email: 'newuser@example.com',
+        name: 'John',
+        surname: 'Doe',
+        password: 'secret123',
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+
+    const body = response.json<SessionResponse>();
+    expect(body.authenticated).toBe(true);
+    expect(body.user.email).toBe('newuser@example.com');
+    expect(body.user.name).toBe('John');
+    expect(body.user.surname).toBe('Doe');
+    expect(body.user.displayName).toBe('John Doe');
+    expect(body.user.role).toBe('user');
+
+    const sessionCookie = response.cookies.find(
+      (cookie) => cookie.name === SESSION_COOKIE_NAME,
+    );
+    expect(sessionCookie).toBeDefined();
+
+    await server.close();
+  });
+
+  it('registers a new user without a password (OAuth-style registration)', async () => {
+    const server = Fastify();
+    await server.register(cookiePlugin);
+    await server.register(databasePlugin);
+
+    authRoutes(server);
+
+    const response = await server.inject({
+      method: 'POST',
+      url: '/api/auth/register',
+      payload: {
+        email: 'oauthuser@example.com',
+        name: 'Jane',
+        surname: 'Smith',
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+
+    const body = response.json<SessionResponse>();
+    expect(body.authenticated).toBe(true);
+    expect(body.user.email).toBe('oauthuser@example.com');
+    expect(body.user.name).toBe('Jane');
+    expect(body.user.surname).toBe('Smith');
+    expect(body.user.displayName).toBe('Jane Smith');
+
+    await server.close();
+  });
+
+  it('returns 409 when registering with an existing email', async () => {
+    const server = Fastify();
+    await server.register(cookiePlugin);
+    await server.register(databasePlugin);
+
+    authRoutes(server);
+
+    const response = await server.inject({
+      method: 'POST',
+      url: '/api/auth/register',
+      payload: {
+        email: 'admin@rod-manager.local',
+        name: 'Another',
+        surname: 'Admin',
+        password: 'password123',
+      },
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toEqual({
+      message: 'A user with this email already exists.',
+    });
+
+    await server.close();
+  });
+
+  it('returns 400 when required fields are missing in registration', async () => {
+    const server = Fastify();
+    await server.register(cookiePlugin);
+    await server.register(databasePlugin);
+
+    authRoutes(server);
+
+    const response = await server.inject({
+      method: 'POST',
+      url: '/api/auth/register',
+      payload: {
+        email: 'newuser@example.com',
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
 
     await server.close();
   });

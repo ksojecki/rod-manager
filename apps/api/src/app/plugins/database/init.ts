@@ -27,6 +27,8 @@ export function initializeSchema(db: Database.Database): void {
       id TEXT PRIMARY KEY,
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
+      first_name TEXT NOT NULL DEFAULT '',
+      last_name TEXT NOT NULL DEFAULT '',
       display_name TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
       created_at INTEGER NOT NULL DEFAULT (unixepoch())
@@ -74,6 +76,25 @@ export function ensureUserRoleColumn(db: Database.Database): void {
   ).run();
 }
 
+export function ensureNameColumns(db: Database.Database): void {
+  const userColumns = db
+    .prepare<[], { name: string }>(`PRAGMA table_info('users')`)
+    .all();
+
+  const hasFirstName = userColumns.some(
+    (column) => column.name === 'first_name',
+  );
+  const hasLastName = userColumns.some((column) => column.name === 'last_name');
+
+  if (!hasFirstName) {
+    db.exec(`ALTER TABLE users ADD COLUMN first_name TEXT NOT NULL DEFAULT ''`);
+  }
+
+  if (!hasLastName) {
+    db.exec(`ALTER TABLE users ADD COLUMN last_name TEXT NOT NULL DEFAULT ''`);
+  }
+}
+
 export function seedInitialUser(db: Database.Database): void {
   const initialUserEmail =
     process.env.AUTH_INITIAL_USER_EMAIL ?? 'admin@rod-manager.local';
@@ -81,16 +102,20 @@ export function seedInitialUser(db: Database.Database): void {
     process.env.AUTH_INITIAL_USER_PASSWORD ?? 'admin1234';
 
   db.prepare(
-    `INSERT INTO users (id, email, password_hash, display_name, role)
-      VALUES (@id, @email, @password_hash, @display_name, @role)
+    `INSERT INTO users (id, email, password_hash, first_name, last_name, display_name, role)
+      VALUES (@id, @email, @password_hash, @first_name, @last_name, @display_name, @role)
       ON CONFLICT(email) DO UPDATE SET
         password_hash = excluded.password_hash,
+        first_name = excluded.first_name,
+        last_name = excluded.last_name,
         display_name = excluded.display_name,
         role = excluded.role`,
   ).run({
     id: 'initial-admin-user',
     email: initialUserEmail,
     password_hash: hashPassword(initialUserPassword),
+    first_name: 'Administrator',
+    last_name: '',
     display_name: 'Administrator',
     role: 'admin' satisfies UserRole,
   });

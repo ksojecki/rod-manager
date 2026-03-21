@@ -5,6 +5,8 @@ export type { OAuthProviderType };
 export interface AuthStoreUser {
   id: string;
   email: string;
+  name: string;
+  surname: string;
   displayName: string;
   role: UserRole;
   passwordHash: string;
@@ -26,6 +28,8 @@ export interface AuthStoreSession {
   userId: string;
   expiresAt: number;
   userEmail: string;
+  userName: string;
+  userSurname: string;
   userDisplayName: string;
   userRole: UserRole;
 }
@@ -37,11 +41,18 @@ export interface AuthStore {
     provider: OAuthProviderType,
     providerUserId: string,
   ): AuthStoreUser | undefined;
+  createUser(
+    email: string,
+    name: string,
+    surname: string,
+    password: string | null,
+  ): AuthStoreUser;
   findOrCreateUserByOAuth(
     provider: OAuthProviderType,
     providerUserId: string,
     email: string,
-    displayName: string,
+    name: string,
+    surname: string,
   ): AuthStoreUser;
   linkOAuthProvider(
     userId: string,
@@ -74,6 +85,8 @@ export interface AuthStore {
 export interface UserRow {
   id: string;
   email: string;
+  first_name: string;
+  last_name: string;
   display_name: string;
   role: UserRole;
   password_hash: string;
@@ -84,6 +97,8 @@ export interface SessionRow {
   user_id: string;
   expires_at: number;
   email: string;
+  first_name: string;
+  last_name: string;
   display_name: string;
   role: UserRole;
 }
