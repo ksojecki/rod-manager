@@ -2,10 +2,9 @@ import { Link, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@rod-manager/ui';
+import { Button, FormField } from '@rod-manager/ui';
 import { useAuth } from '../authContext';
 import { register as registerRequest } from '../authApi';
-import { AuthFormField } from './AuthFormField';
 import { registerSchema, type RegisterFormValues } from './registerSchema';
 import { useAuthForm } from './useAuthForm';
 
@@ -39,7 +38,7 @@ export function PasswordRegisterForm() {
           void handleSubmit(withErrorHandling(onSubmit))(event);
         }}
       >
-        <AuthFormField
+        <FormField
           errorMessage={
             errors.name !== undefined
               ? t(getNameErrorKey(errors.name.message))
@@ -50,7 +49,7 @@ export function PasswordRegisterForm() {
           type="text"
         />
 
-        <AuthFormField
+        <FormField
           errorMessage={
             errors.surname !== undefined
               ? t(getSurnameErrorKey(errors.surname.message))
@@ -61,7 +60,7 @@ export function PasswordRegisterForm() {
           type="text"
         />
 
-        <AuthFormField
+        <FormField
           errorMessage={
             errors.email !== undefined
               ? t(getRegisterEmailErrorKey(errors.email.message))
@@ -72,7 +71,7 @@ export function PasswordRegisterForm() {
           type="email"
         />
 
-        <AuthFormField
+        <FormField
           errorMessage={
             errors.password !== undefined
               ? t(getRegisterPasswordErrorKey(errors.password.message))
@@ -95,7 +94,7 @@ export function PasswordRegisterForm() {
 
       <p className="mt-4 text-center text-sm">
         {t('register.alreadyHaveAccount')}{' '}
-        <Link className="link link-primary" to="/login">
+        <Link className="link link-primary" to="/?login=1">
           {t('register.loginLink')}
         </Link>
       </p>

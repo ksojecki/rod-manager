@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { Button } from './button';
-import { Card } from './card';
+import { Button } from './Button';
+import { Card } from './Card';
 
 describe('@rod-manager/ui', () => {
   it('renders a shared card title and content', () => {

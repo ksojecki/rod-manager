@@ -15,6 +15,14 @@ export default defineConfig(() => ({
     host: 'localhost',
   },
   plugins: [react(), tailwindcss()],
+  resolve: {
+    conditions: ['@rod-manager/source'],
+  },
+  ssr: {
+    resolve: {
+      conditions: ['@rod-manager/source'],
+    },
+  },
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [],

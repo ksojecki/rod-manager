@@ -4,7 +4,7 @@ export const HomePage = () => {
   const { t } = useTranslation('home');
 
   return (
-    <main className="min-h-screen bg-base-200 p-6">
+    <main className="bg-base-200 p-6">
       <section className="mx-auto max-w-2xl">
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">

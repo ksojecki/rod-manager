@@ -16,7 +16,7 @@ export function RequireAuth({ children }: RequireAuthProps) {
   }
 
   if (status === 'guest') {
-    return <Navigate replace to="/login" />;
+    return <Navigate replace to="/?login=1" />;
   }
 
   return children;

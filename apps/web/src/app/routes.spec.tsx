@@ -38,11 +38,11 @@ describe('AppRoutes', () => {
       </MemoryRouter>,
     );
 
-    await screen.findByRole('link', { name: 'Log in' });
+    await screen.findByRole('button', { name: 'Log in' });
     expect(screen.getByRole('heading', { name: 'Home' })).toBeInTheDocument();
   });
 
-  it('redirects unauthenticated account route to login page', async () => {
+  it('opens login modal after redirecting unauthenticated account route', async () => {
     mockGuestSession();
 
     render(
@@ -53,9 +53,9 @@ describe('AppRoutes', () => {
       </MemoryRouter>,
     );
 
-    expect(
-      await screen.findByRole('heading', { name: 'Log in' }),
-    ).toBeInTheDocument();
+    const modal = await screen.findByRole('dialog');
+    expect(modal).toHaveAttribute('open');
+    expect(screen.getByRole('heading', { name: 'Log in' })).toBeInTheDocument();
   });
 
   it('renders register page with password and OAuth sections', async () => {

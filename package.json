@@ -5,7 +5,14 @@
   "scripts": {
     "typecheck": "node ./node_modules/nx/bin/nx.js run-many -t typecheck --no-tui",
     "postinstall": "node ./scripts/postinstall.mjs",
-    "setup:certs": "node ./scripts/setup-dev-certs.mjs"
+    "setup:certs": "node ./scripts/setup-dev-certs.mjs",
+    "dev:ssr": "npm run dev:web & npm run dev:api",
+    "dev:web": "npx nx dev web --no-tui",
+    "dev:api": "npx nx dev api --no-tui",
+    "build:ssr": "npm run build:web && npm run build:api",
+    "build:web": "npx nx run web:build --no-tui && npx nx run web:build-server --no-tui",
+    "build:api": "npx nx build api --no-tui",
+    "start:ssr": "NODE_ENV=production node dist/apps/api/main.js"
   },
   "private": true,
   "workspaces": [
@@ -42,6 +49,7 @@
     "@vitest/ui": "^4.0.0",
     "ajv": "^8.0.0",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^8.2.2",
     "daisyui": "^5.5.19",
     "esbuild": "^0.19.2",
     "eslint": "^9.35.0",
@@ -86,6 +94,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.71.2",
     "react-i18next": "^15.4.0",
+    "react-icons": "^5.6.0",
     "react-router": "^7.13.1",
     "tailwindcss": "^4.2.1"
   },

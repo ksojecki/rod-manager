@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router';
+import { Link, Navigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './authContext';
 import { LoginForm } from './components/LoginForm';
@@ -13,14 +13,25 @@ export function LoginPage() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-md rounded-box bg-base-100 p-6 shadow">
-      <h1 className="text-2xl font-semibold">{t('title')}</h1>
+    <div className="flex flex-1 flex-col justify-center">
+      <section className="w-full rounded-box bg-base-100 p-6 shadow flex flex-col gap-4">
+        <h1 className="text-2xl font-semibold">{t('title')}</h1>
+        <div className={'flex flex-row gap-4'}>
+          <div className={'flex-1 h-fit'}>
+            <OAuthLoginButtons />
+          </div>
+          <div className={'flex-1'}>
+            <LoginForm />
+          </div>
+        </div>
 
-      <LoginForm />
-
-      <div className="divider mt-8 mb-6">{t('oauthDivider')}</div>
-
-      <OAuthLoginButtons />
-    </section>
+        <p className="mt-4 text-center text-sm">
+          {t('noAccount')}{' '}
+          <Link className="link link-primary" to="/register">
+            {t('registerLink')}
+          </Link>
+        </p>
+      </section>
+    </div>
   );
 }

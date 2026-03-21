@@ -65,6 +65,9 @@ export default async function (fastify: FastifyInstance) {
     appType: 'custom',
     server: {
       middlewareMode: true,
+      hmr: {
+        server: fastify.server,
+      },
     },
   });
 

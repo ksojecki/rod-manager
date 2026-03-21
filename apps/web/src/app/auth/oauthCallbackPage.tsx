@@ -63,7 +63,7 @@ export function OAuthCallbackPage() {
 
   if (error) {
     const handleBackToLogin = () => {
-      void navigate(status === 'authenticated' ? '/account' : '/login', {
+      void navigate(status === 'authenticated' ? '/account' : '/', {
         replace: true,
       });
     };

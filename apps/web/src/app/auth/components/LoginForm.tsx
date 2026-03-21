@@ -1,17 +1,20 @@
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@rod-manager/ui';
+import { Button, FormField } from '@rod-manager/ui';
 import { useAuth } from '../authContext';
-import { AuthFormField } from './AuthFormField';
 import { loginSchema, type LoginFormValues } from './loginSchema';
 import { useAuthForm } from './useAuthForm';
+
+type LoginFormProps = {
+  onSuccess?: () => void;
+};
 
 /**
  * Login form for authenticating with email and password.
  */
-export function LoginForm() {
+export function LoginForm({ onSuccess }: LoginFormProps = {}) {
   const { t } = useTranslation('auth');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -26,55 +29,50 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginFormValues) {
     await login(values.email, values.password);
-    await navigate('/account', { replace: true });
+    if (onSuccess) {
+      onSuccess();
+    } else {
+      await navigate('/account', { replace: true });
+    }
   }
 
   return (
-    <>
-      <form
-        className="mt-6 space-y-4"
-        onSubmit={(event) => {
-          void handleSubmit(withErrorHandling(onSubmit))(event);
-        }}
-      >
-        <AuthFormField
-          errorMessage={
-            errors.email !== undefined
-              ? t(getEmailErrorKey(errors.email.message))
-              : undefined
-          }
-          label={t('emailLabel')}
-          registration={register('email')}
-          type="email"
-        />
+    <form
+      className={'flex flex-col gap-4'}
+      onSubmit={(event) => {
+        void handleSubmit(withErrorHandling(onSubmit))(event);
+      }}
+    >
+      <FormField
+        errorMessage={
+          errors.email !== undefined
+            ? t(getEmailErrorKey(errors.email.message))
+            : undefined
+        }
+        label={t('emailLabel')}
+        registration={register('email')}
+        type="email"
+      />
 
-        <AuthFormField
-          errorMessage={
-            errors.password !== undefined
-              ? t(getPasswordErrorKey(errors.password.message))
-              : undefined
-          }
-          label={t('passwordLabel')}
-          registration={register('password')}
-          type="password"
-        />
+      <FormField
+        errorMessage={
+          errors.password !== undefined
+            ? t(getPasswordErrorKey(errors.password.message))
+            : undefined
+        }
+        label={t('passwordLabel')}
+        registration={register('password')}
+        type="password"
+      />
 
-        {errors.root !== undefined ? (
-          <p className="text-sm text-error">{errors.root.message}</p>
-        ) : null}
+      {errors.root !== undefined ? (
+        <p className="text-sm text-error">{errors.root.message}</p>
+      ) : null}
 
-        <Button fullWidth isLoading={isSubmitting} type="submit">
-          {isSubmitting ? t('submitting') : t('submit')}
-        </Button>
-      </form>
-
-      <p className="mt-4 text-center text-sm">
-        {t('noAccount')}{' '}
-        <Link className="link link-primary" to="/register">
-          {t('registerLink')}
-        </Link>
-      </p>
-    </>
+      <Button fullWidth isLoading={isSubmitting} type="submit">
+        {isSubmitting ? t('submitting') : t('submit')}
+      </Button>
+    </form>
   );
 }
 
