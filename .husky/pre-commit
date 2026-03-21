@@ -1,2 +1,3 @@
 node ./node_modules/lint-staged/bin/lint-staged.js
+npx nx affected --base=origin/main  --target=typecheck
 

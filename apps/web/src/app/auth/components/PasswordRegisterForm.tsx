@@ -4,7 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../authContext';
 import { register as registerRequest } from '../authApi';
+import { AuthFormField } from './AuthFormField';
 import { registerSchema, type RegisterFormValues } from './registerSchema';
+import { useAuthForm } from './useAuthForm';
 
 /**
  * Registration form for creating an account with email and password.
@@ -20,17 +22,12 @@ export function PasswordRegisterForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
+  const { withErrorHandling } = useAuthForm(setError);
 
   async function onSubmit(values: RegisterFormValues) {
-    try {
-      await registerRequest(values);
-      await refreshSession();
-      await navigate('/account', { replace: true });
-    } catch (error) {
-      setError('root', {
-        message: error instanceof Error ? error.message : t('unexpectedError'),
-      });
-    }
+    await registerRequest(values);
+    await refreshSession();
+    await navigate('/account', { replace: true });
   }
 
   return (
@@ -38,67 +35,53 @@ export function PasswordRegisterForm() {
       <form
         className="mt-4 space-y-4"
         onSubmit={(event) => {
-          void handleSubmit(onSubmit)(event);
+          void handleSubmit(withErrorHandling(onSubmit))(event);
         }}
       >
-        <label className="form-control w-full">
-          <span className="label-text">{t('register.nameLabel')}</span>
-          <input
-            className="input input-bordered w-full"
-            type="text"
-            {...register('name')}
-          />
-          {errors.name !== undefined ? (
-            <span className="label-text-alt mt-1 text-error">
-              {t(errors.name.message ?? 'register.nameRequired')}
-            </span>
-          ) : null}
-        </label>
+        <AuthFormField
+          errorMessage={
+            errors.name !== undefined
+              ? t(getNameErrorKey(errors.name.message))
+              : undefined
+          }
+          label={t('register.nameLabel')}
+          registration={register('name')}
+          type="text"
+        />
 
-        <label className="form-control w-full">
-          <span className="label-text">{t('register.surnameLabel')}</span>
-          <input
-            className="input input-bordered w-full"
-            type="text"
-            {...register('surname')}
-          />
-          {errors.surname !== undefined ? (
-            <span className="label-text-alt mt-1 text-error">
-              {t(errors.surname.message ?? 'register.surnameRequired')}
-            </span>
-          ) : null}
-        </label>
+        <AuthFormField
+          errorMessage={
+            errors.surname !== undefined
+              ? t(getSurnameErrorKey(errors.surname.message))
+              : undefined
+          }
+          label={t('register.surnameLabel')}
+          registration={register('surname')}
+          type="text"
+        />
 
-        <label className="form-control w-full">
-          <span className="label-text">{t('register.emailLabel')}</span>
-          <input
-            className="input input-bordered w-full"
-            type="email"
-            {...register('email')}
-          />
-          {errors.email !== undefined ? (
-            <span className="label-text-alt mt-1 text-error">
-              {t(errors.email.message ?? 'register.emailRequired')}
-            </span>
-          ) : null}
-        </label>
+        <AuthFormField
+          errorMessage={
+            errors.email !== undefined
+              ? t(getRegisterEmailErrorKey(errors.email.message))
+              : undefined
+          }
+          label={t('register.emailLabel')}
+          registration={register('email')}
+          type="email"
+        />
 
-        <label className="form-control w-full">
-          <span className="label-text">{t('register.passwordLabel')}</span>
-          <input
-            className="input input-bordered w-full"
-            type="password"
-            {...register('password')}
-          />
-          <span className="label-text-alt mt-1 text-base-content/60">
-            {t('register.passwordHint')}
-          </span>
-          {errors.password !== undefined ? (
-            <span className="label-text-alt mt-1 text-error">
-              {t(errors.password.message ?? 'register.passwordMinLength')}
-            </span>
-          ) : null}
-        </label>
+        <AuthFormField
+          errorMessage={
+            errors.password !== undefined
+              ? t(getRegisterPasswordErrorKey(errors.password.message))
+              : undefined
+          }
+          hint={t('register.passwordHint')}
+          label={t('register.passwordLabel')}
+          registration={register('password')}
+          type="password"
+        />
 
         {errors.root !== undefined ? (
           <p className="text-sm text-error">{errors.root.message}</p>
@@ -121,4 +104,34 @@ export function PasswordRegisterForm() {
       </p>
     </>
   );
+}
+
+function getNameErrorKey(message: string | undefined): 'register.nameRequired' {
+  return message === 'register.nameRequired'
+    ? 'register.nameRequired'
+    : 'register.nameRequired';
+}
+
+function getSurnameErrorKey(
+  message: string | undefined,
+): 'register.surnameRequired' {
+  return message === 'register.surnameRequired'
+    ? 'register.surnameRequired'
+    : 'register.surnameRequired';
+}
+
+function getRegisterEmailErrorKey(
+  message: string | undefined,
+): 'register.emailInvalid' | 'register.emailRequired' {
+  return message === 'register.emailInvalid'
+    ? 'register.emailInvalid'
+    : 'register.emailRequired';
+}
+
+function getRegisterPasswordErrorKey(
+  message: string | undefined,
+): 'register.passwordMinLength' {
+  return message === 'register.passwordMinLength'
+    ? 'register.passwordMinLength'
+    : 'register.passwordMinLength';
 }

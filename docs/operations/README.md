@@ -6,6 +6,7 @@
 npm ci
 npm run format:check
 npm run lint
+npm run typecheck
 ```
 
 ## After adding the first Nx packages

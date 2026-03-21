@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../authContext';
+import { AuthFormField } from './AuthFormField';
 import { loginSchema, type LoginFormValues } from './loginSchema';
+import { useAuthForm } from './useAuthForm';
 
 /**
  * Login form for authenticating with email and password.
@@ -19,16 +21,11 @@ export function LoginForm() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
+  const { withErrorHandling } = useAuthForm(setError);
 
   async function onSubmit(values: LoginFormValues) {
-    try {
-      await login(values.email, values.password);
-      await navigate('/account', { replace: true });
-    } catch (error) {
-      setError('root', {
-        message: error instanceof Error ? error.message : t('unexpectedError'),
-      });
-    }
+    await login(values.email, values.password);
+    await navigate('/account', { replace: true });
   }
 
   return (
@@ -36,36 +33,30 @@ export function LoginForm() {
       <form
         className="mt-6 space-y-4"
         onSubmit={(event) => {
-          void handleSubmit(onSubmit)(event);
+          void handleSubmit(withErrorHandling(onSubmit))(event);
         }}
       >
-        <label className="form-control w-full">
-          <span className="label-text">{t('emailLabel')}</span>
-          <input
-            className="input input-bordered w-full"
-            type="email"
-            {...register('email')}
-          />
-          {errors.email !== undefined ? (
-            <span className="label-text-alt mt-1 text-error">
-              {t(errors.email.message ?? 'emailRequired')}
-            </span>
-          ) : null}
-        </label>
+        <AuthFormField
+          errorMessage={
+            errors.email !== undefined
+              ? t(getEmailErrorKey(errors.email.message))
+              : undefined
+          }
+          label={t('emailLabel')}
+          registration={register('email')}
+          type="email"
+        />
 
-        <label className="form-control w-full">
-          <span className="label-text">{t('passwordLabel')}</span>
-          <input
-            className="input input-bordered w-full"
-            type="password"
-            {...register('password')}
-          />
-          {errors.password !== undefined ? (
-            <span className="label-text-alt mt-1 text-error">
-              {t(errors.password.message ?? 'passwordRequired')}
-            </span>
-          ) : null}
-        </label>
+        <AuthFormField
+          errorMessage={
+            errors.password !== undefined
+              ? t(getPasswordErrorKey(errors.password.message))
+              : undefined
+          }
+          label={t('passwordLabel')}
+          registration={register('password')}
+          type="password"
+        />
 
         {errors.root !== undefined ? (
           <p className="text-sm text-error">{errors.root.message}</p>
@@ -88,4 +79,16 @@ export function LoginForm() {
       </p>
     </>
   );
+}
+
+function getEmailErrorKey(
+  message: string | undefined,
+): 'emailInvalid' | 'emailRequired' {
+  return message === 'emailInvalid' ? 'emailInvalid' : 'emailRequired';
+}
+
+function getPasswordErrorKey(message: string | undefined): 'passwordRequired' {
+  return message === 'passwordRequired'
+    ? 'passwordRequired'
+    : 'passwordRequired';
 }
