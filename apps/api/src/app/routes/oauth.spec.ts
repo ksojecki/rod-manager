@@ -17,27 +17,31 @@ function createOAuthService(): OAuthService {
         accessToken: `${provider}-${code}-access-token`,
         refreshToken: `${provider}-${code}-refresh-token`,
         expiresIn: 3600,
+        idToken: null,
       };
     },
     async getUserInfo(provider) {
       const userByProvider: Record<
         OAuthProviderType,
-        { id: string; email: string; name: string }
+        { id: string; email: string; name: string; surname: string }
       > = {
         google: {
           id: 'google-user-1',
           email: 'oauth-google@rod-manager.local',
-          name: 'Google OAuth User',
+          name: 'Google',
+          surname: 'OAuth User',
         },
         apple: {
           id: 'apple-user-1',
           email: 'oauth-apple@rod-manager.local',
-          name: 'Apple OAuth User',
+          name: 'Apple',
+          surname: 'OAuth User',
         },
         facebook: {
           id: 'facebook-user-1',
           email: 'oauth-facebook@rod-manager.local',
-          name: 'Facebook OAuth User',
+          name: 'Facebook',
+          surname: 'OAuth User',
         },
       };
 
@@ -100,6 +104,54 @@ describe('oauth routes', () => {
     delete process.env.AUTH_SEED_INITIAL_USER;
     delete process.env.AUTH_INITIAL_USER_EMAIL;
     delete process.env.AUTH_INITIAL_USER_PASSWORD;
+  });
+
+  it('creates an OAuth user with provider first name, surname, and email', async () => {
+    const server = await createServer();
+
+    const authorizeResponse = await server.inject({
+      method: 'POST',
+      url: '/api/auth/oauth/authorize/google',
+    });
+
+    expect(authorizeResponse.statusCode).toBe(200);
+    const authorizePayload = authorizeResponse.json<{ state: string }>();
+
+    const callbackResponse = await server.inject({
+      method: 'POST',
+      url: '/api/auth/oauth/callback/google',
+      payload: {
+        code: 'oauth-code-profile',
+        state: authorizePayload.state,
+      },
+    });
+
+    expect(callbackResponse.statusCode).toBe(200);
+
+    const sessionCookie = callbackResponse.cookies.find(
+      (cookie) => cookie.name === SESSION_COOKIE_NAME,
+    );
+    expect(sessionCookie?.value).toBeDefined();
+
+    const sessionResponse = await server.inject({
+      method: 'GET',
+      url: '/api/auth/session',
+      cookies: {
+        [SESSION_COOKIE_NAME]: sessionCookie?.value ?? '',
+      },
+    });
+
+    expect(sessionResponse.statusCode).toBe(200);
+    expect(sessionResponse.json()).toMatchObject({
+      authenticated: true,
+      user: {
+        email: 'oauth-google@rod-manager.local',
+        name: 'Google',
+        surname: 'OAuth User',
+      },
+    });
+
+    await server.close();
   });
 
   it('links an OAuth provider to the existing authenticated account', async () => {

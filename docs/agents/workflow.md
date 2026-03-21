@@ -18,6 +18,8 @@
 - Do not override local package conventions unless necessary.
 - For API changes, keep alignment with `docs/architecture/`.
 - Keep generated code and comments in English.
+- For new plugins, use a folder-based structure with `index.ts` as a thin entrypoint and focused modules (types + implementation files), matching the `database` plugin style.
+- For larger modules in general, split by responsibility once complexity grows (avoid monolithic files).
 
 ## 4) Validation
 

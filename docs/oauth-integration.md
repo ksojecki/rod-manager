@@ -8,7 +8,7 @@ The system implements a complete OAuth 2.0 flow with PKCE (Proof Key for Code Ex
 
 ### Architecture
 
-- **Backend (Fastify)**: OAuth plugin (`apps/api/src/app/plugins/oauth.ts`) handles provider communication
+- **Backend (Fastify)**: OAuth plugin entrypoint (`apps/api/src/app/plugins/oauth/index.ts`) with modular implementation in `apps/api/src/app/plugins/oauth/`
 - **Database**: SQLite `oauth_providers` table stores provider credentials per user
 - **Frontend (React)**: OAuth initiation on login page with callback handler
 - **Session Management**: Standard session cookie created after OAuth callback
@@ -204,9 +204,9 @@ export type OAuthProviderType =
   | 'new_provider';
 ```
 
-### 2. Update OAuth Plugin
+### 2. Update OAuth Plugin Modules
 
-Add configuration in `apps/api/src/app/plugins/oauth.ts`:
+Add provider configuration in `apps/api/src/app/plugins/oauth/oauthConfigs.ts` and update OAuth service logic in `apps/api/src/app/plugins/oauth/service.ts`:
 
 ```typescript
 const newProviderClientId = process.env.OAUTH_NEW_PROVIDER_CLIENT_ID;
@@ -225,7 +225,7 @@ if (newProviderClientId && newProviderClientSecret) {
 }
 ```
 
-Implement provider-specific user info parsing in `getUserInfo()` method.
+Implement provider-specific user info parsing in `apps/api/src/app/plugins/oauth/userInfo.ts` and service wiring in `apps/api/src/app/plugins/oauth/service.ts`.
 
 ### 3. Update Login Page
 

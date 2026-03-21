@@ -58,6 +58,28 @@ describe('AppRoutes', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders register page with password and OAuth sections', async () => {
+    mockGuestSession();
+
+    render(
+      <MemoryRouter initialEntries={['/register']}>
+        <I18nextProvider i18n={i18n}>
+          <AppRoutes />
+        </I18nextProvider>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'Create account' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Create account with password' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Create account with OAuth' }),
+    ).toBeInTheDocument();
+  });
+
   it('switches the interface to Polish', async () => {
     const user = userEvent.setup();
     mockGuestSession();

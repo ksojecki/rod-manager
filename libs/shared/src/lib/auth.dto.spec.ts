@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { LoginRequestBody, SessionResponse } from './auth.dto';
+import type {
+  LoginRequestBody,
+  RegisterRequestBody,
+  SessionResponse,
+} from './auth.dto';
 
 describe('auth dto', () => {
   it('matches expected login payload shape', () => {
@@ -12,6 +16,17 @@ describe('auth dto', () => {
       email: 'admin@rod-manager.local',
       password: 'admin1234',
     });
+  });
+
+  it('matches expected register payload shape', () => {
+    const payload: RegisterRequestBody = {
+      email: 'newuser@rod-manager.local',
+      name: 'New',
+      surname: 'User',
+      password: 'password123',
+    };
+
+    expect(payload.password).toBe('password123');
   });
 
   it('matches expected session response shape', () => {

@@ -45,10 +45,12 @@ export default function authRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       const { email, name, surname, password } = request.body;
 
-      if (!email || !name || !surname) {
+      if (!email || !name || !surname || !password) {
         await reply
           .status(400)
-          .send({ message: 'Email, name, and surname are required.' });
+          .send({
+            message: 'Email, name, surname, and password are required.',
+          });
         return;
       }
 
@@ -57,7 +59,7 @@ export default function authRoutes(fastify: FastifyInstance) {
           email,
           name,
           surname,
-          password ?? null,
+          password,
         );
 
         const token = fastify.authStore.createSession(user.id);

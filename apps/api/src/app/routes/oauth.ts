@@ -114,14 +114,18 @@ async function completeOAuthFlow(
 
   oauthStates.delete(state);
 
-  const { accessToken, refreshToken, expiresIn } =
+  const { accessToken, refreshToken, expiresIn, idToken } =
     await fastify.oauth.exchangeCodeForToken(
       provider,
       code,
       oauthState.codeVerifier,
     );
 
-  const userInfo = await fastify.oauth.getUserInfo(provider, accessToken);
+  const userInfo = await fastify.oauth.getUserInfo(
+    provider,
+    accessToken,
+    idToken,
+  );
   const accessTokenExpiresAt = Date.now() + expiresIn * 1000;
 
   if (oauthState.intent === 'login') {
@@ -130,8 +134,7 @@ async function completeOAuthFlow(
       userInfo.id,
       userInfo.email,
       userInfo.name,
-      // OAuth providers typically supply only a full name; surname is left empty.
-      '',
+      userInfo.surname,
     );
 
     fastify.authStore.linkOAuthProvider(

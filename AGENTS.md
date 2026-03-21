@@ -53,7 +53,7 @@
 
 ### Architecture Overview
 
-- **Backend (Fastify)**: OAuth plugin (`apps/api/src/app/plugins/oauth.ts`) handles provider communication via OAuth 2.0 with PKCE.
+- **Backend (Fastify)**: OAuth plugin entrypoint (`apps/api/src/app/plugins/oauth/index.ts`) delegates implementation to modular files in `apps/api/src/app/plugins/oauth/`.
 - **Database**: SQLite `oauth_providers` table stores provider credentials per user; supports Google, Apple, and Facebook.
 - **Frontend (React)**: OAuth flow initiated on login page with state/code verifier stored in session storage; callback handler manages token exchange.
 - **Session Management**: After OAuth callback, standard session cookie is created (no OAuth tokens returned to frontend).
@@ -70,10 +70,11 @@ Provider credentials must be configured via environment variables:
 ### Adding a New OAuth Provider
 
 1. **Extend `OAuthProviderType`** in `libs/shared/src/lib/auth.dto.ts` to include new provider string literal.
-2. **Update OAuth plugin** (`apps/api/src/app/plugins/oauth.ts`):
-   - Add provider config block in `oauthPlugin` function.
-   - Implement user info parsing in `getUserInfo()` method (handle provider-specific response format).
-   - Implement token refresh in `refreshAccessToken()` if provider supports refresh tokens.
+2. **Update OAuth plugin modules**:
+   - Provider config and env wiring: `apps/api/src/app/plugins/oauth/oauthConfigs.ts`.
+   - OAuth service methods: `apps/api/src/app/plugins/oauth/service.ts`.
+   - User profile mapping helpers: `apps/api/src/app/plugins/oauth/userInfo.ts`.
+   - PKCE helpers: `apps/api/src/app/plugins/oauth/pkce.ts`.
 3. **Update OAuth routes** (`apps/api/src/app/routes/oauth.ts`) if new authorization/callback flow differs from standard OAuth 2.0.
 4. **Update login page** (`apps/web/src/app/auth/loginPage.tsx`) to add provider button and call `initiateOAuth()`.
 
@@ -89,6 +90,17 @@ Provider credentials must be configured via environment variables:
 - OAuth state stored in browser `sessionStorage` with 10-minute expiration; validated on callback.
 - Access tokens NOT returned to frontend; stored server-side in database, refreshed as needed.
 - Email auto-verified on OAuth login (implicit account linking if email matches); explicit confirmation recommended for production.
+
+## Plugin and Module Structure Policy
+
+- For Fastify plugins, use a folder-based structure like `apps/api/src/app/plugins/database/`:
+  - `index.ts` entrypoint for composition/registration (preferred over `<plugin>.ts`).
+  - `types.ts` for exported contracts and module augmentation.
+  - Feature-focused files (`oauthConfigs.ts`, `store.ts`, `service.ts`, `providers.ts`, etc.) for implementation details.
+- Keep plugin entrypoints thin; avoid placing provider logic, parsing helpers, and HTTP calls in a single file.
+- Split any module when it exceeds one responsibility or grows beyond ~200 lines.
+- For larger modules outside plugins, apply the same pattern: contracts + orchestration + focused implementation files.
+- When introducing a new plugin/module, update docs in `docs/agents/` if the pattern or workflow changes.
 
 ## When Adding a New Project
 

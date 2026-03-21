@@ -22,7 +22,7 @@ export interface RegisterRequestBody {
   email: string;
   name: string;
   surname: string;
-  password?: string;
+  password: string;
 }
 
 export interface OAuthInitiateRequestBody {
@@ -67,6 +67,7 @@ export interface OAuthUserInfo {
   id: string;
   email: string;
   name: string;
+  surname: string;
   picture?: string;
 }
 

@@ -127,7 +127,7 @@ describe('auth routes', () => {
     await server.close();
   });
 
-  it('registers a new user without a password (OAuth-style registration)', async () => {
+  it('returns 400 when password is missing during registration', async () => {
     const server = Fastify();
     await server.register(cookiePlugin);
     await server.register(databasePlugin);
@@ -144,14 +144,10 @@ describe('auth routes', () => {
       },
     });
 
-    expect(response.statusCode).toBe(201);
-
-    const body = response.json<SessionResponse>();
-    expect(body.authenticated).toBe(true);
-    expect(body.user.email).toBe('oauthuser@example.com');
-    expect(body.user.name).toBe('Jane');
-    expect(body.user.surname).toBe('Smith');
-    expect(body.user.displayName).toBe('Jane Smith');
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({
+      message: 'Email, name, surname, and password are required.',
+    });
 
     await server.close();
   });
