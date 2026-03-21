@@ -4,162 +4,35 @@ import {
   scryptSync,
   timingSafeEqual,
 } from 'node:crypto';
-import { mkdirSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import type { FastifyInstance } from 'fastify';
-import fp from 'fastify-plugin';
-import Database from 'better-sqlite3';
 import type { UserRole } from '@rod-manager/shared';
+import type Database from 'better-sqlite3';
+import type {
+  AuthStore,
+  CountRow,
+  OAuthProviderListRow,
+  OAuthProviderRow,
+  SessionRow,
+  UserRow,
+} from './types';
+import { createSessionExpiration } from './types';
 
-export type OAuthProviderType = 'google' | 'apple' | 'facebook';
+export type { AuthStore };
 
-export interface AuthStoreUser {
-  id: string;
-  email: string;
-  displayName: string;
-  role: UserRole;
-  passwordHash: string;
-}
+// Number of random bytes used for the password assigned to OAuth-only users.
+// These users authenticate exclusively via OAuth and never use this password directly.
+const OAUTH_USER_PASSWORD_BYTES = 32;
 
-export interface OAuthProviderData {
-  id: string;
-  userId: string;
-  provider: OAuthProviderType;
-  providerUserId: string;
-  accessToken: string;
-  refreshToken: string | null;
-  accessTokenExpiresAt: number;
-  createdAt: number;
-}
-
-export interface AuthStoreSession {
-  token: string;
-  userId: string;
-  expiresAt: number;
-  userEmail: string;
-  userDisplayName: string;
-  userRole: UserRole;
-}
-
-export interface AuthStore {
-  findUserById(id: string): AuthStoreUser | undefined;
-  findUserByEmail(email: string): AuthStoreUser | undefined;
-  findUserByOAuthProvider(
-    provider: OAuthProviderType,
-    providerUserId: string,
-  ): AuthStoreUser | undefined;
-  findOrCreateUserByOAuth(
-    provider: OAuthProviderType,
-    providerUserId: string,
-    email: string,
-    displayName: string,
-  ): AuthStoreUser;
-  linkOAuthProvider(
-    userId: string,
-    provider: OAuthProviderType,
-    providerUserId: string,
-    accessToken: string,
-    refreshToken: string | null,
-    accessTokenExpiresAt: number,
-  ): void;
-  unlinkOAuthProvider(userId: string, provider: OAuthProviderType): void;
-  getOAuthProvider(
-    userId: string,
-    provider: OAuthProviderType,
-  ): OAuthProviderData | undefined;
-  updateOAuthToken(
-    userId: string,
-    provider: OAuthProviderType,
-    accessToken: string,
-    refreshToken: string | null,
-    accessTokenExpiresAt: number,
-  ): void;
-  listLinkedOAuthProviders(userId: string): OAuthProviderType[];
-  verifyPassword(password: string, passwordHash: string): boolean;
-  createSession(userId: string): string;
-  findSession(token: string): AuthStoreSession | undefined;
-  deleteSession(token: string): void;
-  deleteExpiredSessions(now: number): void;
-}
-
-interface UserRow {
-  id: string;
-  email: string;
-  display_name: string;
-  role: UserRole;
-  password_hash: string;
-}
-
-interface SessionRow {
-  token: string;
-  user_id: string;
-  expires_at: number;
-  email: string;
-  display_name: string;
-  role: UserRole;
-}
-
-interface CountRow {
-  count: number;
-}
-
-interface OAuthProviderListRow {
-  provider: OAuthProviderType;
-}
-
-interface OAuthProviderRow {
-  id: string;
-  user_id: string;
-  provider: OAuthProviderType;
-  provider_user_id: string;
-  access_token: string;
-  refresh_token: string | null;
-  access_token_expires_at: number;
-  created_at: number;
-}
-
-declare module 'fastify' {
-  interface FastifyInstance {
-    authStore: AuthStore;
-  }
-}
-
-const SESSION_TTL_SECONDS = 60 * 60 * 8;
-
-export function createSessionExpiration(now = Date.now()): number {
-  return now + SESSION_TTL_SECONDS * 1000;
-}
-
-/**
- * Registers SQLite-backed store for authentication and session persistence.
- */
-export default fp(function databasePlugin(fastify: FastifyInstance) {
-  const db = new Database(getDatabasePath());
-
-  initializeSchema(db);
-  ensureUserRoleColumn(db);
-
-  if (shouldSeedInitialUser()) {
-    seedInitialUser(db);
-  }
-
-  ensureAdministratorExists(db);
-
-  fastify.decorate('authStore', createStore(db));
-
-  fastify.addHook('onClose', async () => {
-    db.close();
-  });
-});
-
-function hashPassword(password: string): string {
+export function hashPassword(password: string): string {
   const salt = randomBytes(16).toString('hex');
   const derived = scryptSync(password, salt, 64).toString('hex');
 
   return `${salt}:${derived}`;
 }
 
-function verifyPassword(password: string, passwordHash: string): boolean {
+export function verifyPassword(
+  password: string,
+  passwordHash: string,
+): boolean {
   const [salt, expectedHex] = passwordHash.split(':') as [
     string | undefined,
     string | undefined,
@@ -179,126 +52,7 @@ function verifyPassword(password: string, passwordHash: string): boolean {
   return timingSafeEqual(expected, actual);
 }
 
-function getDatabasePath(): string {
-  const configuredPath = process.env.AUTH_DB_PATH ?? 'tmp/auth.sqlite';
-
-  if (configuredPath === ':memory:') {
-    return configuredPath;
-  }
-
-  const resolvedPath = resolve(process.cwd(), configuredPath);
-  mkdirSync(dirname(resolvedPath), { recursive: true });
-
-  return resolvedPath;
-}
-
-function initializeSchema(db: Database.Database): void {
-  db.pragma('foreign_keys = ON');
-  db.pragma('journal_mode = WAL');
-
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      email TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
-      display_name TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
-      created_at INTEGER NOT NULL DEFAULT (unixepoch())
-    );
-
-    CREATE TABLE IF NOT EXISTS sessions (
-      token TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      expires_at INTEGER NOT NULL,
-      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    );
-
-    CREATE TABLE IF NOT EXISTS oauth_providers (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
-      provider TEXT NOT NULL,
-      provider_user_id TEXT NOT NULL,
-      access_token TEXT NOT NULL,
-      refresh_token TEXT,
-      access_token_expires_at INTEGER NOT NULL,
-      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      UNIQUE(provider, provider_user_id)
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
-    CREATE INDEX IF NOT EXISTS idx_oauth_providers_user_id ON oauth_providers(user_id);
-  `);
-}
-
-function ensureUserRoleColumn(db: Database.Database): void {
-  const userColumns = db
-    .prepare<[], { name: string }>(`PRAGMA table_info('users')`)
-    .all();
-
-  const hasRoleColumn = userColumns.some((column) => column.name === 'role');
-
-  if (!hasRoleColumn) {
-    db.exec(`ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'`);
-  }
-
-  db.prepare(
-    `UPDATE users SET role = 'user' WHERE role NOT IN ('admin', 'user')`,
-  ).run();
-}
-
-function seedInitialUser(db: Database.Database): void {
-  const initialUserEmail =
-    process.env.AUTH_INITIAL_USER_EMAIL ?? 'admin@rod-manager.local';
-  const initialUserPassword =
-    process.env.AUTH_INITIAL_USER_PASSWORD ?? 'admin1234';
-
-  db.prepare(
-    `INSERT INTO users (id, email, password_hash, display_name, role)
-      VALUES (@id, @email, @password_hash, @display_name, @role)
-      ON CONFLICT(email) DO UPDATE SET
-        password_hash = excluded.password_hash,
-        display_name = excluded.display_name,
-        role = excluded.role`,
-  ).run({
-    id: 'initial-admin-user',
-    email: initialUserEmail,
-    password_hash: hashPassword(initialUserPassword),
-    display_name: 'Administrator',
-    role: 'admin' satisfies UserRole,
-  });
-}
-
-function shouldSeedInitialUser(): boolean {
-  return process.env.AUTH_SEED_INITIAL_USER === 'true';
-}
-
-function ensureAdministratorExists(db: Database.Database): void {
-  const adminCount = db
-    .prepare<
-      [],
-      CountRow
-    >(`SELECT COUNT(*) AS count FROM users WHERE role = 'admin'`)
-    .get();
-
-  if ((adminCount?.count ?? 0) > 0) {
-    return;
-  }
-
-  db.prepare(
-    `UPDATE users
-      SET role = 'admin'
-      WHERE id = (
-        SELECT id
-        FROM users
-        ORDER BY created_at ASC, rowid ASC
-        LIMIT 1
-      )`,
-  ).run();
-}
-
-function getRoleForNewUser(db: Database.Database): UserRole {
+export function getRoleForNewUser(db: Database.Database): UserRole {
   const userCount = db
     .prepare<[], CountRow>(`SELECT COUNT(*) AS count FROM users`)
     .get();
@@ -306,7 +60,7 @@ function getRoleForNewUser(db: Database.Database): UserRole {
   return (userCount?.count ?? 0) === 0 ? 'admin' : 'user';
 }
 
-function createStore(db: Database.Database): AuthStore {
+export function createStore(db: Database.Database): AuthStore {
   const findUserByIdStatement = db.prepare<[string], UserRow>(
     `SELECT id, email, display_name, role, password_hash FROM users WHERE id = ?`,
   );
@@ -446,7 +200,9 @@ function createStore(db: Database.Database): AuthStore {
 
       if (existingUser === undefined) {
         // Create new user with random password (OAuth user doesn't have password)
-        const randomPassword = randomBytes(32).toString('hex');
+        const randomPassword = randomBytes(OAUTH_USER_PASSWORD_BYTES).toString(
+          'hex',
+        );
         const role = getRoleForNewUser(db);
         createUserStatement.run(
           userId,
@@ -583,6 +339,7 @@ function createStore(db: Database.Database): AuthStore {
   };
 }
 
+/** Generates a cryptographically random session token combining a UUID and random hex bytes. */
 function createSessionToken(): string {
   return `${randomUUID()}-${randomBytes(16).toString('hex')}`;
 }
