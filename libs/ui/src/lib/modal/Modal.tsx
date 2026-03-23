@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import type { RefObject } from 'react';
-import type { ContentType, TitleType } from './Content';
+import type { ActionType, ContentType, TitleType } from './Content';
+import { FaCircleXmark } from 'react-icons/fa6';
 
 export type ModalApi = {
   show: () => void;
@@ -8,7 +9,7 @@ export type ModalApi = {
 };
 
 export type ModalProps = {
-  children: [TitleType, ContentType];
+  children: [TitleType, ContentType, ActionType];
   api: RefObject<ModalApi | null>;
 };
 
@@ -25,18 +26,19 @@ export const Modal = ({ api, children }: ModalProps) => {
     };
   }, [api]);
 
-  const [title, content] = children;
+  const [title, content, actions] = children;
 
   return (
     <dialog className="modal" ref={modal}>
       <div className="modal-box w-11/12 max-w-5xl">
         {title}
         {content}
-        <div className="modal-action">
-          <form method="dialog">
-            <button className="btn">Close</button>
-          </form>
-        </div>
+        <form method="dialog" className="modal-action">
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4">
+            <FaCircleXmark className="h-4 w-4" />
+          </button>
+          {actions}
+        </form>
       </div>
     </dialog>
   );

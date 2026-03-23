@@ -23,6 +23,7 @@ const en: TranslationResources = {
     fallbackUserName: 'User',
   },
   auth: {
+    or: 'or',
     title: 'Log in',
     hint: 'Use the demo credentials to sign in.',
     emailLabel: 'Email',

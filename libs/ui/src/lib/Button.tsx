@@ -21,7 +21,7 @@ const BUTTON_TONE_CLASS_NAMES: Record<ButtonTone, string> = {
 /**
  * Reusable button component for shared UI actions across applications.
  */
-export function Button({
+export const Button = ({
   children,
   className,
   disabled,
@@ -29,7 +29,7 @@ export function Button({
   isLoading = false,
   tone = 'primary',
   ...props
-}: ButtonProps) {
+}: ButtonProps) => {
   const resolvedClassName = joinClassNames(
     BUTTON_BASE_CLASS_NAME,
     BUTTON_TONE_CLASS_NAMES[tone],
@@ -50,4 +50,4 @@ export function Button({
       {children}
     </button>
   );
-}
+};

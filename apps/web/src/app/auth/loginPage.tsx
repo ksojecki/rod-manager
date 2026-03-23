@@ -1,4 +1,4 @@
-import { Link, Navigate } from 'react-router';
+import { Navigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './authContext';
 import { LoginForm } from './components/LoginForm';
@@ -24,13 +24,6 @@ export function LoginPage() {
             <LoginForm />
           </div>
         </div>
-
-        <p className="mt-4 text-center text-sm">
-          {t('noAccount')}{' '}
-          <Link className="link link-primary" to="/register">
-            {t('registerLink')}
-          </Link>
-        </p>
       </section>
     </div>
   );

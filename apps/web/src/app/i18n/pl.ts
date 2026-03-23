@@ -21,6 +21,7 @@ const pl = {
     fallbackUserName: 'Uzytkownik',
   },
   auth: {
+    or: 'lub',
     title: 'Logowanie',
     hint: 'Uzyj konta demo, aby sie zalogowac.',
     emailLabel: 'Email',
