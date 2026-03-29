@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import type { ModalApi } from '@rod-manager/ui';
-import { useAuth } from '../../auth/authContext';
-import { LoginModal } from '../../auth/loginModal';
+import type { ModalWindowApi } from '@rod-manager/ui';
+import { useAuth } from '../../auth/AuthContext';
+import { LoginModal } from '../../auth/components/LoginModal';
 
 export const Navbar = () => {
   const { t } = useTranslation('layout');
   const { logout, status, user } = useAuth();
-  const loginModalApi = useRef<ModalApi | null>(null);
+  const loginModalApi = useRef<ModalWindowApi | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {

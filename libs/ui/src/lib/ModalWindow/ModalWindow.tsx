@@ -3,17 +3,17 @@ import type { RefObject } from 'react';
 import type { ActionType, ContentType, TitleType } from './Content';
 import { FaCircleXmark } from 'react-icons/fa6';
 
-export type ModalApi = {
+export type ModalWindowApi = {
   show: () => void;
   close: () => void;
 };
 
-export type ModalProps = {
+export type ModalWindowProps = {
   children: [TitleType, ContentType, ActionType];
-  api: RefObject<ModalApi | null>;
+  api: RefObject<ModalWindowApi | null>;
 };
 
-export const Modal = ({ api, children }: ModalProps) => {
+export const ModalWindow = ({ api, children }: ModalWindowProps) => {
   const modal = useRef<HTMLDialogElement | null>(null);
   useLayoutEffect(() => {
     api.current = {
@@ -54,7 +54,6 @@ function showDialog(dialog: HTMLDialogElement | null) {
     return;
   }
 
-  // JSDOM fallback: emulate <dialog open> state when showModal is not implemented.
   dialog.setAttribute('open', '');
 }
 

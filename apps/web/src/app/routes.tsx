@@ -1,12 +1,12 @@
 import { Route, Routes } from 'react-router';
 
-import { HomePage } from './home/homePage';
-import { AccountPage } from './account/accountPage';
-import { AppLayout } from './layout/appLayout';
-import { AuthProvider } from './auth/authContext';
-import { RegisterPage } from './auth/registerPage';
-import { OAuthCallbackPage } from './auth/oauthCallbackPage';
-import { RequireAuth } from './auth/requireAuth';
+import { HomePage } from './home/HomePage';
+import { AccountPage } from './account/AccountPage';
+import { AppLayout } from './layout/AppLayout';
+import { AuthProvider } from './auth/AuthContext';
+import { RegisterPage } from './auth/RegisterPage';
+import { OAuthCallbackPage } from './auth/OAuthCallbackPage';
+import { RequireAuth } from './auth/RequireAuth';
 
 export function AppRoutes() {
   return (

@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, FormField } from '@rod-manager/ui';
-import { useAuth } from '../authContext';
-import { loginSchema, type LoginFormValues } from './loginSchema';
-import { useAuthForm } from './useAuthForm';
+import { useAuth } from '../AuthContext';
+import { loginSchema, type LoginFormValues } from '../types/loginSchema';
+import { useAuthForm } from '../hooks/useAuthForm';
 
 type LoginFormProps = {
   onSuccess?: () => void;

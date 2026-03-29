@@ -4,7 +4,7 @@ import type {
   OAuthProviderStatus,
   OAuthProviderType,
 } from '@rod-manager/shared';
-import { useAuth } from '../auth/authContext';
+import { useAuth } from '../auth/AuthContext';
 import {
   linkOAuthProvider,
   loadOAuthProviders,

@@ -1,5 +1,6 @@
 import js from '@eslint/js';
 import prettierConfig from 'eslint-config-prettier';
+import checkFile from 'eslint-plugin-check-file';
 import jsdoc from 'eslint-plugin-jsdoc';
 import jsonc from 'eslint-plugin-jsonc';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
@@ -157,6 +158,32 @@ export default [
       'react-hooks/exhaustive-deps': 'warn',
       'jsx-a11y/alt-text': 'error',
       'jsx-a11y/anchor-is-valid': 'error',
+    },
+  },
+  {
+    files: ['apps/web/src/**/*.{ts,tsx}', 'libs/ui/src/**/*.{ts,tsx}'],
+    ignores: [
+      '**/*.d.ts',
+      '**/*.{spec,test}.{ts,tsx}',
+      'apps/web/src/test-setup.ts',
+      'apps/web/src/{main,entry-client,entry-server}.tsx',
+      'apps/web/src/app/routes.tsx',
+    ],
+    plugins: {
+      'check-file': checkFile,
+    },
+    rules: {
+      'check-file/filename-naming-convention': [
+        'error',
+        {
+          'apps/web/src/**/use*.{ts,tsx}': 'use[A-Z]*',
+          'libs/ui/src/**/use*.{ts,tsx}': 'use[A-Z]*',
+          'apps/web/src/**/*.tsx': 'PASCAL_CASE',
+          'libs/ui/src/**/*.tsx': 'PASCAL_CASE',
+          'apps/web/src/**/*.ts': 'CAMEL_CASE',
+          'libs/ui/src/**/*.ts': 'CAMEL_CASE',
+        },
+      ],
     },
   },
   {

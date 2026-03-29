@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { Navigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from './authContext';
+import { useAuth } from './AuthContext';
 
 interface RequireAuthProps {
   children: ReactElement;

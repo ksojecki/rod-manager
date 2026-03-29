@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { completeOAuthCallback, retrieveOAuthState } from './authApi';
-import { useAuth } from './authContext';
+import { useAuth } from './AuthContext';
 import type { OAuthProviderType } from '@rod-manager/shared';
 
 /**

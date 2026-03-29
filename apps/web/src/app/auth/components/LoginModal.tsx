@@ -1,12 +1,10 @@
-import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, type ModalApi } from '@rod-manager/ui';
-import { LoginForm } from './components/LoginForm';
-import { OAuthLoginButtons } from './components/OAuthLoginButtons';
+import type { ModalWindowProps } from '@rod-manager/ui';
+import { ModalWindow } from '@rod-manager/ui';
+import { LoginForm } from './LoginForm';
+import { OAuthLoginButtons } from './OAuthLoginButtons';
 
-type LoginModalProps = {
-  api: RefObject<ModalApi | null>;
-};
+type LoginModalProps = Pick<ModalWindowProps, 'api'>;
 
 /**
  * Modal dialog containing the login form and OAuth login buttons.
@@ -15,9 +13,9 @@ export function LoginModal({ api }: LoginModalProps) {
   const { t } = useTranslation('auth');
 
   return (
-    <Modal api={api}>
-      <Modal.Title>{t('title')}</Modal.Title>
-      <Modal.Content>
+    <ModalWindow api={api}>
+      <ModalWindow.Title>{t('title')}</ModalWindow.Title>
+      <ModalWindow.Content>
         <div className="flex flex-row gap-4">
           <div className="flex-1 flex gap-2 flex-col">
             <h3 className="text-l font-medium">Account with password</h3>
@@ -30,12 +28,12 @@ export function LoginModal({ api }: LoginModalProps) {
             <OAuthLoginButtons />
           </div>
         </div>
-      </Modal.Content>
-      <Modal.Actions>
-        <Modal.ActionButton to="/register">
+      </ModalWindow.Content>
+      <ModalWindow.Actions>
+        <ModalWindow.ActionButton to="/register">
           {t('noAccount')} {t('registerLink')}
-        </Modal.ActionButton>
-      </Modal.Actions>
-    </Modal>
+        </ModalWindow.ActionButton>
+      </ModalWindow.Actions>
+    </ModalWindow>
   );
 }

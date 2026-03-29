@@ -3,10 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, FormField } from '@rod-manager/ui';
-import { useAuth } from '../authContext';
+import { useAuth } from '../AuthContext';
 import { register as registerRequest } from '../authApi';
-import { registerSchema, type RegisterFormValues } from './registerSchema';
-import { useAuthForm } from './useAuthForm';
+import {
+  registerSchema,
+  type RegisterFormValues,
+} from '../types/registerSchema';
+import { useAuthForm } from '../hooks/useAuthForm';
 
 /**
  * Registration form for creating an account with email and password.
