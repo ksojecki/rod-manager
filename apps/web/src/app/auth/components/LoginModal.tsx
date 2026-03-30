@@ -18,13 +18,11 @@ export function LoginModal({ api }: LoginModalProps) {
       <ModalWindow.Content>
         <div className="flex flex-row gap-4">
           <div className="flex-1 flex gap-2 flex-col">
-            <h3 className="text-l font-medium">Account with password</h3>
             <LoginForm onSuccess={() => api.current?.close()} />
           </div>
 
           <div className="divider divider-horizontal">{t('or')}</div>
-          <div className="flex-1 h-fit flex gap-2 flex-col">
-            <h3 className="text-l font-medium">External authenticators</h3>
+          <div className="flex-1 flex gap-2 flex-col justify-center">
             <OAuthLoginButtons />
           </div>
         </div>
