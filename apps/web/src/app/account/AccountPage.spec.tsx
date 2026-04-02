@@ -28,6 +28,7 @@ const {
   mockStoreOAuthState,
   mockUnlinkOAuthProvider,
   mockUpdatePassword,
+  mockUpdateLanguagePreference,
 } = vi.hoisted(() => ({
   mockUseAuth: vi.fn<() => AuthContextLike>(),
   mockLinkOAuthProvider:
@@ -39,6 +40,8 @@ const {
     vi.fn<(provider: OAuthProviderType) => Promise<void>>(),
   mockUpdatePassword:
     vi.fn<(input: UpdatePasswordRequestBody) => Promise<void>>(),
+  mockUpdateLanguagePreference:
+    vi.fn<(language: 'en' | 'pl') => Promise<void>>(),
 }));
 
 vi.mock('../auth/AuthContext', () => ({
@@ -51,6 +54,7 @@ vi.mock('../auth/authApi', () => ({
   storeOAuthState: mockStoreOAuthState,
   unlinkOAuthProvider: mockUnlinkOAuthProvider,
   updatePassword: mockUpdatePassword,
+  updateLanguagePreference: mockUpdateLanguagePreference,
 }));
 
 describe('AccountPage', () => {

@@ -102,6 +102,10 @@ export function createStore(db: Database.Database): AuthStore {
       WHERE user_id = ? AND provider = ?`,
   );
 
+  const updateUserPreferredLanguageStatement = db.prepare(
+    `UPDATE users SET preferred_language = ? WHERE id = ?`,
+  );
+
   const updateLinkedOAuthProviderStatement = db.prepare(
     `UPDATE oauth_providers
       SET provider_user_id = ?, access_token = ?, refresh_token = ?, access_token_expires_at = ?
@@ -351,6 +355,9 @@ export function createStore(db: Database.Database): AuthStore {
         userId,
         provider,
       );
+    },
+    updateUserPreferredLanguage(userId, language) {
+      updateUserPreferredLanguageStatement.run(language, userId);
     },
     listLinkedOAuthProviders(userId) {
       return listLinkedOAuthProvidersStatement

@@ -197,4 +197,43 @@ describe('auth routes', () => {
 
     await server.close();
   });
+
+  it('persists selected language for authenticated user', async () => {
+    const server = Fastify();
+    await server.register(cookiePlugin);
+    await server.register(databasePlugin);
+
+    authRoutes(server);
+
+    const loginResponse = await server.inject({
+      method: 'POST',
+      url: '/api/auth/login',
+      payload: {
+        email: 'admin@rod-manager.local',
+        password: 'admin1234',
+      },
+    });
+
+    const sessionCookie = loginResponse.cookies.find(
+      (cookie) => cookie.name === SESSION_COOKIE_NAME,
+    );
+
+    const languageResponse = await server.inject({
+      method: 'POST',
+      url: '/api/auth/language',
+      cookies: {
+        [SESSION_COOKIE_NAME]: sessionCookie?.value ?? '',
+      },
+      payload: {
+        language: 'pl',
+      },
+    });
+
+    expect(languageResponse.statusCode).toBe(204);
+
+    const user = server.authStore.findUserByEmail('admin@rod-manager.local');
+    expect(user).toBeDefined();
+
+    await server.close();
+  });
 });

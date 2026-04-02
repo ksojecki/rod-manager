@@ -74,6 +74,7 @@ export interface AuthStore {
     refreshToken: string | null,
     accessTokenExpiresAt: number,
   ): void;
+  updateUserPreferredLanguage(userId: string, language: 'en' | 'pl'): void;
   listLinkedOAuthProviders(userId: string): OAuthProviderType[];
   verifyPassword(password: string, passwordHash: string): boolean;
   createSession(userId: string): string;

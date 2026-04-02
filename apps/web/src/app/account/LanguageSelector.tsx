@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { updateLanguagePreference } from '../auth/authApi';
 
 export const LanguageSelector = () => {
   const { i18n, t } = useTranslation('layout');
@@ -14,7 +15,11 @@ export const LanguageSelector = () => {
         <select
           className="select select-bordered w-full"
           onChange={(event) => {
-            void i18n.changeLanguage(event.target.value);
+            const nextLanguage = event.target.value === 'pl' ? 'pl' : 'en';
+            void i18n.changeLanguage(nextLanguage);
+            void updateLanguagePreference(nextLanguage).catch(() => {
+              // Keep local selection even if persistence fails.
+            });
           }}
           value={locale}
         >

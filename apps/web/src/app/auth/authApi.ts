@@ -99,6 +99,23 @@ export async function updatePassword(
   }
 }
 
+export async function updateLanguagePreference(
+  language: 'en' | 'pl',
+): Promise<void> {
+  const response = await fetch('/api/auth/language', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ language }),
+  });
+
+  if (!response.ok && response.status !== 204) {
+    throw new Error(await parseErrorMessage(response));
+  }
+}
+
 export async function unlinkOAuthProvider(
   provider: OAuthProviderType,
 ): Promise<void> {

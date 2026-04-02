@@ -4,6 +4,7 @@ import Database from 'better-sqlite3';
 import {
   getDatabasePath,
   initializeSchema,
+  ensurePreferredLanguageColumn,
   ensureUserRoleColumn,
   ensureNameColumns,
   seedInitialUser,
@@ -28,6 +29,7 @@ export default fp(function databasePlugin(fastify: FastifyInstance) {
   const db = new Database(getDatabasePath());
 
   initializeSchema(db);
+  ensurePreferredLanguageColumn(db);
   ensureUserRoleColumn(db);
   ensureNameColumns(db);
 
