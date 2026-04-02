@@ -25,6 +25,11 @@ export interface RegisterRequestBody {
   password: string;
 }
 
+export interface UpdatePasswordRequestBody {
+  currentPassword?: string;
+  newPassword: string;
+}
+
 export interface OAuthInitiateRequestBody {
   provider: OAuthProviderType;
   codeChallenge: string;
@@ -61,6 +66,27 @@ export interface OAuthProviderStatus {
 
 export interface OAuthProvidersResponseBody {
   providers: OAuthProviderStatus[];
+}
+
+export interface PasswordAuthenticationMethodStatus {
+  type: 'password';
+  connected: boolean;
+  canDisconnect: false;
+}
+
+export interface OAuthAuthenticationMethodStatus {
+  type: 'oauth';
+  provider: OAuthProviderType;
+  connected: boolean;
+  canDisconnect: boolean;
+}
+
+export type AuthenticationMethodStatus =
+  | PasswordAuthenticationMethodStatus
+  | OAuthAuthenticationMethodStatus;
+
+export interface AuthenticationMethodsResponseBody {
+  methods: AuthenticationMethodStatus[];
 }
 
 export interface OAuthUserInfo {

@@ -1,18 +1,19 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
-  OAuthProviderStatus,
+  AuthenticationMethodStatus,
   OAuthProviderType,
 } from '@rod-manager/shared';
+import { Button, Page } from '@rod-manager/ui';
 import { useAuth } from '../auth/AuthContext';
 import {
   linkOAuthProvider,
-  loadOAuthProviders,
+  loadAuthenticationMethods,
   storeOAuthState,
   unlinkOAuthProvider,
 } from '../auth/authApi';
-import { Page } from '@rod-manager/ui';
 import { LanguageSelector } from './LanguageSelector';
+import { PasswordMethodForm } from './PasswordMethodForm';
 
 const OAUTH_PROVIDER_LABELS: Record<OAuthProviderType, string> = {
   google: 'Google',
@@ -23,46 +24,66 @@ const OAUTH_PROVIDER_LABELS: Record<OAuthProviderType, string> = {
 export const AccountPage = () => {
   const { t } = useTranslation('account');
   const { user } = useAuth();
-  const [providers, setProviders] = useState<OAuthProviderStatus[]>([]);
+  const [methods, setMethods] = useState<AuthenticationMethodStatus[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [pendingProvider, setPendingProvider] =
-    useState<OAuthProviderType | null>(null);
+  const [pendingMethod, setPendingMethod] = useState<string | null>(null);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
-  const sortedProviders = useMemo(
+  const oauthMethods = useMemo(
     () =>
-      [...providers].sort((left, right) =>
-        OAUTH_PROVIDER_LABELS[left.provider].localeCompare(
-          OAUTH_PROVIDER_LABELS[right.provider],
+      methods
+        .filter(
+          (
+            method,
+          ): method is Extract<AuthenticationMethodStatus, { type: 'oauth' }> =>
+            method.type === 'oauth',
+        )
+        .sort((left, right) =>
+          OAUTH_PROVIDER_LABELS[left.provider].localeCompare(
+            OAUTH_PROVIDER_LABELS[right.provider],
+          ),
         ),
-      ),
-    [providers],
+    [methods],
   );
 
-  useEffect(() => {
-    const loadProviders = async (): Promise<void> => {
-      try {
-        const response = await loadOAuthProviders();
-        setProviders(response.providers);
-      } catch (error) {
-        if (error instanceof Error) {
-          setErrorMessage(error.message);
-          return;
-        }
+  const passwordMethod = useMemo(
+    () => methods.find((method) => method.type === 'password') ?? null,
+    [methods],
+  );
 
-        setErrorMessage('Failed to load OAuth providers.');
+  const refreshAuthenticationMethods = useCallback(async () => {
+    try {
+      const response = await loadAuthenticationMethods();
+      setMethods(response.methods);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+        return;
       }
-    };
 
-    void loadProviders();
-  }, []);
+      setErrorMessage(t('authentication.loadError'));
+    }
+  }, [t]);
+
+  useEffect(() => {
+    void refreshAuthenticationMethods();
+  }, [refreshAuthenticationMethods]);
+
+  async function handlePasswordSuccess(message: string): Promise<void> {
+    setErrorMessage(null);
+    setSuccessMessage(message);
+    setPendingMethod(null);
+    setShowPasswordForm(false);
+    await refreshAuthenticationMethods();
+  }
 
   async function handleLinkProvider(
     provider: OAuthProviderType,
   ): Promise<void> {
     setErrorMessage(null);
     setSuccessMessage(null);
-    setPendingProvider(provider);
+    setPendingMethod(provider);
 
     try {
       const { authorizationUrl, state, codeVerifier } =
@@ -74,9 +95,9 @@ export const AccountPage = () => {
       if (error instanceof Error) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage('Failed to start OAuth linking.');
+        setErrorMessage(t('authentication.linkStartError'));
       }
-      setPendingProvider(null);
+      setPendingMethod(null);
     }
   }
 
@@ -85,23 +106,24 @@ export const AccountPage = () => {
   ): Promise<void> {
     setErrorMessage(null);
     setSuccessMessage(null);
-    setPendingProvider(provider);
+    setPendingMethod(provider);
 
     try {
       await unlinkOAuthProvider(provider);
-      const response = await loadOAuthProviders();
-      setProviders(response.providers);
+      await refreshAuthenticationMethods();
       setSuccessMessage(
-        `${OAUTH_PROVIDER_LABELS[provider]} has been disconnected.`,
+        t('authentication.oauthDisconnected', {
+          provider: OAUTH_PROVIDER_LABELS[provider],
+        }),
       );
     } catch (error) {
       if (error instanceof Error) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage('Failed to unlink OAuth provider.');
+        setErrorMessage(t('authentication.unlinkError'));
       }
     } finally {
-      setPendingProvider(null);
+      setPendingMethod(null);
     }
   }
 
@@ -115,13 +137,15 @@ export const AccountPage = () => {
         <LanguageSelector />
         <p className="text-sm text-base-content/70">{user?.email ?? ''}</p>
         <p className="text-sm text-base-content/70">
-          Role: {user?.role ?? 'user'}
+          {t('roleLabel')}: {user?.role ?? 'user'}
         </p>
         <div className="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold">Connected OAuth providers</h2>
+            <h2 className="text-lg font-semibold">
+              {t('authentication.title')}
+            </h2>
             <p className="text-sm text-base-content/70">
-              Link an external provider to sign in to your existing account.
+              {t('authentication.description')}
             </p>
           </div>
 
@@ -134,45 +158,101 @@ export const AccountPage = () => {
           ) : null}
 
           <div className="mt-4 space-y-3">
-            {sortedProviders.map((provider) => {
-              const isPending = pendingProvider === provider.provider;
+            {passwordMethod !== null ? (
+              <div className="flex items-center justify-between gap-4 rounded-box border border-base-300 px-4 py-3">
+                <div>
+                  <p className="font-medium">
+                    {t('authentication.passwordLabel')}
+                  </p>
+                  <p className="text-sm text-base-content/70">
+                    {passwordMethod.connected
+                      ? t('authentication.connected')
+                      : t('authentication.notConnected')}
+                  </p>
+                  {passwordMethod.connected ? (
+                    <p className="text-xs text-base-content/60">
+                      {t('authentication.passwordCannotBeDisabled')}
+                    </p>
+                  ) : null}
+                </div>
+
+                <Button
+                  onClick={() => {
+                    setErrorMessage(null);
+                    setSuccessMessage(null);
+                    setShowPasswordForm((current) => !current);
+                  }}
+                  tone={passwordMethod.connected ? 'secondary' : 'primary'}
+                  type="button"
+                >
+                  {passwordMethod.connected
+                    ? t('authentication.changePasswordAction')
+                    : t('authentication.setPasswordAction')}
+                </Button>
+              </div>
+            ) : null}
+
+            {showPasswordForm && passwordMethod !== null ? (
+              <PasswordMethodForm
+                hasPassword={passwordMethod.connected}
+                onCancel={() => {
+                  setShowPasswordForm(false);
+                }}
+                onSuccess={handlePasswordSuccess}
+              />
+            ) : null}
+
+            {oauthMethods.map((method) => {
+              const isPending = pendingMethod === method.provider;
 
               return (
                 <div
                   className="flex items-center justify-between gap-4 rounded-box border border-base-300 px-4 py-3"
-                  key={provider.provider}
+                  key={method.provider}
                 >
                   <div>
                     <p className="font-medium">
-                      {OAUTH_PROVIDER_LABELS[provider.provider]}
+                      {OAUTH_PROVIDER_LABELS[method.provider]}
                     </p>
                     <p className="text-sm text-base-content/70">
-                      {provider.linked ? 'Connected' : 'Not connected'}
+                      {method.connected
+                        ? t('authentication.connected')
+                        : t('authentication.notConnected')}
                     </p>
+                    {method.connected && !method.canDisconnect ? (
+                      <p className="text-xs text-base-content/60">
+                        {t('authentication.lastMethodHint')}
+                      </p>
+                    ) : null}
                   </div>
 
-                  {provider.linked ? (
-                    <button
-                      className="btn btn-outline btn-sm"
-                      disabled={isPending}
+                  {method.connected ? (
+                    <Button
+                      disabled={isPending || !method.canDisconnect}
                       onClick={() => {
-                        void handleUnlinkProvider(provider.provider);
+                        void handleUnlinkProvider(method.provider);
                       }}
+                      tone="secondary"
                       type="button"
                     >
-                      {isPending ? 'Disconnecting...' : 'Disconnect'}
-                    </button>
+                      {isPending
+                        ? t('authentication.disconnectingAction')
+                        : method.canDisconnect
+                          ? t('authentication.disconnectAction')
+                          : t('authentication.requiredAction')}
+                    </Button>
                   ) : (
-                    <button
-                      className="btn btn-primary btn-sm"
+                    <Button
                       disabled={isPending}
                       onClick={() => {
-                        void handleLinkProvider(provider.provider);
+                        void handleLinkProvider(method.provider);
                       }}
                       type="button"
                     >
-                      {isPending ? 'Connecting...' : 'Connect'}
-                    </button>
+                      {isPending
+                        ? t('authentication.connectingAction')
+                        : t('authentication.connectAction')}
+                    </Button>
                   )}
                 </div>
               );

@@ -1,11 +1,15 @@
 import type { FastifyInstance } from 'fastify';
 import type {
+  AuthenticationMethodsResponseBody,
   AuthUser,
   LoginRequestBody,
+  OAuthProviderType,
   RegisterRequestBody,
   SessionResponse,
 } from '@rod-manager/shared';
 import { SESSION_COOKIE_NAME } from '../plugins/cookie';
+
+const OAUTH_PROVIDERS: OAuthProviderType[] = ['google', 'apple', 'facebook'];
 
 export default function authRoutes(fastify: FastifyInstance) {
   fastify.post<{ Body: LoginRequestBody }>(
@@ -123,6 +127,50 @@ export default function authRoutes(fastify: FastifyInstance) {
     };
 
     await reply.send(sessionResponse);
+  });
+
+  fastify.get('/api/auth/methods', async (request, reply) => {
+    fastify.authStore.deleteExpiredSessions(Date.now());
+    const token = request.cookies[SESSION_COOKIE_NAME];
+
+    if (token === undefined) {
+      await reply.status(401).send({ message: 'Not authenticated.' });
+      return;
+    }
+
+    const session = fastify.authStore.findSession(token);
+
+    if (session === undefined || Date.now() > session.expiresAt) {
+      fastify.authStore.deleteSession(token);
+      await reply.status(401).send({ message: 'Not authenticated.' });
+      return;
+    }
+
+    const linkedProviders = new Set(
+      fastify.authStore.listLinkedOAuthProviders(session.userId),
+    );
+
+    const response: AuthenticationMethodsResponseBody = {
+      methods: [
+        {
+          type: 'password',
+          connected: true,
+          canDisconnect: false,
+        },
+        ...OAUTH_PROVIDERS.map((provider) => {
+          const connected = linkedProviders.has(provider);
+
+          return {
+            type: 'oauth' as const,
+            provider,
+            connected,
+            canDisconnect: connected,
+          };
+        }),
+      ],
+    };
+
+    await reply.send(response);
   });
 
   fastify.post('/api/auth/logout', async (request, reply) => {

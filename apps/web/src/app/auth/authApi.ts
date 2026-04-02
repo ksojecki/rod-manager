@@ -1,12 +1,13 @@
 import type {
+  AuthenticationMethodsResponseBody,
   ApiErrorResponse,
   LoginRequestBody,
-  RegisterRequestBody,
   OAuthCallbackRequestBody,
   OAuthCallbackResponseBody,
   OAuthProviderType,
-  OAuthProvidersResponseBody,
+  RegisterRequestBody,
   SessionResponse,
+  UpdatePasswordRequestBody,
 } from '@rod-manager/shared';
 
 export interface OAuthInitiateResponse {
@@ -75,10 +76,27 @@ export async function completeOAuthCallback(
   );
 }
 
-export async function loadOAuthProviders(): Promise<OAuthProvidersResponseBody> {
-  return requestJson<OAuthProvidersResponseBody>('/api/auth/oauth/providers', {
+export async function loadAuthenticationMethods(): Promise<AuthenticationMethodsResponseBody> {
+  return requestJson<AuthenticationMethodsResponseBody>('/api/auth/methods', {
     method: 'GET',
   });
+}
+
+export async function updatePassword(
+  input: UpdatePasswordRequestBody,
+): Promise<void> {
+  const response = await fetch('/api/auth/password', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok && response.status !== 204) {
+    throw new Error(await parseErrorMessage(response));
+  }
 }
 
 export async function unlinkOAuthProvider(

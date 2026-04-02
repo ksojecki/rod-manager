@@ -17,6 +17,60 @@ function mockGuestSession() {
   );
 }
 
+function mockAuthenticatedAccountSession() {
+  fetchSpy
+    .mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          authenticated: true,
+          user: {
+            id: 'user-1',
+            email: 'user@example.com',
+            name: 'Test',
+            surname: 'User',
+            displayName: 'Test User',
+            role: 'user',
+          },
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      ),
+    )
+    .mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          methods: [
+            { type: 'password', connected: false, canDisconnect: false },
+            {
+              type: 'oauth',
+              provider: 'google',
+              connected: true,
+              canDisconnect: false,
+            },
+            {
+              type: 'oauth',
+              provider: 'apple',
+              connected: false,
+              canDisconnect: false,
+            },
+            {
+              type: 'oauth',
+              provider: 'facebook',
+              connected: false,
+              canDisconnect: false,
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      ),
+    );
+}
+
 beforeEach(async () => {
   fetchSpy.mockReset();
   await i18n.changeLanguage('en');
@@ -82,21 +136,21 @@ describe('AppRoutes', () => {
 
   it('switches the interface to Polish', async () => {
     const user = userEvent.setup();
-    mockGuestSession();
+    mockAuthenticatedAccountSession();
 
     render(
-      <MemoryRouter initialEntries={['/']}>
+      <MemoryRouter initialEntries={['/account']}>
         <I18nextProvider i18n={i18n}>
           <AppRoutes />
         </I18nextProvider>
       </MemoryRouter>,
     );
 
-    await user.click(screen.getByRole('button', { name: 'PL' }));
+    await user.click(await screen.findByRole('button', { name: 'PL' }));
 
     expect(
-      screen.getByRole('heading', { name: 'Strona glowna' }),
+      await screen.findByRole('heading', { name: 'Konto' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Jezyk')).toBeInTheDocument();
+    expect(screen.getByText('Język')).toBeInTheDocument();
   });
 });
