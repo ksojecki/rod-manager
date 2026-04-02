@@ -146,7 +146,7 @@ describe('AppRoutes', () => {
       </MemoryRouter>,
     );
 
-    await user.click(await screen.findByRole('button', { name: 'PL' }));
+    await user.selectOptions(await screen.findByRole('combobox'), 'pl');
 
     expect(
       await screen.findByRole('heading', { name: 'Konto' }),
