@@ -11,6 +11,8 @@ import {
   storeOAuthState,
   unlinkOAuthProvider,
 } from '../auth/authApi';
+import { Page } from '@rod-manager/ui';
+import { LanguageSelector } from './LanguageSelector';
 
 const OAUTH_PROVIDER_LABELS: Record<OAuthProviderType, string> = {
   google: 'Google',
@@ -104,80 +106,80 @@ export const AccountPage = () => {
   }
 
   return (
-    <section className="space-y-6">
-      <div className="space-y-2">
-        <h1>{t('title')}</h1>
+    <Page>
+      <Page.Title>{t('title')}</Page.Title>
+      <Page.Content>
         <p>
           {t('welcome', { name: user?.displayName ?? t('fallbackUserName') })}
         </p>
+        <LanguageSelector />
         <p className="text-sm text-base-content/70">{user?.email ?? ''}</p>
         <p className="text-sm text-base-content/70">
           Role: {user?.role ?? 'user'}
         </p>
-      </div>
+        <div className="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold">Connected OAuth providers</h2>
+            <p className="text-sm text-base-content/70">
+              Link an external provider to sign in to your existing account.
+            </p>
+          </div>
 
-      <div className="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
-        <div className="space-y-1">
-          <h2 className="text-lg font-semibold">Connected OAuth providers</h2>
-          <p className="text-sm text-base-content/70">
-            Link an external provider to sign in to your existing account.
-          </p>
-        </div>
+          {errorMessage !== null ? (
+            <p className="mt-4 text-sm text-error">{errorMessage}</p>
+          ) : null}
 
-        {errorMessage !== null ? (
-          <p className="mt-4 text-sm text-error">{errorMessage}</p>
-        ) : null}
+          {successMessage !== null ? (
+            <p className="mt-4 text-sm text-success">{successMessage}</p>
+          ) : null}
 
-        {successMessage !== null ? (
-          <p className="mt-4 text-sm text-success">{successMessage}</p>
-        ) : null}
+          <div className="mt-4 space-y-3">
+            {sortedProviders.map((provider) => {
+              const isPending = pendingProvider === provider.provider;
 
-        <div className="mt-4 space-y-3">
-          {sortedProviders.map((provider) => {
-            const isPending = pendingProvider === provider.provider;
+              return (
+                <div
+                  className="flex items-center justify-between gap-4 rounded-box border border-base-300 px-4 py-3"
+                  key={provider.provider}
+                >
+                  <div>
+                    <p className="font-medium">
+                      {OAUTH_PROVIDER_LABELS[provider.provider]}
+                    </p>
+                    <p className="text-sm text-base-content/70">
+                      {provider.linked ? 'Connected' : 'Not connected'}
+                    </p>
+                  </div>
 
-            return (
-              <div
-                className="flex items-center justify-between gap-4 rounded-box border border-base-300 px-4 py-3"
-                key={provider.provider}
-              >
-                <div>
-                  <p className="font-medium">
-                    {OAUTH_PROVIDER_LABELS[provider.provider]}
-                  </p>
-                  <p className="text-sm text-base-content/70">
-                    {provider.linked ? 'Connected' : 'Not connected'}
-                  </p>
+                  {provider.linked ? (
+                    <button
+                      className="btn btn-outline btn-sm"
+                      disabled={isPending}
+                      onClick={() => {
+                        void handleUnlinkProvider(provider.provider);
+                      }}
+                      type="button"
+                    >
+                      {isPending ? 'Disconnecting...' : 'Disconnect'}
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-primary btn-sm"
+                      disabled={isPending}
+                      onClick={() => {
+                        void handleLinkProvider(provider.provider);
+                      }}
+                      type="button"
+                    >
+                      {isPending ? 'Connecting...' : 'Connect'}
+                    </button>
+                  )}
                 </div>
-
-                {provider.linked ? (
-                  <button
-                    className="btn btn-outline btn-sm"
-                    disabled={isPending}
-                    onClick={() => {
-                      void handleUnlinkProvider(provider.provider);
-                    }}
-                    type="button"
-                  >
-                    {isPending ? 'Disconnecting...' : 'Disconnect'}
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-primary btn-sm"
-                    disabled={isPending}
-                    onClick={() => {
-                      void handleLinkProvider(provider.provider);
-                    }}
-                    type="button"
-                  >
-                    {isPending ? 'Connecting...' : 'Connect'}
-                  </button>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
-    </section>
+      </Page.Content>
+    </Page>
   );
 };

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -94,13 +94,6 @@ export function PasswordRegisterForm() {
           {isSubmitting ? t('register.submitting') : t('register.submit')}
         </Button>
       </form>
-
-      <p className="mt-4 text-center text-sm">
-        {t('register.alreadyHaveAccount')}{' '}
-        <Link className="link link-primary" to="/?login=1">
-          {t('register.loginLink')}
-        </Link>
-      </p>
     </>
   );
 }

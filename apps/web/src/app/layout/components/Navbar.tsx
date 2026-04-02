@@ -28,8 +28,8 @@ export const Navbar = () => {
   return (
     <>
       <header className="navbar bg-base-100 shadow-sm">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4">
-          <Link to="/" className="btn btn-ghost text-lg">
+        <div className="w-full mx-auto max-w-5xl flex items-center justify-between px-4">
+          <Link to="/" className="text-lg">
             {t('appName')}
           </Link>
           <nav className="flex items-center gap-2">

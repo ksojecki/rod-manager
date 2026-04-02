@@ -15,25 +15,24 @@ export function RegisterPage() {
   return (
     <section className="mx-auto w-full max-w-5xl rounded-box bg-base-100 p-6 shadow">
       <h1 className="text-2xl font-semibold">{t('register.title')}</h1>
-
-      <div className="mt-6 grid gap-8 md:grid-cols-2">
-        <div>
-          <h2 className="text-lg font-medium">
+      <div className="flex gap-2 flex-row">
+        <div className={'flex-1'}>
+          <h2 className="text-lg font-medium ">
             {t('register.passwordSectionTitle')}
           </h2>
+          <p className="mb-4 text-sm text-base-content/70">
+            {t('register.oauthSectionHint')}
+          </p>
           <PasswordRegisterForm />
         </div>
-
-        <div>
+        <div className="divider divider-horizontal">{t('or')}</div>
+        <div className={'flex-1'}>
           <h2 className="text-lg font-medium">
             {t('register.oauthSectionTitle')}
           </h2>
-          <p className="mt-1 text-sm text-base-content/70">
+          <p className="mb-4 text-sm text-base-content/70">
             {t('register.oauthSectionHint')}
           </p>
-
-          <div className="divider mt-4 mb-6">{t('register.oauthDivider')}</div>
-
           <OAuthRegisterButtons />
         </div>
       </div>
