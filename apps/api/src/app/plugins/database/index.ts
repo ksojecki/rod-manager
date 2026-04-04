@@ -4,7 +4,7 @@ import Database from 'better-sqlite3';
 import {
   getDatabasePath,
   initializeSchema,
-  ensurePreferredLanguageColumn,
+  ensureUserSettingsModel,
   ensureUserRoleColumn,
   ensureNameColumns,
   seedInitialUser,
@@ -12,6 +12,7 @@ import {
   ensureAdministratorExists,
 } from './init';
 import { createStore } from './store';
+import { createUserSettingsStore } from './userSettingsStore';
 
 export type {
   AuthStore,
@@ -19,6 +20,7 @@ export type {
   AuthStoreSession,
   OAuthProviderData,
   OAuthProviderType,
+  UserSettingsStore,
 } from './types';
 export { createSessionExpiration } from './types';
 
@@ -29,7 +31,7 @@ export default fp(function databasePlugin(fastify: FastifyInstance) {
   const db = new Database(getDatabasePath());
 
   initializeSchema(db);
-  ensurePreferredLanguageColumn(db);
+  ensureUserSettingsModel(db);
   ensureUserRoleColumn(db);
   ensureNameColumns(db);
 
@@ -40,6 +42,7 @@ export default fp(function databasePlugin(fastify: FastifyInstance) {
   ensureAdministratorExists(db);
 
   fastify.decorate('authStore', createStore(db));
+  fastify.decorate('userSettingsStore', createUserSettingsStore(db));
 
   fastify.addHook('onClose', async () => {
     db.close();

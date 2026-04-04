@@ -27,7 +27,6 @@ export function initializeSchema(db: Database.Database): void {
       id TEXT PRIMARY KEY,
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
-      preferred_language TEXT NOT NULL DEFAULT 'en' CHECK (preferred_language IN ('en', 'pl')),
       first_name TEXT NOT NULL DEFAULT '',
       last_name TEXT NOT NULL DEFAULT '',
       display_name TEXT NOT NULL,
@@ -56,29 +55,72 @@ export function initializeSchema(db: Database.Database): void {
       UNIQUE(provider, provider_user_id)
     );
 
+    CREATE TABLE IF NOT EXISTS user_settings (
+      user_id TEXT PRIMARY KEY,
+      preferred_language TEXT NOT NULL DEFAULT 'en' CHECK (preferred_language IN ('en', 'pl')),
+      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      updated_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
     CREATE INDEX IF NOT EXISTS idx_oauth_providers_user_id ON oauth_providers(user_id);
   `);
 }
 
-export function ensurePreferredLanguageColumn(db: Database.Database): void {
+export function ensureUserSettingsModel(db: Database.Database): void {
   const userColumns = db
     .prepare<[], { name: string }>(`PRAGMA table_info('users')`)
     .all();
 
-  const hasPreferredLanguageColumn = userColumns.some(
+  const hasPreferredLanguageColumnInUsers = userColumns.some(
     (column) => column.name === 'preferred_language',
   );
 
-  if (!hasPreferredLanguageColumn) {
-    db.exec(
-      `ALTER TABLE users ADD COLUMN preferred_language TEXT NOT NULL DEFAULT 'en'`,
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS user_settings (
+      user_id TEXT PRIMARY KEY,
+      preferred_language TEXT NOT NULL DEFAULT 'en' CHECK (preferred_language IN ('en', 'pl')),
+      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      updated_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
+
+    CREATE TRIGGER IF NOT EXISTS trg_user_settings_on_user_insert
+    AFTER INSERT ON users
+    BEGIN
+      INSERT INTO user_settings (user_id, preferred_language, created_at, updated_at)
+      VALUES (
+        NEW.id,
+        'en',
+        unixepoch(),
+        unixepoch()
+      )
+      ON CONFLICT(user_id) DO NOTHING;
+    END;
+  `);
+
+  if (hasPreferredLanguageColumnInUsers) {
+    db.exec(`
+      INSERT OR IGNORE INTO user_settings (user_id, preferred_language, created_at, updated_at)
+      SELECT
+        u.id,
+        CASE
+          WHEN u.preferred_language IN ('en', 'pl') THEN u.preferred_language
+          ELSE 'en'
+        END,
+        unixepoch(),
+        unixepoch()
+      FROM users u
+    `);
+    return;
   }
 
-  db.prepare(
-    `UPDATE users SET preferred_language = 'en' WHERE preferred_language NOT IN ('en', 'pl')`,
-  ).run();
+  db.exec(`
+    INSERT OR IGNORE INTO user_settings (user_id, preferred_language, created_at, updated_at)
+    SELECT u.id, 'en', unixepoch(), unixepoch()
+    FROM users u
+  `);
 }
 
 export function ensureUserRoleColumn(db: Database.Database): void {
@@ -123,11 +165,10 @@ export function seedInitialUser(db: Database.Database): void {
     process.env.AUTH_INITIAL_USER_PASSWORD ?? 'admin1234';
 
   db.prepare(
-    `INSERT INTO users (id, email, password_hash, preferred_language, first_name, last_name, display_name, role)
-      VALUES (@id, @email, @password_hash, @preferred_language, @first_name, @last_name, @display_name, @role)
+    `INSERT INTO users (id, email, password_hash, first_name, last_name, display_name, role)
+      VALUES (@id, @email, @password_hash, @first_name, @last_name, @display_name, @role)
       ON CONFLICT(email) DO UPDATE SET
         password_hash = excluded.password_hash,
-        preferred_language = excluded.preferred_language,
         first_name = excluded.first_name,
         last_name = excluded.last_name,
         display_name = excluded.display_name,
@@ -136,7 +177,6 @@ export function seedInitialUser(db: Database.Database): void {
     id: 'initial-admin-user',
     email: initialUserEmail,
     password_hash: hashPassword(initialUserPassword),
-    preferred_language: 'en',
     first_name: 'Administrator',
     last_name: '',
     display_name: 'Administrator',

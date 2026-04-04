@@ -1,0 +1,62 @@
+import Fastify from 'fastify';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import cookiePlugin, { SESSION_COOKIE_NAME } from '../plugins/cookie';
+import databasePlugin from '../plugins/database';
+import authRoutes from './auth';
+import userSettingsRoutes from './user-settings';
+
+describe('user settings routes', () => {
+  beforeEach(() => {
+    process.env.AUTH_DB_PATH = ':memory:';
+    process.env.AUTH_SEED_INITIAL_USER = 'true';
+    process.env.AUTH_INITIAL_USER_EMAIL = 'admin@rod-manager.local';
+    process.env.AUTH_INITIAL_USER_PASSWORD = 'admin1234';
+  });
+
+  afterEach(() => {
+    delete process.env.AUTH_DB_PATH;
+    delete process.env.AUTH_SEED_INITIAL_USER;
+    delete process.env.AUTH_INITIAL_USER_EMAIL;
+    delete process.env.AUTH_INITIAL_USER_PASSWORD;
+  });
+
+  it('persists selected language for authenticated user', async () => {
+    const server = Fastify();
+    await server.register(cookiePlugin);
+    await server.register(databasePlugin);
+
+    authRoutes(server);
+    userSettingsRoutes(server);
+
+    const loginResponse = await server.inject({
+      method: 'POST',
+      url: '/api/auth/login',
+      payload: {
+        email: 'admin@rod-manager.local',
+        password: 'admin1234',
+      },
+    });
+
+    const sessionCookie = loginResponse.cookies.find(
+      (cookie) => cookie.name === SESSION_COOKIE_NAME,
+    );
+
+    const languageResponse = await server.inject({
+      method: 'POST',
+      url: '/api/user-settings/language',
+      cookies: {
+        [SESSION_COOKIE_NAME]: sessionCookie?.value ?? '',
+      },
+      payload: {
+        language: 'pl',
+      },
+    });
+
+    expect(languageResponse.statusCode).toBe(204);
+    expect(
+      server.userSettingsStore.getUserPreferredLanguage('initial-admin-user'),
+    ).toBe('pl');
+
+    await server.close();
+  });
+});

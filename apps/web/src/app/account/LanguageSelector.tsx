@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { updateLanguagePreference } from '../auth/authApi';
+import { updateLanguagePreference } from './settingsApi';
 
 export const LanguageSelector = () => {
   const { i18n, t } = useTranslation('layout');

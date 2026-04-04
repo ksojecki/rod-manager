@@ -1,4 +1,8 @@
-import type { OAuthProviderType, UserRole } from '@rod-manager/shared';
+import type {
+  OAuthProviderType,
+  UserLanguage,
+  UserRole,
+} from '@rod-manager/shared';
 
 export type { OAuthProviderType };
 
@@ -74,13 +78,17 @@ export interface AuthStore {
     refreshToken: string | null,
     accessTokenExpiresAt: number,
   ): void;
-  updateUserPreferredLanguage(userId: string, language: 'en' | 'pl'): void;
   listLinkedOAuthProviders(userId: string): OAuthProviderType[];
   verifyPassword(password: string, passwordHash: string): boolean;
   createSession(userId: string): string;
   findSession(token: string): AuthStoreSession | undefined;
   deleteSession(token: string): void;
   deleteExpiredSessions(now: number): void;
+}
+
+export interface UserSettingsStore {
+  getUserPreferredLanguage(userId: string): UserLanguage | undefined;
+  updateUserPreferredLanguage(userId: string, language: UserLanguage): void;
 }
 
 export interface UserRow {
@@ -126,6 +134,7 @@ export interface OAuthProviderRow {
 declare module 'fastify' {
   interface FastifyInstance {
     authStore: AuthStore;
+    userSettingsStore: UserSettingsStore;
   }
 }
 

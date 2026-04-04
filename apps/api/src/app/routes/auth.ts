@@ -9,10 +9,6 @@ import type {
 } from '@rod-manager/shared';
 import { SESSION_COOKIE_NAME } from '../plugins/cookie';
 
-interface UpdateLanguageRequestBody {
-  language: 'en' | 'pl';
-}
-
 const OAUTH_PROVIDERS: OAuthProviderType[] = ['google', 'apple', 'facebook'];
 
 export default function authRoutes(fastify: FastifyInstance) {
@@ -176,31 +172,6 @@ export default function authRoutes(fastify: FastifyInstance) {
 
     await reply.send(response);
   });
-
-  fastify.post<{ Body: UpdateLanguageRequestBody }>(
-    '/api/auth/language',
-    async (request, reply) => {
-      fastify.authStore.deleteExpiredSessions(Date.now());
-      const token = request.cookies[SESSION_COOKIE_NAME];
-
-      if (token === undefined) {
-        await reply.status(401).send({ message: 'Not authenticated.' });
-        return;
-      }
-
-      const session = fastify.authStore.findSession(token);
-
-      if (session === undefined || Date.now() > session.expiresAt) {
-        fastify.authStore.deleteSession(token);
-        await reply.status(401).send({ message: 'Not authenticated.' });
-        return;
-      }
-
-      const { language } = request.body;
-      fastify.authStore.updateUserPreferredLanguage(session.userId, language);
-      await reply.status(204).send();
-    },
-  );
 
   fastify.post('/api/auth/logout', async (request, reply) => {
     const token = request.cookies[SESSION_COOKIE_NAME];
