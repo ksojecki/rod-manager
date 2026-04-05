@@ -3,24 +3,32 @@ import type { AuthStoreSession } from '../database';
 import { SESSION_COOKIE_NAME } from './types';
 
 /**
- * Registers request decorators used to read and cache the current authenticated session.
+ * Creates decorator implementation that reads session token from cookies.
  */
-export function registerCheckingSession(fastify: FastifyInstance): void {
-  fastify.decorateRequest('authenticatedSession', undefined);
-
-  fastify.decorateRequest('getSessionToken', function (): string | undefined {
+export function createGetSessionTokenDecorator() {
+  return function getSessionToken(this: FastifyRequest): string | undefined {
     return this.cookies[SESSION_COOKIE_NAME];
-  });
+  };
+}
 
-  fastify.decorateRequest('getSession', function ():
-    | AuthStoreSession
-    | undefined {
+/**
+ * Creates decorator implementation that resolves and caches the current session.
+ */
+export function createGetSessionDecorator(fastify: FastifyInstance) {
+  return function getSession(
+    this: FastifyRequest,
+  ): AuthStoreSession | undefined {
     return resolveSessionFromRequest(fastify, this);
-  });
+  };
+}
 
-  fastify.decorateRequest('hasSession', function (): boolean {
+/**
+ * Creates decorator implementation that checks if an authenticated session exists.
+ */
+export function createHasSessionDecorator() {
+  return function hasSession(this: FastifyRequest): boolean {
     return this.getSession() !== undefined;
-  });
+  };
 }
 
 function resolveSessionFromRequest(

@@ -108,6 +108,8 @@ Provider credentials must be configured via environment variables:
   - `types.ts` for exported contracts and module augmentation.
   - Feature-focused files (`oauthConfigs.ts`, `store.ts`, `service.ts`, `providers.ts`, etc.) for implementation details.
 - Keep plugin `index.ts` files limited to orchestration: register plugin dependencies and attach decorators/hooks; move business logic to domain files.
+- In Fastify plugins, keep decorator registration explicit in `index.ts` (use `decorate*`/`decorate` there) so the available decorators are visible in one place.
+- If decorator logic needs plugin dependencies, create small domain-specific factory functions that accept `fastify` and return decorator implementations.
 - For the `apps/api/src/app/plugins/session/` plugin specifically, keep `index.ts` as decorator/registration wiring only.
 - Avoid generic file names like `helpers.ts` or `utils.ts`; use domain-specific names that reflect the responsibility.
 - Keep plugin entrypoints thin; avoid placing provider logic, parsing helpers, and HTTP calls in a single file.
