@@ -25,8 +25,7 @@ export default function authRoutes(fastify: FastifyInstance) {
         return;
       }
 
-      const token = fastify.authStore.createSession(user.id);
-      reply.setSessionCookie(token);
+      reply.startSession(user.id);
       const sessionResponse: SessionResponse = {
         authenticated: true,
         user: {
@@ -63,8 +62,7 @@ export default function authRoutes(fastify: FastifyInstance) {
           password,
         );
 
-        const token = fastify.authStore.createSession(user.id);
-        reply.setSessionCookie(token);
+        reply.startSession(user.id);
 
         const sessionResponse: SessionResponse = {
           authenticated: true,
@@ -165,13 +163,7 @@ export default function authRoutes(fastify: FastifyInstance) {
   );
 
   fastify.post('/api/auth/logout', async (request, reply) => {
-    const token = request.getSessionToken();
-
-    if (token !== undefined) {
-      fastify.authStore.deleteSession(token);
-    }
-
-    reply.clearSessionCookie();
+    reply.removeSession();
     await reply.status(204).send();
   });
 }

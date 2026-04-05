@@ -36,7 +36,7 @@ interface CompletedOAuthFlow {
   intent: OAuthIntent;
   redirectTo: string;
   message?: string;
-  sessionToken?: string;
+  sessionUserId?: string;
 }
 
 const OAUTH_PROVIDERS: OAuthProviderType[] = ['google', 'apple', 'facebook'];
@@ -208,7 +208,7 @@ async function completeOAuthFlow(
     return {
       intent: 'login',
       redirectTo: oauthState.redirectTo,
-      sessionToken: fastify.authStore.createSession(user.id),
+      sessionUserId: user.id,
     };
   }
 
@@ -349,8 +349,8 @@ function oauthRoutes(fastify: FastifyInstance) {
     try {
       const result = await completeOAuthFlow(fastify, provider, code, state);
 
-      if (result.sessionToken !== undefined) {
-        reply.setSessionCookie(result.sessionToken);
+      if (result.sessionUserId !== undefined) {
+        reply.startSession(result.sessionUserId);
       }
 
       await reply.redirect(createRedirectUrl(result.redirectTo));
@@ -384,8 +384,8 @@ function oauthRoutes(fastify: FastifyInstance) {
     try {
       const result = await completeOAuthFlow(fastify, provider, code, state);
 
-      if (result.sessionToken !== undefined) {
-        reply.setSessionCookie(result.sessionToken);
+      if (result.sessionUserId !== undefined) {
+        reply.startSession(result.sessionUserId);
       }
 
       const response: OAuthCallbackResponseBody = {

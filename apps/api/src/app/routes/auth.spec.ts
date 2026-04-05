@@ -2,10 +2,9 @@ import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { SessionResponse } from '@rod-manager/shared';
 import databasePlugin from '../plugins/database';
-import cookiePlugin from '../plugins/cookie';
-import requireAuthenticatedSessionPlugin from '../plugins/require-authenticated-session';
+import sessionPlugin from '../plugins/session';
 import authRoutes from './auth';
-import { SESSION_COOKIE_NAME } from '../plugins/cookie';
+import { SESSION_COOKIE_NAME } from '../plugins/session';
 
 describe('auth routes', () => {
   beforeEach(() => {
@@ -24,9 +23,8 @@ describe('auth routes', () => {
 
   it('creates a session on successful login and returns it', async () => {
     const server = Fastify();
-    await server.register(cookiePlugin);
+    await server.register(sessionPlugin);
     await server.register(databasePlugin);
-    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 
@@ -73,9 +71,8 @@ describe('auth routes', () => {
 
   it('returns unauthorized when requesting the session without a cookie', async () => {
     const server = Fastify();
-    await server.register(cookiePlugin);
+    await server.register(sessionPlugin);
     await server.register(databasePlugin);
-    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 
@@ -92,9 +89,8 @@ describe('auth routes', () => {
 
   it('returns unauthorized for wrong credentials', async () => {
     const server = Fastify();
-    await server.register(cookiePlugin);
+    await server.register(sessionPlugin);
     await server.register(databasePlugin);
-    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 
@@ -115,9 +111,8 @@ describe('auth routes', () => {
 
   it('registers a new user and creates a session', async () => {
     const server = Fastify();
-    await server.register(cookiePlugin);
+    await server.register(sessionPlugin);
     await server.register(databasePlugin);
-    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 
@@ -152,9 +147,8 @@ describe('auth routes', () => {
 
   it('returns 400 when password is missing during registration', async () => {
     const server = Fastify();
-    await server.register(cookiePlugin);
+    await server.register(sessionPlugin);
     await server.register(databasePlugin);
-    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 
@@ -178,9 +172,8 @@ describe('auth routes', () => {
 
   it('returns 409 when registering with an existing email', async () => {
     const server = Fastify();
-    await server.register(cookiePlugin);
+    await server.register(sessionPlugin);
     await server.register(databasePlugin);
-    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 
@@ -205,9 +198,8 @@ describe('auth routes', () => {
 
   it('returns 400 when required fields are missing in registration', async () => {
     const server = Fastify();
-    await server.register(cookiePlugin);
+    await server.register(sessionPlugin);
     await server.register(databasePlugin);
-    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 

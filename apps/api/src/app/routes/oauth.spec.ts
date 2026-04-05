@@ -1,10 +1,9 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { OAuthProviderType } from '@rod-manager/shared';
-import cookiePlugin, { SESSION_COOKIE_NAME } from '../plugins/cookie';
+import sessionPlugin, { SESSION_COOKIE_NAME } from '../plugins/session';
 import databasePlugin from '../plugins/database';
 import type { OAuthService } from '../plugins/oauth';
-import requireAuthenticatedSessionPlugin from '../plugins/require-authenticated-session';
 import authRoutes from './auth';
 import oauthRoutes from './oauth';
 
@@ -60,9 +59,8 @@ function createOAuthService(): OAuthService {
 
 async function createServer() {
   const server = Fastify();
-  await server.register(cookiePlugin);
+  await server.register(sessionPlugin);
   await server.register(databasePlugin);
-  await server.register(requireAuthenticatedSessionPlugin);
   server.decorate('oauth', createOAuthService());
 
   authRoutes(server);
