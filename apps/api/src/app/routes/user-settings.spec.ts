@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import cookiePlugin, { SESSION_COOKIE_NAME } from '../plugins/cookie';
 import databasePlugin from '../plugins/database';
+import requireAuthenticatedSessionPlugin from '../plugins/require-authenticated-session';
 import authRoutes from './auth';
 import userSettingsRoutes from './user-settings';
 
@@ -24,6 +25,7 @@ describe('user settings routes', () => {
     const server = Fastify();
     await server.register(cookiePlugin);
     await server.register(databasePlugin);
+    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
     userSettingsRoutes(server);
@@ -56,6 +58,28 @@ describe('user settings routes', () => {
     expect(
       server.userSettingsStore.getUserPreferredLanguage('initial-admin-user'),
     ).toBe('pl');
+
+    await server.close();
+  });
+
+  it('returns unauthorized when updating language without a session cookie', async () => {
+    const server = Fastify();
+    await server.register(cookiePlugin);
+    await server.register(databasePlugin);
+    await server.register(requireAuthenticatedSessionPlugin);
+
+    userSettingsRoutes(server);
+
+    const response = await server.inject({
+      method: 'POST',
+      url: '/api/user-settings/language',
+      payload: {
+        language: 'pl',
+      },
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(response.json()).toEqual({ message: 'Not authenticated.' });
 
     await server.close();
   });

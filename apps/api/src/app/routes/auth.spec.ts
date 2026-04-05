@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { SessionResponse } from '@rod-manager/shared';
 import databasePlugin from '../plugins/database';
 import cookiePlugin from '../plugins/cookie';
+import requireAuthenticatedSessionPlugin from '../plugins/require-authenticated-session';
 import authRoutes from './auth';
 import { SESSION_COOKIE_NAME } from '../plugins/cookie';
 
@@ -25,6 +26,7 @@ describe('auth routes', () => {
     const server = Fastify();
     await server.register(cookiePlugin);
     await server.register(databasePlugin);
+    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 
@@ -69,10 +71,30 @@ describe('auth routes', () => {
     await server.close();
   });
 
+  it('returns unauthorized when requesting the session without a cookie', async () => {
+    const server = Fastify();
+    await server.register(cookiePlugin);
+    await server.register(databasePlugin);
+    await server.register(requireAuthenticatedSessionPlugin);
+
+    authRoutes(server);
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/api/auth/session',
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(response.json()).toEqual({ message: 'Not authenticated.' });
+
+    await server.close();
+  });
+
   it('returns unauthorized for wrong credentials', async () => {
     const server = Fastify();
     await server.register(cookiePlugin);
     await server.register(databasePlugin);
+    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 
@@ -95,6 +117,7 @@ describe('auth routes', () => {
     const server = Fastify();
     await server.register(cookiePlugin);
     await server.register(databasePlugin);
+    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 
@@ -131,6 +154,7 @@ describe('auth routes', () => {
     const server = Fastify();
     await server.register(cookiePlugin);
     await server.register(databasePlugin);
+    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 
@@ -156,6 +180,7 @@ describe('auth routes', () => {
     const server = Fastify();
     await server.register(cookiePlugin);
     await server.register(databasePlugin);
+    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 
@@ -182,6 +207,7 @@ describe('auth routes', () => {
     const server = Fastify();
     await server.register(cookiePlugin);
     await server.register(databasePlugin);
+    await server.register(requireAuthenticatedSessionPlugin);
 
     authRoutes(server);
 

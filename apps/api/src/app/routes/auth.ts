@@ -7,7 +7,6 @@ import type {
   RegisterRequestBody,
   SessionResponse,
 } from '@rod-manager/shared';
-import { SESSION_COOKIE_NAME } from '../plugins/cookie';
 
 const OAUTH_PROVIDERS: OAuthProviderType[] = ['google', 'apple', 'facebook'];
 
@@ -95,86 +94,78 @@ export default function authRoutes(fastify: FastifyInstance) {
     },
   );
 
-  fastify.get('/api/auth/session', async (request, reply) => {
-    fastify.authStore.deleteExpiredSessions(Date.now());
-    const token = request.cookies[SESSION_COOKIE_NAME];
+  fastify.get(
+    '/api/auth/session',
+    {
+      preHandler: fastify.requireAuthenticatedSession,
+    },
+    async (request, reply) => {
+      const session = request.authenticatedSession;
 
-    if (token === undefined) {
-      await reply.status(401).send({ message: 'Not authenticated.' });
-      return;
-    }
+      if (session === undefined) {
+        return;
+      }
 
-    const session = fastify.authStore.findSession(token);
+      const user: AuthUser = {
+        id: session.userId,
+        email: session.userEmail,
+        name: session.userName,
+        surname: session.userSurname,
+        displayName: session.userDisplayName,
+        role: session.userRole,
+      };
 
-    if (session === undefined || Date.now() > session.expiresAt) {
-      fastify.authStore.deleteSession(token);
-      await reply.status(401).send({ message: 'Not authenticated.' });
-      return;
-    }
+      const sessionResponse: SessionResponse = {
+        authenticated: true,
+        user,
+      };
 
-    const user: AuthUser = {
-      id: session.userId,
-      email: session.userEmail,
-      name: session.userName,
-      surname: session.userSurname,
-      displayName: session.userDisplayName,
-      role: session.userRole,
-    };
+      await reply.send(sessionResponse);
+    },
+  );
 
-    const sessionResponse: SessionResponse = {
-      authenticated: true,
-      user,
-    };
+  fastify.get(
+    '/api/auth/methods',
+    {
+      preHandler: fastify.requireAuthenticatedSession,
+    },
+    async (request, reply) => {
+      const session = request.authenticatedSession;
 
-    await reply.send(sessionResponse);
-  });
+      if (session === undefined) {
+        return;
+      }
 
-  fastify.get('/api/auth/methods', async (request, reply) => {
-    fastify.authStore.deleteExpiredSessions(Date.now());
-    const token = request.cookies[SESSION_COOKIE_NAME];
+      const linkedProviders = new Set(
+        fastify.authStore.listLinkedOAuthProviders(session.userId),
+      );
 
-    if (token === undefined) {
-      await reply.status(401).send({ message: 'Not authenticated.' });
-      return;
-    }
+      const response: AuthenticationMethodsResponseBody = {
+        methods: [
+          {
+            type: 'password',
+            connected: true,
+            canDisconnect: false,
+          },
+          ...OAUTH_PROVIDERS.map((provider) => {
+            const connected = linkedProviders.has(provider);
 
-    const session = fastify.authStore.findSession(token);
+            return {
+              type: 'oauth' as const,
+              provider,
+              connected,
+              canDisconnect: connected,
+            };
+          }),
+        ],
+      };
 
-    if (session === undefined || Date.now() > session.expiresAt) {
-      fastify.authStore.deleteSession(token);
-      await reply.status(401).send({ message: 'Not authenticated.' });
-      return;
-    }
-
-    const linkedProviders = new Set(
-      fastify.authStore.listLinkedOAuthProviders(session.userId),
-    );
-
-    const response: AuthenticationMethodsResponseBody = {
-      methods: [
-        {
-          type: 'password',
-          connected: true,
-          canDisconnect: false,
-        },
-        ...OAUTH_PROVIDERS.map((provider) => {
-          const connected = linkedProviders.has(provider);
-
-          return {
-            type: 'oauth' as const,
-            provider,
-            connected,
-            canDisconnect: connected,
-          };
-        }),
-      ],
-    };
-
-    await reply.send(response);
-  });
+      await reply.send(response);
+    },
+  );
 
   fastify.post('/api/auth/logout', async (request, reply) => {
-    const token = request.cookies[SESSION_COOKIE_NAME];
+    const token = request.getSessionToken();
 
     if (token !== undefined) {
       fastify.authStore.deleteSession(token);

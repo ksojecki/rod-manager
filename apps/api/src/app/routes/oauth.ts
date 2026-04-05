@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type {
   OAuthCallbackRequestBody,
   OAuthCallbackResponseBody,
@@ -7,8 +7,8 @@ import type {
   OAuthProviderType,
   OAuthProvidersResponseBody,
 } from '@rod-manager/shared';
+import type { AuthStoreSession } from '../plugins/database';
 import { generatePKCE } from '../plugins/oauth';
-import { SESSION_COOKIE_NAME } from '../plugins/cookie';
 
 interface OAuthStateData {
   provider: OAuthProviderType;
@@ -20,6 +20,17 @@ interface OAuthStateData {
 }
 
 type OAuthStateInput = Omit<OAuthStateData, 'expiresAt'>;
+
+type OAuthProviderParams = {
+  Params: {
+    provider: string;
+  };
+};
+
+type AuthenticatedOAuthProviderContext = {
+  provider: OAuthProviderType;
+  session: AuthStoreSession;
+};
 
 interface CompletedOAuthFlow {
   intent: OAuthIntent;
@@ -46,6 +57,54 @@ function cleanupExpiredStates(): void {
 
 function isOAuthProviderType(provider: string): provider is OAuthProviderType {
   return OAUTH_PROVIDERS.includes(provider as OAuthProviderType);
+}
+
+async function validateOAuthProvider(
+  provider: string,
+  reply: Parameters<FastifyInstance['requireAuthenticatedSession']>[1],
+): Promise<boolean> {
+  if (isOAuthProviderType(provider)) {
+    return true;
+  }
+
+  await reply.status(400).send({ message: 'Invalid OAuth provider.' });
+  return false;
+}
+
+function createAuthenticatedOAuthProviderPreHandler(fastify: FastifyInstance) {
+  return async function authenticatedOAuthProviderPreHandler(
+    request: FastifyRequest<OAuthProviderParams>,
+    reply: Parameters<FastifyInstance['requireAuthenticatedSession']>[1],
+  ): Promise<void> {
+    const { provider } = request.params;
+
+    if (!(await validateOAuthProvider(provider, reply))) {
+      return;
+    }
+
+    await fastify.requireAuthenticatedSession(request, reply);
+  };
+}
+
+function getAuthenticatedOAuthProviderContext(
+  request: FastifyRequest<OAuthProviderParams>,
+): AuthenticatedOAuthProviderContext | undefined {
+  const { provider } = request.params;
+
+  if (!isOAuthProviderType(provider)) {
+    return undefined;
+  }
+
+  const session = request.authenticatedSession;
+
+  if (session === undefined) {
+    return undefined;
+  }
+
+  return {
+    provider,
+    session,
+  };
 }
 
 function getFrontendBaseUrl(): string {
@@ -203,6 +262,9 @@ async function completeOAuthFlow(
 }
 
 function oauthRoutes(fastify: FastifyInstance) {
+  const authenticatedOAuthProviderPreHandler =
+    createAuthenticatedOAuthProviderPreHandler(fastify);
+
   /**
    * Initiate OAuth authorization flow
    * POST /api/auth/oauth/authorize/:provider
@@ -341,62 +403,50 @@ function oauthRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.get('/api/auth/oauth/providers', async (request, reply) => {
-    const token = request.cookies[SESSION_COOKIE_NAME];
+  fastify.get(
+    '/api/auth/oauth/providers',
+    {
+      preHandler: fastify.requireAuthenticatedSession,
+    },
+    async (request, reply) => {
+      const session = request.authenticatedSession;
 
-    if (token === undefined) {
-      await reply.status(401).send({ message: 'Not authenticated.' });
-      return;
-    }
+      if (session === undefined) {
+        return;
+      }
 
-    const session = fastify.authStore.findSession(token);
+      const linkedProviders = new Set(
+        fastify.authStore.listLinkedOAuthProviders(session.userId),
+      );
 
-    if (session === undefined) {
-      await reply.status(401).send({ message: 'Invalid session.' });
-      return;
-    }
+      const response: OAuthProvidersResponseBody = {
+        providers: OAUTH_PROVIDERS.map((provider) => ({
+          provider,
+          linked: linkedProviders.has(provider),
+        })),
+      };
 
-    const linkedProviders = new Set(
-      fastify.authStore.listLinkedOAuthProviders(session.userId),
-    );
-
-    const response: OAuthProvidersResponseBody = {
-      providers: OAUTH_PROVIDERS.map((provider) => ({
-        provider,
-        linked: linkedProviders.has(provider),
-      })),
-    };
-
-    await reply.send(response);
-  });
+      await reply.send(response);
+    },
+  );
 
   /**
    * Link OAuth provider to existing account
    * POST /api/auth/oauth/link/:provider
    */
-  fastify.post<{ Params: { provider: string } }>(
+  fastify.post<OAuthProviderParams>(
     '/api/auth/oauth/link/:provider',
+    {
+      preHandler: authenticatedOAuthProviderPreHandler,
+    },
     async (request, reply) => {
-      const { provider } = request.params;
-      const token = request.cookies[SESSION_COOKIE_NAME];
+      const context = getAuthenticatedOAuthProviderContext(request);
 
-      // Validate provider
-      if (!isOAuthProviderType(provider)) {
-        await reply.status(400).send({ message: 'Invalid OAuth provider.' });
+      if (context === undefined) {
         return;
       }
 
-      // Check authentication
-      if (!token) {
-        await reply.status(401).send({ message: 'Not authenticated.' });
-        return;
-      }
-
-      const session = fastify.authStore.findSession(token);
-      if (!session) {
-        await reply.status(401).send({ message: 'Invalid session.' });
-        return;
-      }
+      const { provider, session } = context;
 
       try {
         // Generate PKCE parameters
@@ -436,29 +486,19 @@ function oauthRoutes(fastify: FastifyInstance) {
    * Unlink OAuth provider from account
    * DELETE /api/auth/oauth/link/:provider
    */
-  fastify.delete<{ Params: { provider: string } }>(
+  fastify.delete<OAuthProviderParams>(
     '/api/auth/oauth/link/:provider',
+    {
+      preHandler: authenticatedOAuthProviderPreHandler,
+    },
     async (request, reply) => {
-      const { provider } = request.params;
-      const token = request.cookies[SESSION_COOKIE_NAME];
+      const context = getAuthenticatedOAuthProviderContext(request);
 
-      // Validate provider
-      if (!isOAuthProviderType(provider)) {
-        await reply.status(400).send({ message: 'Invalid OAuth provider.' });
+      if (context === undefined) {
         return;
       }
 
-      // Check authentication
-      if (!token) {
-        await reply.status(401).send({ message: 'Not authenticated.' });
-        return;
-      }
-
-      const session = fastify.authStore.findSession(token);
-      if (!session) {
-        await reply.status(401).send({ message: 'Invalid session.' });
-        return;
-      }
+      const { provider, session } = context;
 
       try {
         fastify.authStore.unlinkOAuthProvider(session.userId, provider);

@@ -4,6 +4,7 @@ import type { OAuthProviderType } from '@rod-manager/shared';
 import cookiePlugin, { SESSION_COOKIE_NAME } from '../plugins/cookie';
 import databasePlugin from '../plugins/database';
 import type { OAuthService } from '../plugins/oauth';
+import requireAuthenticatedSessionPlugin from '../plugins/require-authenticated-session';
 import authRoutes from './auth';
 import oauthRoutes from './oauth';
 
@@ -61,6 +62,7 @@ async function createServer() {
   const server = Fastify();
   await server.register(cookiePlugin);
   await server.register(databasePlugin);
+  await server.register(requireAuthenticatedSessionPlugin);
   server.decorate('oauth', createOAuthService());
 
   authRoutes(server);
@@ -154,6 +156,20 @@ describe('oauth routes', () => {
     await server.close();
   });
 
+  it('returns unauthorized when fetching OAuth providers without a session cookie', async () => {
+    const server = await createServer();
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/api/auth/oauth/providers',
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(response.json()).toEqual({ message: 'Not authenticated.' });
+
+    await server.close();
+  });
+
   it('links an OAuth provider to the existing authenticated account', async () => {
     const server = await createServer();
     const sessionToken = await loginAsInitialAdministrator(server);
@@ -204,6 +220,96 @@ describe('oauth routes', () => {
     expect(providersResponse.json()).toEqual({
       providers: [
         { provider: 'google', linked: true },
+        { provider: 'apple', linked: false },
+        { provider: 'facebook', linked: false },
+      ],
+    });
+
+    await server.close();
+  });
+
+  it('returns bad request for an invalid OAuth provider before authentication', async () => {
+    const server = await createServer();
+
+    const response = await server.inject({
+      method: 'POST',
+      url: '/api/auth/oauth/link/invalid-provider',
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({ message: 'Invalid OAuth provider.' });
+
+    await server.close();
+  });
+
+  it('returns bad request when unlinking an invalid OAuth provider before authentication', async () => {
+    const server = await createServer();
+
+    const response = await server.inject({
+      method: 'DELETE',
+      url: '/api/auth/oauth/link/invalid-provider',
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({ message: 'Invalid OAuth provider.' });
+
+    await server.close();
+  });
+
+  it('unlinks an OAuth provider from the authenticated account', async () => {
+    const server = await createServer();
+    const sessionToken = await loginAsInitialAdministrator(server);
+
+    const initiateResponse = await server.inject({
+      method: 'POST',
+      url: '/api/auth/oauth/link/google',
+      cookies: {
+        [SESSION_COOKIE_NAME]: sessionToken,
+      },
+    });
+
+    expect(initiateResponse.statusCode).toBe(200);
+    const initiatePayload = initiateResponse.json<{ state: string }>();
+
+    const callbackResponse = await server.inject({
+      method: 'POST',
+      url: '/api/auth/oauth/callback/google',
+      payload: {
+        code: 'oauth-code-unlink',
+        state: initiatePayload.state,
+      },
+      cookies: {
+        [SESSION_COOKIE_NAME]: sessionToken,
+      },
+    });
+
+    expect(callbackResponse.statusCode).toBe(200);
+
+    const unlinkResponse = await server.inject({
+      method: 'DELETE',
+      url: '/api/auth/oauth/link/google',
+      cookies: {
+        [SESSION_COOKIE_NAME]: sessionToken,
+      },
+    });
+
+    expect(unlinkResponse.statusCode).toBe(200);
+    expect(unlinkResponse.json()).toEqual({
+      message: 'OAuth provider unlinked.',
+    });
+
+    const providersResponse = await server.inject({
+      method: 'GET',
+      url: '/api/auth/oauth/providers',
+      cookies: {
+        [SESSION_COOKIE_NAME]: sessionToken,
+      },
+    });
+
+    expect(providersResponse.statusCode).toBe(200);
+    expect(providersResponse.json()).toEqual({
+      providers: [
+        { provider: 'google', linked: false },
         { provider: 'apple', linked: false },
         { provider: 'facebook', linked: false },
       ],

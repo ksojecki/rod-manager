@@ -6,6 +6,9 @@ declare module 'fastify' {
   interface FastifyReply {
     setSessionCookie: (token: string) => void;
     clearSessionCookie: () => void;
+  }
+
+  interface FastifyRequest {
     getSessionToken: () => string | undefined;
   }
 }
@@ -19,7 +22,7 @@ const COOKIE_OPTIONS = {
   sameSite: 'strict' as const,
 } as const;
 
-const SESSION_TTL_SECONDS = 60 * 60 * 8;
+const COOKIE_MAX_AGE = 60 * 60 * 8;
 
 /**
  * Registers cookie parsing and serialization support for request and reply helpers.
@@ -32,7 +35,7 @@ export default fp(function cookiePlugin(fastify: FastifyInstance) {
   fastify.decorateReply('setSessionCookie', function (token: string) {
     this.setCookie(SESSION_COOKIE_NAME, token, {
       ...COOKIE_OPTIONS,
-      maxAge: SESSION_TTL_SECONDS,
+      maxAge: COOKIE_MAX_AGE,
     });
   });
 
