@@ -1,5 +1,7 @@
-import type { FastifyInstance, FastifyReply } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { SESSION_COOKIE_NAME } from './types';
+import type { AuthStore, AuthStoreSession } from '../database';
+import { resolveSessionFromRequest } from './checkSession';
 
 export const COOKIE_OPTIONS = {
   path: '/',
@@ -11,32 +13,61 @@ export const COOKIE_OPTIONS = {
 export const COOKIE_MAX_AGE = 60 * 60 * 8;
 
 /**
- * Creates decorator implementation that starts a new authenticated session.
+ * Reads the session token from request cookies.
  */
-export function createStartSessionDecorator(fastify: FastifyInstance) {
+export function getSessionToken(this: FastifyRequest): string | undefined {
+  return this.cookies[SESSION_COOKIE_NAME];
+}
+
+/**
+ * Creates a request-bound function that resolves and caches the current session.
+ */
+export function createGetSessionDecorator(getAuthStore: () => AuthStore) {
+  return function getSession(
+    this: FastifyRequest,
+  ): AuthStoreSession | undefined {
+    return resolveSessionFromRequest(getAuthStore(), this);
+  };
+}
+
+/**
+ * Checks whether an authenticated session exists for the current request.
+ */
+export function hasSession(this: FastifyRequest): boolean {
+  return this.getSession() !== undefined;
+}
+
+/**
+ * Creates a reply-bound function that starts a new authenticated session.
+ */
+export function createStartSessionDecorator(getAuthStore: () => AuthStore) {
   return function startSession(this: FastifyReply, userId: string): void {
+    const authStore = getAuthStore();
+
     this.removeSession();
 
-    const token = fastify.authStore.createSession(userId);
+    const token = authStore.createSession(userId);
 
     this.setCookie(SESSION_COOKIE_NAME, token, {
       ...COOKIE_OPTIONS,
       maxAge: COOKIE_MAX_AGE,
     });
 
-    this.request.authenticatedSession = fastify.authStore.findSession(token);
+    this.request.authenticatedSession = authStore.findSession(token);
   };
 }
 
 /**
- * Creates decorator implementation that removes active authenticated session.
+ * Creates a reply-bound function that removes the active authenticated session.
  */
-export function createRemoveSessionDecorator(fastify: FastifyInstance) {
+export function createRemoveSessionDecorator(getAuthStore: () => AuthStore) {
   return function removeSession(this: FastifyReply): void {
+    const authStore = getAuthStore();
+
     const token = this.request.getSessionToken();
 
     if (token !== undefined) {
-      fastify.authStore.deleteSession(token);
+      authStore.deleteSession(token);
     }
 
     this.request.authenticatedSession = undefined;
