@@ -36,24 +36,34 @@ export const Navbar = () => {
             <Link to="/" className="btn btn-ghost btn-sm">
               {t('menuHome')}
             </Link>
-            <Link to="/account" className="btn btn-ghost btn-sm">
-              {t('menuAccount')}
-            </Link>
             {status === 'authenticated' ? (
-              <>
-                <span className="hidden text-sm text-base-content/70 md:inline">
-                  {user?.displayName}
-                </span>
+              <div className="dropdown dropdown-end">
                 <button
                   className="btn btn-outline btn-sm"
-                  onClick={() => {
-                    void logout();
-                  }}
                   type="button"
+                  tabIndex={0}
                 >
-                  {t('menuLogout')}
+                  {user?.displayName}
                 </button>
-              </>
+                <ul
+                  className="dropdown-content menu z-10 mt-2 w-44 rounded-box bg-base-100 p-2 shadow"
+                  tabIndex={0}
+                >
+                  <li>
+                    <Link to="/account">{t('menuAccount')}</Link>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        void logout();
+                      }}
+                      type="button"
+                    >
+                      {t('menuLogout')}
+                    </button>
+                  </li>
+                </ul>
+              </div>
             ) : (
               <button
                 className="btn btn-primary btn-sm"
