@@ -37,6 +37,11 @@ export const Navbar = () => {
               {t('menuHome')}
             </Link>
             {status === 'authenticated' ? (
+              <Link to="/pages" className="btn btn-ghost btn-sm">
+                {t('menuContentManagement')}
+              </Link>
+            ) : null}
+            {status === 'authenticated' ? (
               <div className="dropdown dropdown-end">
                 <button
                   className="btn btn-outline btn-sm"

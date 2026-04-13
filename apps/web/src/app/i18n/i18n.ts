@@ -6,6 +6,7 @@ import pl, { type TranslationResources } from './pl';
 type Namespaces = keyof TranslationResources;
 const ns = [
   'layout',
+  'content',
   'home',
   'account',
   'auth',

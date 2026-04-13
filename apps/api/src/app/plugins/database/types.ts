@@ -91,6 +91,20 @@ export interface UserSettingsStore {
   updateUserPreferredLanguage(userId: string, language: UserLanguage): void;
 }
 
+export interface ContentPageSummary {
+  slug: string;
+}
+
+export interface ContentPage {
+  slug: string;
+  contentMd: string;
+}
+
+export interface PageStore {
+  listPages(): ContentPageSummary[];
+  findPageBySlug(slug: string): ContentPage | undefined;
+}
+
 export interface UserRow {
   id: string;
   email: string;
@@ -131,10 +145,20 @@ export interface OAuthProviderRow {
   created_at: number;
 }
 
+export interface ContentPageSummaryRow {
+  slug: string;
+}
+
+export interface ContentPageRow {
+  slug: string;
+  content_md: string;
+}
+
 declare module 'fastify' {
   interface FastifyInstance {
     authStore: AuthStore;
     userSettingsStore: UserSettingsStore;
+    pageStore: PageStore;
   }
 }
 

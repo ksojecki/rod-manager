@@ -7,12 +7,15 @@ import {
   ensureUserSettingsModel,
   ensureUserRoleColumn,
   ensureNameColumns,
+  ensurePageSlugValidationRules,
+  ensureSeedPages,
   seedInitialUser,
   shouldSeedInitialUser,
   ensureAdministratorExists,
 } from './init';
 import { createStore } from './store';
 import { createUserSettingsStore } from './userSettingsStore';
+import { createPageStore } from './pageStore';
 
 export type {
   AuthStore,
@@ -21,6 +24,7 @@ export type {
   OAuthProviderData,
   OAuthProviderType,
   UserSettingsStore,
+  PageStore,
 } from './types';
 export { createSessionExpiration } from './types';
 
@@ -34,6 +38,8 @@ export default fp(function databasePlugin(fastify: FastifyInstance) {
   ensureUserSettingsModel(db);
   ensureUserRoleColumn(db);
   ensureNameColumns(db);
+  ensurePageSlugValidationRules(db);
+  ensureSeedPages(db);
 
   if (shouldSeedInitialUser()) {
     seedInitialUser(db);
@@ -43,6 +49,7 @@ export default fp(function databasePlugin(fastify: FastifyInstance) {
 
   fastify.decorate('authStore', createStore(db));
   fastify.decorate('userSettingsStore', createUserSettingsStore(db));
+  fastify.decorate('pageStore', createPageStore(db));
 
   fastify.addHook('onClose', async () => {
     db.close();

@@ -7,10 +7,17 @@ const en: TranslationResources = {
     menuAccount: 'Account',
     menuLogin: 'Log in',
     menuLogout: 'Log out',
+    menuContentManagement: 'Content Management',
     languageLabel: 'Language',
     languageEnglish: 'EN',
     languagePolish: 'PL',
     footerText: 'Rod Manager',
+  },
+  content: {
+    managementTitle: 'Content Management',
+    managementDescription: 'Select a page to open.',
+    pageTitleFallback: 'Page',
+    loadErrorDefault: 'Unexpected server error.',
   },
   home: {
     title: 'Home',

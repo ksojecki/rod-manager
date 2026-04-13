@@ -5,10 +5,17 @@ const pl = {
     menuAccount: 'Konto',
     menuLogin: 'Zaloguj',
     menuLogout: 'Wyloguj',
+    menuContentManagement: 'Content Management',
     languageLabel: 'Język',
     languageEnglish: 'EN',
     languagePolish: 'PL',
     footerText: 'Rod Manager',
+  },
+  content: {
+    managementTitle: 'Content Management',
+    managementDescription: 'Select a page to open.',
+    pageTitleFallback: 'Page',
+    loadErrorDefault: 'Unexpected server error.',
   },
   home: {
     title: 'Strona główna',
