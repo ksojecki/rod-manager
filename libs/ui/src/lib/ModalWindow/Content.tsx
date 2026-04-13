@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import { Heading } from '../Typography';
 import type { ActionButtonProps } from './ActionButton';
 
 export type ActionButtonType = ReactElement<ActionButtonProps>;
@@ -12,7 +13,7 @@ export type ContentType = ReactElement<TitleProps>;
 export type ActionType = ReactElement<ActionsProps>;
 
 export const Title = ({ children }: TitleProps): TitleType => (
-  <h3 className="font-bold text-lg">{children}</h3>
+  <Heading level={3}>{children}</Heading>
 );
 
 export const Content = ({ children }: ContentProps): ContentType => {

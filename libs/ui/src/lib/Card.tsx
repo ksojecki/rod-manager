@@ -19,7 +19,7 @@ export function Card({ actions, children, className, title }: CardProps) {
   return (
     <section className={joinClassNames(CARD_BASE_CLASS_NAME, className)}>
       <div className={CARD_BODY_CLASS_NAME}>
-        {title !== undefined ? <h2 className="card-title">{title}</h2> : null}
+        {title !== undefined ? <div className="card-title">{title}</div> : null}
         <div>{children}</div>
         {actions !== undefined ? (
           <div className={CARD_ACTIONS_CLASS_NAME}>{actions}</div>

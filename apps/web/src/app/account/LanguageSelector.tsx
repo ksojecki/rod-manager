@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Heading } from '@rod-manager/ui';
 import { updateLanguagePreference } from './settingsApi';
 
 export const LanguageSelector = () => {
@@ -8,7 +9,7 @@ export const LanguageSelector = () => {
   return (
     <div className="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
       <div className="space-y-1">
-        <h2 className="text-lg font-semibold">{t('languageLabel')}</h2>
+        <Heading level={2}>{t('languageLabel')}</Heading>
       </div>
 
       <div className="mt-4">

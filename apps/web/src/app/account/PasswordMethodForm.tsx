@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, FormField } from '@rod-manager/ui';
+import { Button, FormField, Heading } from '@rod-manager/ui';
 import { useAuthForm } from '../auth/hooks/useAuthForm';
 import { updatePassword } from '../auth/authApi';
 import { passwordSchema, type PasswordFormValues } from './passwordSchema';
@@ -65,11 +65,11 @@ export function PasswordMethodForm({
       }}
     >
       <div className="space-y-1">
-        <h3 className="text-base font-semibold">
+        <Heading level={3}>
           {hasPassword
             ? t('authentication.changePasswordTitle')
             : t('authentication.setPasswordTitle')}
-        </h3>
+        </Heading>
         <p className="text-sm text-base-content/70">
           {hasPassword
             ? t('authentication.changePasswordDescription')

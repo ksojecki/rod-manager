@@ -4,7 +4,7 @@ import type {
   AuthenticationMethodStatus,
   OAuthProviderType,
 } from '@rod-manager/shared';
-import { Button, Page } from '@rod-manager/ui';
+import { Button, Heading, Page } from '@rod-manager/ui';
 import { useAuth } from '../auth/AuthContext';
 import {
   linkOAuthProvider,
@@ -141,9 +141,7 @@ export const AccountPage = () => {
         </p>
         <div className="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold">
-              {t('authentication.title')}
-            </h2>
+            <Heading level={2}>{t('authentication.title')}</Heading>
             <p className="text-sm text-base-content/70">
               {t('authentication.description')}
             </p>

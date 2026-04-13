@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "lint": "node ./node_modules/nx/bin/nx.js run-many -t lint --no-tui",
     "typecheck": "node ./node_modules/nx/bin/nx.js run-many -t typecheck --no-tui",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "postinstall": "node ./scripts/postinstall.mjs",
     "setup:certs": "node ./scripts/setup-dev-certs.mjs",
     "dev:ssr": "npm run dev:web & npm run dev:api",

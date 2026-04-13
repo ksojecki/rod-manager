@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
-import { completeOAuthCallback, retrieveOAuthState } from './authApi';
-import { useAuth } from './AuthContext';
 import type { OAuthProviderType } from '@rod-manager/shared';
+import { Heading } from '@rod-manager/ui';
+import { useAuth } from './AuthContext';
+import { completeOAuthCallback, retrieveOAuthState } from './authApi';
 
 /**
  * OAuth callback handler page
@@ -70,7 +71,7 @@ export function OAuthCallbackPage() {
 
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <h1>Authentication Error</h1>
+        <Heading level={1}>Authentication Error</Heading>
         <p style={{ color: 'red' }}>{error}</p>
         <button onClick={handleBackToLogin} type="button">
           Back to Login
@@ -81,7 +82,7 @@ export function OAuthCallbackPage() {
 
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Processing OAuth callback...</h1>
+      <Heading level={1}>Processing OAuth callback...</Heading>
       <p>Please wait while we complete your authentication.</p>
     </div>
   );

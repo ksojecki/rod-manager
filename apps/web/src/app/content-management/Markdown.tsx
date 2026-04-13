@@ -1,4 +1,6 @@
 import type { ReactElement } from 'react';
+import type { HeadingLevel } from '@rod-manager/ui';
+import { Heading } from '@rod-manager/ui';
 
 type MarkdownBlock =
   | { type: 'heading'; level: 1 | 2 | 3; text: string }
@@ -80,32 +82,13 @@ export function renderMarkdown(contentMd: string): ReactElement[] {
 
   return blocks.map((block, index) => {
     if (block.type === 'heading') {
-      if (block.level === 1) {
-        return (
-          <h2
-            className="text-2xl font-semibold"
-            key={`heading-${String(index)}`}
-          >
-            {block.text}
-          </h2>
-        );
-      }
-
-      if (block.level === 2) {
-        return (
-          <h3
-            className="text-xl font-semibold"
-            key={`heading-${String(index)}`}
-          >
-            {block.text}
-          </h3>
-        );
-      }
-
       return (
-        <h4 className="text-lg font-semibold" key={`heading-${String(index)}`}>
+        <Heading
+          key={`heading-${String(index)}`}
+          level={(block.level + 1) as HeadingLevel}
+        >
           {block.text}
-        </h4>
+        </Heading>
       );
     }
 
