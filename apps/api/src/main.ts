@@ -2,7 +2,7 @@ import 'dotenv/config';
 import Fastify from 'fastify';
 import { existsSync, readFileSync } from 'node:fs';
 import type { FastifyInstance } from 'fastify';
-import { app } from './app/app';
+import { createServerPlatform } from '@rod-manager/server-platform';
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -12,7 +12,6 @@ const defaultDevKeyPath = '.cert/localhost-key.pem';
 const defaultDevCertPath = '.cert/localhost-cert.pem';
 const httpsOptions = getHttpsOptions();
 
-// Instantiate Fastify with some config
 const server = Fastify({
   logger: true,
   https: httpsOptions,
@@ -44,10 +43,10 @@ function getHttpsOptions() {
   };
 }
 
-// Register your application as a normal plugin.
-server.register(app);
+server.register(async (instance) => {
+  await createServerPlatform(instance);
+});
 
-// Start listening.
 server.listen({ port, host }, (err) => {
   if (err) {
     server.log.error(err);
