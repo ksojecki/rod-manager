@@ -3,6 +3,7 @@ import Fastify from 'fastify';
 import { existsSync, readFileSync } from 'node:fs';
 import type { FastifyInstance } from 'fastify';
 import { createServerPlatform } from '@rod-manager/server-platform';
+import { pagesServerPlugin } from '@rod-manager/plugin-pages-server';
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -44,7 +45,9 @@ function getHttpsOptions() {
 }
 
 server.register(async (instance) => {
-  await createServerPlatform(instance);
+  await createServerPlatform(instance, {
+    plugins: [pagesServerPlugin()],
+  });
 });
 
 server.listen({ port, host }, (err) => {

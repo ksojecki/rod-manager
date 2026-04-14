@@ -20,7 +20,8 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "libs/*"
+    "libs/*",
+    "libs/plugins/pages/*"
   ],
   "devDependencies": {
     "@babel/core": "7.29.0",

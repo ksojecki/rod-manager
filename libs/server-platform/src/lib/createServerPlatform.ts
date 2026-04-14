@@ -7,7 +7,6 @@ import oauthPlugin from './plugins/oauth/index.js';
 import sensiblePlugin from './plugins/sensible.js';
 import authRoutes from './routes/auth.js';
 import oauthRoutes from './routes/oauth.js';
-import pagesRoutes from './routes/pages.js';
 import rootRoute from './routes/root.js';
 import ssrRoute from './routes/ssr.js';
 import userSettingsRoutes from './routes/user-settings.js';
@@ -31,7 +30,6 @@ export async function createServerPlatform(
   // Core routes
   fastify.register(authRoutes);
   fastify.register(oauthRoutes);
-  fastify.register(pagesRoutes);
   fastify.register(rootRoute);
   fastify.register(userSettingsRoutes);
   fastify.register(ssrRoute);

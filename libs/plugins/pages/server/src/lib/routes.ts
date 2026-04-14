@@ -3,8 +3,13 @@ import type {
   ContentPageListResponseBody,
   ContentPageResponseBody,
 } from '@rod-manager/shared';
+import type { PageStore } from './store.js';
 
-export default function pagesRoutes(fastify: FastifyInstance) {
+/** Registers pages API routes on the given Fastify instance. */
+export function registerPagesRoutes(
+  fastify: FastifyInstance,
+  pageStore: PageStore,
+): void {
   fastify.get(
     '/api/pages',
     {
@@ -14,11 +19,9 @@ export default function pagesRoutes(fastify: FastifyInstance) {
       if (request.authenticatedSession === undefined) {
         return;
       }
-
       const response: ContentPageListResponseBody = {
-        pages: fastify.pageStore.listPages(),
+        pages: pageStore.listPages(),
       };
-
       await reply.send(response);
     },
   );
@@ -26,17 +29,12 @@ export default function pagesRoutes(fastify: FastifyInstance) {
   fastify.get<{ Params: { slug: string } }>(
     '/api/pages/:slug',
     async (request, reply) => {
-      const page = fastify.pageStore.findPageBySlug(request.params.slug);
-
+      const page = pageStore.findPageBySlug(request.params.slug);
       if (page === undefined) {
         await reply.status(404).send({ message: 'Page not found.' });
         return;
       }
-
-      const response: ContentPageResponseBody = {
-        page,
-      };
-
+      const response: ContentPageResponseBody = { page };
       await reply.send(response);
     },
   );
