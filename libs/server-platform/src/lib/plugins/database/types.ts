@@ -3,6 +3,7 @@ import type {
   UserLanguage,
   UserRole,
 } from '@rod-manager/shared';
+import type { ServerPlatformDbClient } from '../../contracts/plugin.contract.js';
 
 export type { OAuthProviderType };
 
@@ -91,20 +92,6 @@ export interface UserSettingsStore {
   updateUserPreferredLanguage(userId: string, language: UserLanguage): void;
 }
 
-export interface ContentPageSummary {
-  slug: string;
-}
-
-export interface ContentPage {
-  slug: string;
-  contentMd: string;
-}
-
-export interface PageStore {
-  listPages(): ContentPageSummary[];
-  findPageBySlug(slug: string): ContentPage | undefined;
-}
-
 export interface UserRow {
   id: string;
   email: string;
@@ -144,17 +131,6 @@ export interface OAuthProviderRow {
   access_token_expires_at: number;
   created_at: number;
 }
-
-export interface ContentPageSummaryRow {
-  slug: string;
-}
-
-export interface ContentPageRow {
-  slug: string;
-  content_md: string;
-}
-
-import type { ServerPlatformDbClient } from '../../contracts/plugin.contract.js';
 
 declare module 'fastify' {
   interface FastifyInstance {

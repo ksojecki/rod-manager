@@ -1,15 +1,32 @@
 import Database from 'better-sqlite3';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ensurePageSlugValidationRules, initializeSchema } from './init.js';
+import {
+  pagesSchemaMigration,
+  pagesValidationRulesMigration,
+} from './migrations.js';
+import type { ServerPlatformPluginContext } from '@rod-manager/server-platform';
 
 const databases: Database.Database[] = [];
 
-function createDatabase(): Database.Database {
+function createTestContext(): {
+  db: Database.Database;
+  ctx: ServerPlatformPluginContext;
+} {
   const db = new Database(':memory:');
-  initializeSchema(db);
-  ensurePageSlugValidationRules(db);
   databases.push(db);
-  return db;
+  const ctx: ServerPlatformPluginContext = {
+    fastify: {} as ServerPlatformPluginContext['fastify'],
+    services: {
+      authStore: {} as ServerPlatformPluginContext['services']['authStore'],
+      sessionService:
+        {} as ServerPlatformPluginContext['services']['sessionService'],
+      db: db as unknown as ServerPlatformPluginContext['services']['db'],
+      logger: {} as ServerPlatformPluginContext['services']['logger'],
+    },
+  };
+  pagesSchemaMigration.up(ctx);
+  pagesValidationRulesMigration.up(ctx);
+  return { db, ctx };
 }
 
 afterEach(() => {
@@ -18,9 +35,9 @@ afterEach(() => {
   }
 });
 
-describe('page slug validation rules', () => {
+describe('pages migrations', () => {
   it('rejects slug collision with reserved routes', () => {
-    const db = createDatabase();
+    const { db } = createTestContext();
 
     expect(() => {
       db.prepare(`INSERT INTO pages (slug, content_md) VALUES (?, ?)`).run(
@@ -31,7 +48,7 @@ describe('page slug validation rules', () => {
   });
 
   it('rejects empty slug values', () => {
-    const db = createDatabase();
+    const { db } = createTestContext();
 
     expect(() => {
       db.prepare(`INSERT INTO pages (slug, content_md) VALUES (?, ?)`).run(
@@ -42,7 +59,7 @@ describe('page slug validation rules', () => {
   });
 
   it('accepts non-reserved slugs', () => {
-    const db = createDatabase();
+    const { db } = createTestContext();
 
     db.prepare(`INSERT INTO pages (slug, content_md) VALUES (?, ?)`).run(
       'community-news',
@@ -50,10 +67,9 @@ describe('page slug validation rules', () => {
     );
 
     const row = db
-      .prepare<
-        [string],
-        { slug: string; content_md: string }
-      >(`SELECT slug, content_md FROM pages WHERE slug = ?`)
+      .prepare<[string], { slug: string; content_md: string }>(
+        `SELECT slug, content_md FROM pages WHERE slug = ?`,
+      )
       .get('community-news');
 
     expect(row).toEqual({
