@@ -1,4 +1,6 @@
 import type { FastifyInstance } from 'fastify';
+import type { ServerPlatformPlugin } from './contracts/plugin.contract.js';
+import { createPluginRegistrar } from './serverPluginRegistry.js';
 import databasePlugin from './plugins/database/index.js';
 import sessionPlugin from './plugins/session/index.js';
 import oauthPlugin from './plugins/oauth/index.js';
@@ -12,6 +14,7 @@ import userSettingsRoutes from './routes/user-settings.js';
 
 export interface ServerPlatformOptions {
   logLevel?: string;
+  plugins?: ServerPlatformPlugin[];
 }
 
 /** Registers all core plugins and routes on the given Fastify instance. */
@@ -32,4 +35,9 @@ export async function createServerPlatform(
   fastify.register(rootRoute);
   fastify.register(userSettingsRoutes);
   fastify.register(ssrRoute);
+
+  // Feature plugins
+  if (opts.plugins && opts.plugins.length > 0) {
+    fastify.register(createPluginRegistrar(opts.plugins));
+  }
 }

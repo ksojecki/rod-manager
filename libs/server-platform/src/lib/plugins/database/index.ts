@@ -16,6 +16,7 @@ import {
 import { createStore } from './store.js';
 import { createUserSettingsStore } from './userSettingsStore.js';
 import { createPageStore } from './pageStore.js';
+import type { ServerPlatformDbClient } from '../../contracts/plugin.contract.js';
 
 export type {
   AuthStore,
@@ -25,8 +26,8 @@ export type {
   OAuthProviderType,
   UserSettingsStore,
   PageStore,
-} from './types';
-export { createSessionExpiration } from './types';
+} from './types.js';
+export { createSessionExpiration } from './types.js';
 
 /**
  * Registers SQLite-backed store for authentication and session persistence.
@@ -50,6 +51,7 @@ export default fp(function databasePlugin(fastify: FastifyInstance) {
   fastify.decorate('authStore', createStore(db));
   fastify.decorate('userSettingsStore', createUserSettingsStore(db));
   fastify.decorate('pageStore', createPageStore(db));
+  fastify.decorate('db', db as unknown as ServerPlatformDbClient);
 
   fastify.addHook('onClose', async () => {
     db.close();
