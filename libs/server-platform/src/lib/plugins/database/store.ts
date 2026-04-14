@@ -13,8 +13,8 @@ import type {
   OAuthProviderRow,
   SessionRow,
   UserRow,
-} from './types';
-import { createSessionExpiration } from './types';
+} from './types.js';
+import { createSessionExpiration } from './types.js';
 
 export type { AuthStore };
 

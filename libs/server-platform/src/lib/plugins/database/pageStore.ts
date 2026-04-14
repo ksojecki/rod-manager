@@ -5,7 +5,7 @@ import type {
   ContentPageSummary,
   ContentPageSummaryRow,
   PageStore,
-} from './types';
+} from './types.js';
 
 export function createPageStore(db: Database.Database): PageStore {
   const listPagesStatement = db.prepare<[], ContentPageSummaryRow>(

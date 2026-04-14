@@ -12,10 +12,10 @@ import {
   seedInitialUser,
   shouldSeedInitialUser,
   ensureAdministratorExists,
-} from './init';
-import { createStore } from './store';
-import { createUserSettingsStore } from './userSettingsStore';
-import { createPageStore } from './pageStore';
+} from './init.js';
+import { createStore } from './store.js';
+import { createUserSettingsStore } from './userSettingsStore.js';
+import { createPageStore } from './pageStore.js';
 
 export type {
   AuthStore,

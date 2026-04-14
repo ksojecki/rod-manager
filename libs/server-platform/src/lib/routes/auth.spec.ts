@@ -1,10 +1,10 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { SessionResponse } from '@rod-manager/shared';
-import databasePlugin from '../plugins/database';
-import sessionPlugin from '../plugins/session';
-import authRoutes from './auth';
-import { SESSION_COOKIE_NAME } from '../plugins/session';
+import databasePlugin from '../plugins/database/index.js';
+import sessionPlugin from '../plugins/session/index.js';
+import authRoutes from './auth.js';
+import { SESSION_COOKIE_NAME } from '../plugins/session/index.js';
 
 describe('auth routes', () => {
   beforeEach(() => {

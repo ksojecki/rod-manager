@@ -1,6 +1,6 @@
 import type { UserLanguage } from '@rod-manager/shared';
 import type Database from 'better-sqlite3';
-import type { UserSettingsStore } from './types';
+import type { UserSettingsStore } from './types.js';
 
 export function createUserSettingsStore(
   db: Database.Database,

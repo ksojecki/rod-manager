@@ -1,10 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
-import { createOAuthConfigs } from './providers';
-import { generatePKCE } from './pkce';
-import { createOAuthService } from './service';
+import { createOAuthConfigs } from './providers.js';
+import { generatePKCE } from './pkce.js';
+import { createOAuthService } from './service.js';
 
-export type { OAuthConfig, OAuthService, OAuthState } from './types';
+export type { OAuthConfig, OAuthService, OAuthState } from './types.js';
 export { generatePKCE };
 
 /**

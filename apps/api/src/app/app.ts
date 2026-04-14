@@ -1,28 +1,13 @@
-import * as path from 'path';
 import type { FastifyInstance } from 'fastify';
-import AutoLoad from '@fastify/autoload';
+import { createServerPlatform } from '@rod-manager/server-platform';
 
 export interface AppOptions {
-  logLevel?: 'string';
+  logLevel?: string;
 }
 
+/** Registers all server platform plugins and routes on the given Fastify instance. */
 export function app(fastify: FastifyInstance, opts: AppOptions) {
-  // Place here your custom code!
-
-  // Do not touch the following lines
-
-  // This loads all plugins defined in plugins
-  // those should be support plugins that are reused
-  // through your application
-  fastify.register(AutoLoad, {
-    dir: path.join(__dirname, 'plugins'),
-    options: { ...opts },
-  });
-
-  // This loads all plugins defined in routes
-  // define your routes in one of these
-  fastify.register(AutoLoad, {
-    dir: path.join(__dirname, 'routes'),
-    options: { ...opts },
+  fastify.register(async (instance) => {
+    await createServerPlatform(instance, opts);
   });
 }

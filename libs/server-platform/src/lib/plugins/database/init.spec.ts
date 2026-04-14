@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ensurePageSlugValidationRules, initializeSchema } from './init';
+import { ensurePageSlugValidationRules, initializeSchema } from './init.js';
 
 const databases: Database.Database[] = [];
 

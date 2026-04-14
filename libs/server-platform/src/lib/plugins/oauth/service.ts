@@ -1,10 +1,10 @@
 import type { OAuthProviderType, OAuthUserInfo } from '@rod-manager/shared';
-import type { OAuthConfig, OAuthService, ProviderTokenResponse } from './types';
+import type { OAuthConfig, OAuthService, ProviderTokenResponse } from './types.js';
 import {
   buildOAuthUserInfo,
   decodeJwtPayload,
   normalizeValue,
-} from './userInfo';
+} from './userInfo.js';
 
 /**
  * Create OAuth service instance backed by provider configurations.

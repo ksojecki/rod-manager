@@ -2,8 +2,8 @@ import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import type { UserRole } from '@rod-manager/shared';
 import type Database from 'better-sqlite3';
-import type { CountRow } from './types';
-import { hashPassword } from './store';
+import type { CountRow } from './types.js';
+import { hashPassword } from './store.js';
 
 const RESERVED_PAGE_SLUGS = ['account', 'register', 'pages', 'auth', 'api'];
 const RESERVED_PAGE_SLUGS_SQL = RESERVED_PAGE_SLUGS.map(

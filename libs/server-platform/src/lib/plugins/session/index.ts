@@ -1,19 +1,19 @@
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import cookie from '@fastify/cookie';
-import './types';
+import './types.js';
 import {
   createGetSessionDecorator,
   getSessionToken,
   hasSession,
-} from './checkSession';
+} from './checkSession.js';
 import {
   createRemoveSessionDecorator,
   createStartSessionDecorator,
-} from './mutateSession';
-import { requireAuthenticatedSession } from './requireAuthenticatedSession';
+} from './mutateSession.js';
+import { requireAuthenticatedSession } from './requireAuthenticatedSession.js';
 
-export { SESSION_COOKIE_NAME } from './types';
+export { SESSION_COOKIE_NAME } from './types.js';
 
 /**
  * Registers cookie parsing plus session helpers for request and reply lifecycle.
