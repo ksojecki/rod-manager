@@ -160,7 +160,6 @@ declare module 'fastify' {
   interface FastifyInstance {
     authStore: AuthStore;
     userSettingsStore: UserSettingsStore;
-    pageStore: PageStore;
     db: ServerPlatformDbClient;
   }
 }
