@@ -16,7 +16,10 @@
   ],
   "references": [
     {
-      "path": "../../libs/shared/tsconfig.lib.json"
+      "path": "../../libs/server-platform/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/plugins/pages/server/tsconfig.lib.json"
     }
   ]
 }

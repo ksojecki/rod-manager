@@ -1,13 +1,30 @@
-import type Database from 'better-sqlite3';
-import type {
-  ContentPage,
-  ContentPageRow,
-  ContentPageSummary,
-  ContentPageSummaryRow,
-  PageStore,
-} from './types';
+import type { ServerPlatformDbClient } from '@rod-manager/server-platform';
 
-export function createPageStore(db: Database.Database): PageStore {
+export interface ContentPageSummary {
+  slug: string;
+}
+
+export interface ContentPage {
+  slug: string;
+  contentMd: string;
+}
+
+export interface PageStore {
+  listPages(): ContentPageSummary[];
+  findPageBySlug(slug: string): ContentPage | undefined;
+}
+
+interface ContentPageSummaryRow {
+  slug: string;
+}
+
+interface ContentPageRow {
+  slug: string;
+  content_md: string;
+}
+
+/** Creates a page store backed by the given database client. */
+export function createPageStore(db: ServerPlatformDbClient): PageStore {
   const listPagesStatement = db.prepare<[], ContentPageSummaryRow>(
     `SELECT slug FROM pages ORDER BY slug ASC`,
   );
@@ -24,11 +41,9 @@ export function createPageStore(db: Database.Database): PageStore {
     },
     findPageBySlug(slug: string): ContentPage | undefined {
       const row = findPageBySlugStatement.get(slug);
-
       if (row === undefined) {
         return undefined;
       }
-
       return {
         slug: row.slug,
         contentMd: row.content_md,
