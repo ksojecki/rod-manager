@@ -1,5 +1,5 @@
 import type { preHandlerAsyncHookHandler } from 'fastify';
-import type { AuthStoreSession } from '../database/index';
+import type { AuthStoreSession } from '../database';
 
 export type RequireAuthenticatedSessionHook = preHandlerAsyncHookHandler;
 

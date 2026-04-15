@@ -1,5 +1,5 @@
 import type { FastifyRequest } from 'fastify';
-import type { AuthStore, AuthStoreSession } from '../database/index';
+import type { AuthStore, AuthStoreSession } from '../database';
 import { SESSION_COOKIE_NAME } from './types';
 
 /**

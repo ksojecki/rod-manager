@@ -1,9 +1,9 @@
 import type { FastifyInstance } from 'fastify';
 import type { ServerPlatformPlugin } from './contracts/plugin.contract';
 import { createPluginRegistrar } from './serverPluginRegistry';
-import databasePlugin from './plugins/database/index';
-import sessionPlugin from './plugins/session/index';
-import oauthPlugin from './plugins/oauth/index';
+import databasePlugin from './plugins/database';
+import sessionPlugin from './plugins/session';
+import oauthPlugin from './plugins/oauth';
 import sensiblePlugin from './plugins/sensible';
 import authRoutes from './routes/auth';
 import oauthRoutes from './routes/oauth';

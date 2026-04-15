@@ -6,7 +6,7 @@ import type {
   ServerPlatformPluginContext,
   ServerPlatformSessionService,
 } from './contracts/plugin.contract';
-import type { AuthStore } from './plugins/database/types';
+import type { AuthStore } from './plugins/database';
 
 /** Creates a Fastify plugin that registers the given ServerPlatformPlugin list in order. */
 export function createPluginRegistrar(plugins: ServerPlatformPlugin[]) {

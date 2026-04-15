@@ -16,4 +16,4 @@ export type {
   JsonPrimitive,
 } from './lib/contracts/plugin.contract';
 export type { ServerPlatformCapability } from './lib/contracts/capability.contract';
-export { SESSION_COOKIE_NAME } from './lib/plugins/session/index';
+export { SESSION_COOKIE_NAME } from './lib/plugins/session';

@@ -7,8 +7,8 @@ import type {
   OAuthProviderType,
   OAuthProvidersResponseBody,
 } from '@rod-manager/shared';
-import type { AuthStoreSession } from '../plugins/database/index';
-import { generatePKCE } from '../plugins/oauth/index';
+import type { AuthStoreSession } from '../plugins/database';
+import { generatePKCE } from '../plugins/oauth';
 
 interface OAuthStateData {
   provider: OAuthProviderType;

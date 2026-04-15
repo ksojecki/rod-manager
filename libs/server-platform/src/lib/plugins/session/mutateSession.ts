@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { SESSION_COOKIE_NAME } from './types';
-import type { AuthStore, AuthStoreSession } from '../database/index';
+import type { AuthStore, AuthStoreSession } from '../database';
 import { resolveSessionFromRequest } from './checkSession';
 
 export const COOKIE_OPTIONS = {

@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import sessionPlugin, { SESSION_COOKIE_NAME } from './index';
-import databasePlugin from '../database/index';
+import databasePlugin from '../database';
 
 describe('session plugin', () => {
   beforeEach(() => {

@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import sessionPlugin, { SESSION_COOKIE_NAME } from '../plugins/session/index';
-import databasePlugin from '../plugins/database/index';
+import sessionPlugin, { SESSION_COOKIE_NAME } from '../plugins/session';
+import databasePlugin from '../plugins/database';
 import authRoutes from './auth';
 import userSettingsRoutes from './user-settings';
 
