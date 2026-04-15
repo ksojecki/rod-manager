@@ -1,1 +1,1 @@
-export type { ServerPlatformPluginContext } from '../contracts/plugin.contract.js';
+export type { ServerPlatformPluginContext } from '../contracts/plugin.contract';

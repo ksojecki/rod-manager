@@ -2,8 +2,8 @@ import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import type { UserRole } from '@rod-manager/shared';
 import type Database from 'better-sqlite3';
-import type { CountRow } from './types.js';
-import { hashPassword } from './store.js';
+import type { CountRow } from './types';
+import { hashPassword } from './store';
 
 export function getDatabasePath(): string {
   const configuredPath = process.env.AUTH_DB_PATH ?? 'tmp/auth.sqlite';

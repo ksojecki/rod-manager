@@ -1,20 +1,21 @@
 {
   "name": "@rod-manager/plugin-pages-server",
   "version": "0.0.1",
-  "type": "module",
   "main": "./dist/index.js",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "@rod-manager/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
+      "require": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },
-  "files": ["dist", "!**/*.tsbuildinfo"],
+  "files": [
+    "dist",
+    "!**/*.tsbuildinfo"
+  ],
   "dependencies": {
     "@rod-manager/server-platform": "0.0.1",
     "@rod-manager/shared": "0.0.1"
@@ -30,7 +31,9 @@
       },
       "build": {
         "executor": "nx:run-commands",
-        "outputs": ["{projectRoot}/dist"],
+        "outputs": [
+          "{projectRoot}/dist"
+        ],
         "options": {
           "cwd": "libs/plugins/pages/server",
           "command": "node ../../../../node_modules/typescript/bin/tsc --build tsconfig.lib.json"

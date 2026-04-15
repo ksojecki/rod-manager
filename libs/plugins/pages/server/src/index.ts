@@ -1,1 +1,1 @@
-export { pagesServerPlugin } from './lib/plugin.js';
+export { pagesServerPlugin } from './lib/plugin';

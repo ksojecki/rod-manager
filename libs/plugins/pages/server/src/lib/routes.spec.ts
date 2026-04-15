@@ -4,7 +4,7 @@ import {
   createServerPlatform,
   SESSION_COOKIE_NAME,
 } from '@rod-manager/server-platform';
-import { pagesServerPlugin } from './plugin.js';
+import { pagesServerPlugin } from './plugin';
 
 describe('pages plugin contract tests', () => {
   beforeEach(() => {

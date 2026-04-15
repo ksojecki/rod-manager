@@ -1,11 +1,11 @@
 import type { ServerPlatformPlugin } from '@rod-manager/server-platform';
-import { createPageStore } from './store.js';
-import { registerPagesRoutes } from './routes.js';
+import { createPageStore } from './store';
+import { registerPagesRoutes } from './routes';
 import {
   pagesSchemaMigration,
   pagesValidationRulesMigration,
   pagesSeedMigration,
-} from './migrations.js';
+} from './migrations';
 
 /** Creates the pages server plugin descriptor for use with createServerPlatform. */
 export function pagesServerPlugin(): ServerPlatformPlugin {

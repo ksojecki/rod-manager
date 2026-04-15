@@ -5,8 +5,37 @@ import type {
   ServerPlatformPlugin,
   ServerPlatformPluginContext,
   ServerPlatformSessionService,
-} from './contracts/plugin.contract.js';
-import type { AuthStore } from './plugins/database/types.js';
+} from './contracts/plugin.contract';
+import type { AuthStore } from './plugins/database/types';
+
+/** Creates a Fastify plugin that registers the given ServerPlatformPlugin list in order. */
+export function createPluginRegistrar(plugins: ServerPlatformPlugin[]) {
+  return fp(async function serverPluginRegistrar(fastify: FastifyInstance) {
+    for (const plugin of plugins) {
+      await fastify.register(
+        fp(async function serverPlugin(instance: FastifyInstance) {
+          const ctx: ServerPlatformPluginContext = {
+            fastify: instance,
+            services: {
+              authStore: createAuthStoreAdapter(instance.authStore),
+              sessionService: createSessionServiceAdapter(instance.authStore),
+              db: instance.db,
+              logger: instance.log,
+            },
+          };
+
+          if (plugin.migrations) {
+            for (const migration of plugin.migrations) {
+              await migration.up(ctx);
+            }
+          }
+
+          await plugin.register(ctx);
+        }),
+      );
+    }
+  });
+}
 
 function createSessionServiceAdapter(
   authStore: AuthStore,
@@ -54,33 +83,4 @@ function createAuthStoreAdapter(authStore: AuthStore): ServerPlatformAuthStore {
       authStore.deleteSession(token);
     },
   };
-}
-
-/** Creates a Fastify plugin that registers the given ServerPlatformPlugin list in order. */
-export function createPluginRegistrar(plugins: ServerPlatformPlugin[]) {
-  return fp(async function serverPluginRegistrar(fastify: FastifyInstance) {
-    for (const plugin of plugins) {
-      await fastify.register(
-        fp(async function serverPlugin(instance: FastifyInstance) {
-          const ctx: ServerPlatformPluginContext = {
-            fastify: instance,
-            services: {
-              authStore: createAuthStoreAdapter(instance.authStore),
-              sessionService: createSessionServiceAdapter(instance.authStore),
-              db: instance.db,
-              logger: instance.log,
-            },
-          };
-
-          if (plugin.migrations) {
-            for (const migration of plugin.migrations) {
-              await migration.up(ctx);
-            }
-          }
-
-          await plugin.register(ctx);
-        }),
-      );
-    }
-  });
 }

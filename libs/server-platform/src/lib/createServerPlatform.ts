@@ -1,15 +1,15 @@
 import type { FastifyInstance } from 'fastify';
-import type { ServerPlatformPlugin } from './contracts/plugin.contract.js';
-import { createPluginRegistrar } from './serverPluginRegistry.js';
-import databasePlugin from './plugins/database/index.js';
-import sessionPlugin from './plugins/session/index.js';
-import oauthPlugin from './plugins/oauth/index.js';
-import sensiblePlugin from './plugins/sensible.js';
-import authRoutes from './routes/auth.js';
-import oauthRoutes from './routes/oauth.js';
-import rootRoute from './routes/root.js';
-import ssrRoute from './routes/ssr.js';
-import userSettingsRoutes from './routes/user-settings.js';
+import type { ServerPlatformPlugin } from './contracts/plugin.contract';
+import { createPluginRegistrar } from './serverPluginRegistry';
+import databasePlugin from './plugins/database/index';
+import sessionPlugin from './plugins/session/index';
+import oauthPlugin from './plugins/oauth/index';
+import sensiblePlugin from './plugins/sensible';
+import authRoutes from './routes/auth';
+import oauthRoutes from './routes/oauth';
+import rootRoute from './routes/root';
+import ssrRoute from './routes/ssr';
+import userSettingsRoutes from './routes/user-settings';
 
 export interface ServerPlatformOptions {
   logLevel?: string;

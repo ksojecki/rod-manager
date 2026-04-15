@@ -1,9 +1,9 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import sessionPlugin, { SESSION_COOKIE_NAME } from '../plugins/session/index.js';
-import databasePlugin from '../plugins/database/index.js';
-import authRoutes from './auth.js';
-import userSettingsRoutes from './user-settings.js';
+import sessionPlugin, { SESSION_COOKIE_NAME } from '../plugins/session/index';
+import databasePlugin from '../plugins/database/index';
+import authRoutes from './auth';
+import userSettingsRoutes from './user-settings';
 
 describe('user settings routes', () => {
   beforeEach(() => {

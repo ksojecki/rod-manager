@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   pagesSchemaMigration,
   pagesValidationRulesMigration,
-} from './migrations.js';
+} from './migrations';
 import type { ServerPlatformPluginContext } from '@rod-manager/server-platform';
 
 const databases: Database.Database[] = [];
@@ -24,8 +24,8 @@ function createTestContext(): {
       logger: {} as ServerPlatformPluginContext['services']['logger'],
     },
   };
-  pagesSchemaMigration.up(ctx);
-  pagesValidationRulesMigration.up(ctx);
+  void pagesSchemaMigration.up(ctx);
+  void pagesValidationRulesMigration.up(ctx);
   return { db, ctx };
 }
 
@@ -67,9 +67,10 @@ describe('pages migrations', () => {
     );
 
     const row = db
-      .prepare<[string], { slug: string; content_md: string }>(
-        `SELECT slug, content_md FROM pages WHERE slug = ?`,
-      )
+      .prepare<
+        [string],
+        { slug: string; content_md: string }
+      >(`SELECT slug, content_md FROM pages WHERE slug = ?`)
       .get('community-news');
 
     expect(row).toEqual({

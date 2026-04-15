@@ -1,5 +1,5 @@
-export { createServerPlatform } from './lib/createServerPlatform.js';
-export type { ServerPlatformOptions } from './lib/createServerPlatform.js';
+export { createServerPlatform } from './lib/createServerPlatform';
+export type { ServerPlatformOptions } from './lib/createServerPlatform';
 export type {
   ServerPlatformPlugin,
   ServerPlatformPluginMeta,
@@ -14,6 +14,6 @@ export type {
   ApiErrorResponse,
   JsonValue,
   JsonPrimitive,
-} from './lib/contracts/plugin.contract.js';
-export type { ServerPlatformCapability } from './lib/contracts/capability.contract.js';
-export { SESSION_COOKIE_NAME } from './lib/plugins/session/index.js';
+} from './lib/contracts/plugin.contract';
+export type { ServerPlatformCapability } from './lib/contracts/capability.contract';
+export { SESSION_COOKIE_NAME } from './lib/plugins/session/index';

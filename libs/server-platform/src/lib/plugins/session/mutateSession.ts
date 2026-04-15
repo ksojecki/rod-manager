@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { SESSION_COOKIE_NAME } from './types.js';
-import type { AuthStore, AuthStoreSession } from '../database/index.js';
-import { resolveSessionFromRequest } from './checkSession.js';
+import { SESSION_COOKIE_NAME } from './types';
+import type { AuthStore, AuthStoreSession } from '../database/index';
+import { resolveSessionFromRequest } from './checkSession';
 
 export const COOKIE_OPTIONS = {
   path: '/',

@@ -1,11 +1,11 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { OAuthProviderType } from '@rod-manager/shared';
-import sessionPlugin, { SESSION_COOKIE_NAME } from '../plugins/session/index.js';
-import databasePlugin from '../plugins/database/index.js';
-import type { OAuthService } from '../plugins/oauth/index.js';
-import authRoutes from './auth.js';
-import oauthRoutes from './oauth.js';
+import sessionPlugin, { SESSION_COOKIE_NAME } from '../plugins/session/index';
+import databasePlugin from '../plugins/database/index';
+import type { OAuthService } from '../plugins/oauth/index';
+import authRoutes from './auth';
+import oauthRoutes from './oauth';
 
 function createOAuthService(): OAuthService {
   return {

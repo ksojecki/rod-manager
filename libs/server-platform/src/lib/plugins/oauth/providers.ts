@@ -1,5 +1,5 @@
 import type { OAuthProviderType } from '@rod-manager/shared';
-import type { OAuthConfig } from './types.js';
+import type { OAuthConfig } from './types';
 
 /**
  * Build OAuth provider configuration map from environment variables.

@@ -10,10 +10,10 @@ import {
   seedInitialUser,
   shouldSeedInitialUser,
   ensureAdministratorExists,
-} from './init.js';
-import { createStore } from './store.js';
-import { createUserSettingsStore } from './userSettingsStore.js';
-import type { ServerPlatformDbClient } from '../../contracts/plugin.contract.js';
+} from './init';
+import { createStore } from './store';
+import { createUserSettingsStore } from './userSettingsStore';
+import type { ServerPlatformDbClient } from '../../contracts/plugin.contract';
 
 export type {
   AuthStore,
@@ -22,8 +22,8 @@ export type {
   OAuthProviderData,
   OAuthProviderType,
   UserSettingsStore,
-} from './types.js';
-export { createSessionExpiration } from './types.js';
+} from './types';
+export { createSessionExpiration } from './types';
 
 /**
  * Registers SQLite-backed store for authentication and session persistence.

@@ -3,7 +3,7 @@ import type {
   UserLanguage,
   UserRole,
 } from '@rod-manager/shared';
-import type { ServerPlatformDbClient } from '../../contracts/plugin.contract.js';
+import type { ServerPlatformDbClient } from '../../contracts/plugin.contract';
 
 export type { OAuthProviderType };
 

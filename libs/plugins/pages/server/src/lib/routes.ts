@@ -3,7 +3,7 @@ import type {
   ContentPageListResponseBody,
   ContentPageResponseBody,
 } from '@rod-manager/shared';
-import type { PageStore } from './store.js';
+import type { PageStore } from './store';
 
 /** Registers pages API routes on the given Fastify instance. */
 export function registerPagesRoutes(

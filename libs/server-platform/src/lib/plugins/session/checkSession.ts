@@ -1,6 +1,6 @@
 import type { FastifyRequest } from 'fastify';
-import type { AuthStore, AuthStoreSession } from '../database/index.js';
-import { SESSION_COOKIE_NAME } from './types.js';
+import type { AuthStore, AuthStoreSession } from '../database/index';
+import { SESSION_COOKIE_NAME } from './types';
 
 /**
  * Reads the session token from request cookies.
