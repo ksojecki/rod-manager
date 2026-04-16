@@ -7,8 +7,6 @@ export type {
   ServerPlatformMigration,
   ServerPlatformAuthStore,
   ServerPlatformAuthStoreUser,
-  ServerPlatformAuthSession,
-  ServerPlatformSessionService,
   ServerPlatformDbClient,
   ServerPlatformDbStatement,
   ApiErrorResponse,

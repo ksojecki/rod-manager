@@ -13,25 +13,8 @@ export interface ServerPlatformAuthStoreUser {
   displayName: string;
 }
 
-export interface ServerPlatformAuthSession {
-  token: string;
-  userId: string;
-  expiresAt: number;
-  userEmail: string;
-  userRole: string;
-}
-
 export interface ServerPlatformAuthStore {
   findUserById(id: string): ServerPlatformAuthStoreUser | undefined;
-  findSession(token: string): ServerPlatformAuthSession | undefined;
-  createSession(userId: string): string;
-  deleteSession(token: string): void;
-}
-
-export interface ServerPlatformSessionService {
-  createSession(userId: string): string;
-  invalidateSession(token: string): void;
-  deleteExpiredSessions(now: number): void;
 }
 
 export interface ServerPlatformDbStatement<
@@ -65,7 +48,6 @@ export interface ServerPlatformPluginContext {
   fastify: FastifyInstance;
   services: {
     authStore: ServerPlatformAuthStore;
-    sessionService: ServerPlatformSessionService;
     db: ServerPlatformDbClient;
     logger: FastifyBaseLogger;
   };

@@ -18,8 +18,6 @@ function createTestContext(): {
     fastify: {} as ServerPlatformPluginContext['fastify'],
     services: {
       authStore: {} as ServerPlatformPluginContext['services']['authStore'],
-      sessionService:
-        {} as ServerPlatformPluginContext['services']['sessionService'],
       db: db as unknown as ServerPlatformPluginContext['services']['db'],
       logger: {} as ServerPlatformPluginContext['services']['logger'],
     },

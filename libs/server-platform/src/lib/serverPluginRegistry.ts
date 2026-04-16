@@ -4,7 +4,6 @@ import type {
   ServerPlatformAuthStore,
   ServerPlatformPlugin,
   ServerPlatformPluginContext,
-  ServerPlatformSessionService,
 } from './contracts/plugin.contract';
 import type { AuthStore } from './plugins/database';
 
@@ -18,7 +17,6 @@ export function createPluginRegistrar(plugins: ServerPlatformPlugin[]) {
             fastify: instance,
             services: {
               authStore: createAuthStoreAdapter(instance.authStore),
-              sessionService: createSessionServiceAdapter(instance.authStore),
               db: instance.db,
               logger: instance.log,
             },
@@ -37,22 +35,6 @@ export function createPluginRegistrar(plugins: ServerPlatformPlugin[]) {
   });
 }
 
-function createSessionServiceAdapter(
-  authStore: AuthStore,
-): ServerPlatformSessionService {
-  return {
-    createSession(userId: string): string {
-      return authStore.createSession(userId);
-    },
-    invalidateSession(token: string): void {
-      authStore.deleteSession(token);
-    },
-    deleteExpiredSessions(now: number): void {
-      authStore.deleteExpiredSessions(now);
-    },
-  };
-}
-
 function createAuthStoreAdapter(authStore: AuthStore): ServerPlatformAuthStore {
   return {
     findUserById(id: string) {
@@ -64,23 +46,6 @@ function createAuthStoreAdapter(authStore: AuthStore): ServerPlatformAuthStore {
         role: user.role,
         displayName: user.displayName,
       };
-    },
-    findSession(token: string) {
-      const session = authStore.findSession(token);
-      if (session === undefined) return undefined;
-      return {
-        token: session.token,
-        userId: session.userId,
-        expiresAt: session.expiresAt,
-        userEmail: session.userEmail,
-        userRole: session.userRole,
-      };
-    },
-    createSession(userId: string): string {
-      return authStore.createSession(userId);
-    },
-    deleteSession(token: string): void {
-      authStore.deleteSession(token);
     },
   };
 }
