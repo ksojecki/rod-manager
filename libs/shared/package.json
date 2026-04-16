@@ -2,20 +2,20 @@
   "name": "@rod-manager/shared",
   "version": "0.0.1",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "../../dist/libs/shared/index.js",
+  "module": "../../dist/libs/shared/index.js",
+  "types": "../../dist/libs/shared/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "@rod-manager/source": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "../../dist/libs/shared/index.d.ts",
+      "import": "../../dist/libs/shared/index.js",
+      "default": "../../dist/libs/shared/index.js"
     }
   },
   "files": [
-    "dist",
+    "../../dist/libs/shared",
     "!**/*.tsbuildinfo"
   ],
   "dependencies": {},
@@ -31,7 +31,7 @@
       "build": {
         "executor": "nx:run-commands",
         "outputs": [
-          "{projectRoot}/dist"
+          "{workspaceRoot}/dist/libs/shared"
         ],
         "options": {
           "cwd": "libs/shared",

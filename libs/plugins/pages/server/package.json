@@ -1,19 +1,19 @@
 {
   "name": "@rod-manager/plugin-pages-server",
   "version": "0.0.1",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "../../../../dist/libs/plugins/pages/server/index.js",
+  "types": "../../../../dist/libs/plugins/pages/server/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "@rod-manager/source": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "../../../../dist/libs/plugins/pages/server/index.d.ts",
+      "require": "../../../../dist/libs/plugins/pages/server/index.js",
+      "default": "../../../../dist/libs/plugins/pages/server/index.js"
     }
   },
   "files": [
-    "dist",
+    "../../../../dist/libs/plugins/pages/server",
     "!**/*.tsbuildinfo"
   ],
   "dependencies": {
@@ -32,7 +32,7 @@
       "build": {
         "executor": "nx:run-commands",
         "outputs": [
-          "{projectRoot}/dist"
+          "{workspaceRoot}/dist/libs/plugins/pages/server"
         ],
         "options": {
           "cwd": "libs/plugins/pages/server",

@@ -1,19 +1,19 @@
 {
   "name": "@rod-manager/server-platform",
   "version": "0.0.1",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "../../dist/libs/server-platform/index.js",
+  "types": "../../dist/libs/server-platform/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "@rod-manager/source": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "../../dist/libs/server-platform/index.d.ts",
+      "require": "../../dist/libs/server-platform/index.js",
+      "default": "../../dist/libs/server-platform/index.js"
     }
   },
   "files": [
-    "dist",
+    "../../dist/libs/server-platform",
     "!**/*.tsbuildinfo"
   ],
   "dependencies": {
@@ -39,7 +39,7 @@
       "build": {
         "executor": "nx:run-commands",
         "outputs": [
-          "{projectRoot}/dist"
+          "{workspaceRoot}/dist/libs/server-platform"
         ],
         "options": {
           "cwd": "libs/server-platform",

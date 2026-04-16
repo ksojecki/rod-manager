@@ -16,8 +16,6 @@
     "moduleResolution": "bundler"
   },
   "exclude": [
-    "out-tsc",
-    "dist",
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "src/**/*.spec.tsx",
