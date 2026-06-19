@@ -82,6 +82,14 @@
       "cache": true,
       "inputs": ["default", "{workspaceRoot}/.oxlintrc.json"]
     },
+    "typecheck": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "^production",
+        { "externalDependencies": ["typescript"] }
+      ]
+    },
     "@nx/esbuild:esbuild": {
       "cache": true,
       "dependsOn": ["^build"],

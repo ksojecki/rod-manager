@@ -1,5 +1,15 @@
+import path from 'node:path';
+
+const typecheckAffectedFiles = (files) => {
+  const relativeFiles = files
+    .map((file) => path.relative(process.cwd(), file))
+    .join(',');
+
+  return `npx nx affected -t typecheck --files=${JSON.stringify(relativeFiles)} --no-tui`;
+};
+
 export default {
-  '*': () => 'npx nx affected -t typecheck --no-tui',
+  '*': typecheckAffectedFiles,
   '*.{ts,tsx,js,jsx,mjs,cjs,mts,cts}': [
     'npx oxlint --fix --config .oxlintrc.json',
     'npx prettier --write',
