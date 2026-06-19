@@ -32,7 +32,7 @@
 
 - When running Nx commands as an AI agent, always pass `--no-tui`.
 - Install deps: `npm ci` (used in CI).
-- Run lint via npm script: `npm run lint` (delegates to Nx `lint` target inference).
+- Run lint via npm script: `npm run lint` (delegates to Nx `lint` targets).
 - Run formatting checks: `npm run format:check`; auto-fix formatting: `npm run format`.
 - Run CI-equivalent checks locally: `npx nx run-many -t lint test build typecheck --no-tui`.
 - Keep Husky hooks in sync with CI check categories using staged-file equivalents where possible; `.husky/pre-commit` should run `lint-staged`, and the `lint-staged` config should track CI lint/format expectations for staged files.
@@ -46,7 +46,8 @@
 - Formatting indentation is 2 spaces globally (`tabWidth: 2`, `useTabs: false`); JSON/JSONC have explicit Prettier override.
 - Ignore generated artifacts in formatting and VCS (`.prettierignore`, `.gitignore` include `dist`, `coverage`, `.nx/*`).
 - Oxlint uses `.oxlintrc.json` with explicit per-project Nx `lint` targets.
-- TypeScript lint enforces `typescript/no-explicit-any` and `typescript/no-floating-promises`.
+- Oxlint enforces the configured TypeScript rules, including `typescript/no-explicit-any` and `typescript/no-floating-promises`.
+- Some project conventions are review-enforced rather than lint-enforced after the Oxlint migration; keep checklist guidance in sync with lint coverage.
 - Keep top-level declaration order as: exported types, local types, constants, exported functions, local functions.
 - Allow exceptions only when this order breaks compilation; in such cases add a local comment with a short reason.
 - TS output intent is declaration-focused (`emitDeclarationOnly: true` in `tsconfig.base.json`), so library packaging should expect `.d.ts` generation.

@@ -113,6 +113,7 @@ const pl = {
   },
 };
 
+// Depends on the concrete `pl` value, so this type must stay after it.
 export type TranslationResources = typeof pl;
 
 export default pl;
