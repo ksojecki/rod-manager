@@ -9,6 +9,7 @@ Use this page to prepare a coding-agent session for this repository.
 - Inspect `package.json`, `nx.json`, and the touched project package/config files before changing code.
 - Inspect `.husky/pre-commit` and `.lintstagedrc.mjs` before changing staged-file validation behavior.
 - Use `rg`/`rg --files` for searches; avoid opening generated output in `dist`, `coverage`, `.nx`, and `node_modules`.
+- If CodeDrift is installed, prefer its MCP tools for overview/search/resolve/read operations, then fall back to `rg` and direct file reads when the index is unavailable or stale.
 
 ## 2) Install
 
@@ -21,6 +22,8 @@ This also runs `scripts/postinstall.mjs`, which prepares local HTTPS certificate
 ```sh
 npm run setup:certs
 ```
+
+Optional CodeDrift setup for Codex agents is documented in `docs/agents/codedrift.md`.
 
 ## 3) Run Locally
 
