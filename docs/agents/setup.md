@@ -24,20 +24,29 @@ npm run setup:certs
 ## 3) Run Locally
 
 ```sh
-npm run dev:ssr
+npm run dev
 ```
 
-This starts the React SSR web app and Fastify API together. For split sessions:
+This starts the SSR app through the Fastify API server.
+
+When running as an AI agent, prefer:
 
 ```sh
-npm run dev:web
-npm run dev:api
+npm run dev -- --no-tui
 ```
 
 Smoke checks:
 
 - `https://localhost:3000/` returns SSR HTML.
 - `https://localhost:3000/api` returns API JSON.
+
+If port `3000` is already in use, inspect the listener with:
+
+```sh
+lsof -nP -iTCP:3000 -sTCP:LISTEN
+```
+
+Reuse an existing `rod-manager` dev server when possible. Only stop the process automatically if it is clearly a stale server from this repository; otherwise report the conflict and ask the user.
 
 ## 4) Validate Changes
 

@@ -32,6 +32,8 @@
 
 - When running Nx commands as an AI agent, always pass `--no-tui`.
 - Install deps: `npm ci` (used in CI).
+- Start local SSR development as an AI agent with `npm run dev -- --no-tui`, then smoke test `https://localhost:3000/` and `https://localhost:3000/api`.
+- If port `3000` is already in use, inspect the listener with `lsof -nP -iTCP:3000 -sTCP:LISTEN`. Reuse an existing `rod-manager` dev server when possible. Only stop the process automatically if it is clearly a stale server from this repository; otherwise report the conflict and ask the user.
 - Run lint via npm script: `npm run lint` (delegates to Nx `lint` targets).
 - Run formatting checks: `npm run format:check`; auto-fix formatting: `npm run format`.
 - Run CI-equivalent checks locally: `npx nx run-many -t lint test build typecheck --no-tui`.
