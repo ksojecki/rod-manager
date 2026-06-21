@@ -44,7 +44,14 @@ codex mcp get rod-manager-codedrift
 - Run `.venv-codrift/bin/python ./scripts/codedrift-local.py update` after significant local edits or when search results look stale.
 - Use `.venv-codrift/bin/python ./scripts/codedrift-local.py status` to inspect index health.
 - Use `.venv-codrift/bin/python ./scripts/codedrift-local.py memory recall "<task>"` before similar follow-up work, and `.venv-codrift/bin/python ./scripts/codedrift-local.py memory record` after a session when the context should be reusable.
-- Prefer the root npm wrappers for common local usage: `npm run codedrift:status`, `npm run codedrift:update`, `npm run codedrift:dashboard`, and `npm run codedrift:api`.
+- Prefer the root npm wrappers for common local usage: `npm run codedrift:status`, `npm run codedrift:update`, `npm run codedrift:recall -- "<task>"`, `npm run codedrift:record`, `npm run codedrift:dashboard`, and `npm run codedrift:api`.
+
+## Cross-Session Context
+
+- Treat CodeDrift memory as the first step for follow-up work and the last step for reusable handoff.
+- Start a task with `npm run codedrift:recall -- "<task>"` to reuse prior implementation notes, validation hints, and file targets.
+- End a task with `npm run codedrift:record` after capturing concise notes about what changed, what remains open, and how to verify the result.
+- If the dashboard still shows no savings, confirm agent sessions are using the MCP tools first and that memory is being recorded intentionally at handoff.
 
 ## Dashboard
 

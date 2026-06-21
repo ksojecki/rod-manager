@@ -9,6 +9,7 @@ When the task requires planning, do not start implementation until the plan is a
 - Check `README.md`, `AGENTS.md`, and `docs/README.md`.
 - Confirm the current Nx workspace state (`nx.json`, `package.json`).
 - Check the current git branch before starting delivery work. If the current branch is `main`, create a new working branch before making changes.
+- If CodeDrift is configured, start with memory recall for the current task before broader search/read steps.
 - For new features, identify MVP scope vs non-goals.
 
 ## 2) Plan
@@ -51,3 +52,4 @@ When the task requires planning, do not start implementation until the plan is a
 
 - In the change description, include what changed, where, why, and how to verify.
 - Add links to updated docs and ADRs when relevant.
+- If the session produced reusable context, record it in CodeDrift memory before ending the task.

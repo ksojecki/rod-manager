@@ -16,6 +16,8 @@
     "start:ssr": "NODE_ENV=production node dist/apps/api/main.js",
     "codedrift:status": ".venv-codrift/bin/python ./scripts/codedrift-local.py status",
     "codedrift:update": ".venv-codrift/bin/python ./scripts/codedrift-local.py update",
+    "codedrift:recall": ".venv-codrift/bin/python ./scripts/codedrift-local.py memory recall",
+    "codedrift:record": ".venv-codrift/bin/python ./scripts/codedrift-local.py memory record",
     "codedrift:dashboard": ".venv-codrift/bin/python ./scripts/codedrift-local.py dashboard",
     "codedrift:api": ".venv-codrift/bin/python ./scripts/codedrift-local.py api"
   },

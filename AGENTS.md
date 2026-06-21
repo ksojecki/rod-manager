@@ -44,7 +44,8 @@
 - Apply Nx Cloud CI remediation hints: `npx nx fix-ci --no-tui`.
 - Explore project/task graph: `npx nx graph --json --no-tui` (use `--json` to avoid browser).
 - Keep TS project refs consistent after adding projects: `npx nx sync --no-tui` (or `npx nx sync:check --no-tui` in CI).
-- CodeDrift is optional local agent tooling. If configured, prefer its MCP tools for repository overview, symbol search, symbol resolution, and session-aware reads; fall back to `rg`/direct reads when the index is unavailable or stale. Setup lives in `docs/agents/codedrift.md`.
+- CodeDrift is optional local agent tooling. If configured, prefer its MCP tools for repository overview, symbol search, symbol resolution, and session-aware reads; fall back to `rg`/direct reads when the index is unavailable or stale.
+- For cross-session context, start follow-up work with CodeDrift memory recall and record reusable context at handoff. Setup and commands live in `docs/agents/codedrift.md`.
 
 ## Project-Specific Conventions
 
