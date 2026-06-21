@@ -3,17 +3,21 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "dev": "node ./node_modules/nx/dist/bin/nx.js serve api",
+    "build:ssr": "npm run build:web && npm run build:api",
+    "build:web": "npx nx run web:build --no-tui && npx nx run web:build-server --no-tui",
+    "build:api": "npx nx build api --no-tui",
     "lint": "node ./node_modules/nx/dist/bin/nx.js run-many -t lint --no-tui",
     "typecheck": "node ./node_modules/nx/dist/bin/nx.js run-many -t typecheck --no-tui",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "postinstall": "node ./scripts/postinstall.mjs",
     "setup:certs": "node ./scripts/setup-dev-certs.mjs",
-    "dev": "node ./node_modules/nx/dist/bin/nx.js serve api",
-    "build:ssr": "npm run build:web && npm run build:api",
-    "build:web": "npx nx run web:build --no-tui && npx nx run web:build-server --no-tui",
-    "build:api": "npx nx build api --no-tui",
-    "start:ssr": "NODE_ENV=production node dist/apps/api/main.js"
+    "start:ssr": "NODE_ENV=production node dist/apps/api/main.js",
+    "codedrift:status": ".venv-codrift/bin/python ./scripts/codedrift-local.py status",
+    "codedrift:update": ".venv-codrift/bin/python ./scripts/codedrift-local.py update",
+    "codedrift:dashboard": ".venv-codrift/bin/python ./scripts/codedrift-local.py dashboard",
+    "codedrift:api": ".venv-codrift/bin/python ./scripts/codedrift-local.py api"
   },
   "private": true,
   "workspaces": [

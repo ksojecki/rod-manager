@@ -30,6 +30,9 @@
 
 ## Critical Workflows
 
+- Default delivery mechanism for non-trivial work: use the Agent Workflow in `docs/agents/workflow.md`.
+- For features, bug fixes, and error remediation, first agree on a plan when the task calls for planning, then execute that accepted plan through the delivery loop in `.agents/skills/agent-delivery-loop/SKILL.md`.
+- Before implementation work starts, check the current branch. If you are on `main`, create a new working branch first.
 - When running Nx commands as an AI agent, always pass `--no-tui`.
 - Install deps: `npm ci` (used in CI).
 - Start local SSR development as an AI agent with `npm run dev -- --no-tui`, then smoke test `https://localhost:3000/` and `https://localhost:3000/api`.

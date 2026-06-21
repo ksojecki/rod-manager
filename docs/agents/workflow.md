@@ -1,9 +1,14 @@
 # Agent Workflow
 
+This is the default mechanism for non-trivial implementation work in this repository.
+Use it for features, bug fixes, and error remediation.
+When the task requires planning, do not start implementation until the plan is accepted.
+
 ## 1) Discovery
 
 - Check `README.md`, `AGENTS.md`, and `docs/README.md`.
 - Confirm the current Nx workspace state (`nx.json`, `package.json`).
+- Check the current git branch before starting delivery work. If the current branch is `main`, create a new working branch before making changes.
 - For new features, identify MVP scope vs non-goals.
 
 ## 2) Plan
@@ -11,10 +16,11 @@
 - Define implementation steps and validation points.
 - If a durable architecture decision is made, create or update an ADR.
 - Follow root-level defaults (TS, Oxlint, Prettier).
+- Treat plan acceptance as the gate to start delivery work.
 
 ## 3) Delivery Loop
 
-- Use a plan -> per-step implementer/tester -> final review loop for scoped changes.
+- After the plan is accepted, use a plan -> per-step implementer/tester -> final review loop for scoped changes.
 - The reusable skill for this loop lives at `.agents/skills/agent-delivery-loop/SKILL.md`.
 - Recommended model split for that skill:
   - Implementer and Tester use `gpt-5.4-mini`.
@@ -25,6 +31,7 @@
 - Keep the reviewer agent in the background when possible so review context is not lost between sessions.
 - Keep each pass narrow and evidence-driven.
 - Revisit the plan after any failed validation before widening the change.
+- Do not bypass this loop for non-trivial feature delivery or for fixing bugs and runtime errors.
 
 ## 4) Implementation
 
