@@ -2,14 +2,14 @@ import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, FormField } from '@sojecki/platform-ui';
-import { useAuth } from '../AuthContext';
-import { register as registerRequest } from '../authApi';
 import {
+  register as registerRequest,
   registerSchema,
   type RegisterFormValues,
-} from '../types/registerSchema';
-import { useAuthForm } from '../hooks/useAuthForm';
+  useAuth,
+  useAuthForm,
+} from '@sojecki/platform-web-platform';
+import { Button, FormField } from '@sojecki/platform-ui';
 
 /**
  * Registration form for creating an account with email and password.

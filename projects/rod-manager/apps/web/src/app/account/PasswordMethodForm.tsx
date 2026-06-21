@@ -1,9 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { updatePassword, useAuthForm } from '@sojecki/platform-web-platform';
 import { Button, FormField, Heading } from '@sojecki/platform-ui';
-import { useAuthForm } from '../auth/hooks/useAuthForm';
-import { updatePassword } from '../auth/authApi';
 import { passwordSchema, type PasswordFormValues } from './passwordSchema';
 
 export interface PasswordMethodFormProps {

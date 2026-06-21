@@ -1,9 +1,9 @@
-import { useTranslation } from 'react-i18next';
-import {
-  type FieldValues,
-  type SubmitHandler,
-  type UseFormSetError,
+import type {
+  FieldValues,
+  SubmitHandler,
+  UseFormSetError,
 } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export interface AuthFormResult<TFieldValues extends FieldValues> {
   withErrorHandling: (
@@ -11,9 +11,6 @@ export interface AuthFormResult<TFieldValues extends FieldValues> {
   ) => SubmitHandler<TFieldValues>;
 }
 
-/**
- * Create shared submit error handling for auth forms.
- */
 export function useAuthForm<TFieldValues extends FieldValues>(
   setError: UseFormSetError<TFieldValues>,
 ): AuthFormResult<TFieldValues> {

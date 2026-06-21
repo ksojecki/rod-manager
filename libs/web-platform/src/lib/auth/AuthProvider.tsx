@@ -7,16 +7,16 @@ import {
   useState,
   type PropsWithChildren,
 } from 'react';
+import type { AuthUser } from '@sojecki/platform-shared';
 import {
   loadSession,
   login as loginRequest,
   logout as logoutRequest,
 } from './authApi';
-import type { AuthUser } from '@sojecki/platform-shared';
 
-type AuthStatus = 'loading' | 'guest' | 'authenticated';
+export type AuthStatus = 'loading' | 'guest' | 'authenticated';
 
-interface AuthContextValue {
+export interface AuthContextValue {
   user: AuthUser | null;
   status: AuthStatus;
   login: (email: string, password: string) => Promise<void>;

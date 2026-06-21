@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { OAuthProviderType } from '@sojecki/platform-shared';
-import { initiateOAuth, storeOAuthState } from '../authApi';
+import { initiateOAuth, storeOAuthState } from '@sojecki/platform-web-platform';
 import { OAuthButtons } from './OAuthButtons';
 
 /**

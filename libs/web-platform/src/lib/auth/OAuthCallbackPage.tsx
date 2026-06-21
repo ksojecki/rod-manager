@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router';
 import type { OAuthProviderType } from '@sojecki/platform-shared';
 import { Heading } from '@sojecki/platform-ui';
-import { useAuth } from './AuthContext';
-import { completeOAuthCallback, retrieveOAuthState } from './authApi';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
+import { useAuth } from './AuthProvider';
+import { completeOAuthCallback } from './authApi';
+import { retrieveOAuthState } from './storage';
 
-/**
- * OAuth callback handler page
- * Processes the OAuth callback and creates a session
- */
-export function OAuthCallbackPage() {
+export interface OAuthCallbackPageProps {
+  authenticatedFallbackTo?: string;
+  guestFallbackTo?: string;
+}
+
+export function OAuthCallbackPage({
+  authenticatedFallbackTo = '/',
+  guestFallbackTo = '/',
+}: OAuthCallbackPageProps) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { provider } = useParams<{ provider: OAuthProviderType }>();
@@ -22,13 +27,11 @@ export function OAuthCallbackPage() {
       const state = searchParams.get('state');
       const callbackError = searchParams.get('error');
 
-      // Check for OAuth error
       if (callbackError) {
         setError(`OAuth error: ${callbackError}`);
         return;
       }
 
-      // Validate parameters
       if (!code || !state) {
         setError('Missing OAuth callback parameters');
         return;
@@ -48,12 +51,11 @@ export function OAuthCallbackPage() {
         });
 
         await refreshSession();
-
         await navigate(response.redirectTo, { replace: true });
-      } catch (err) {
+      } catch (nextError) {
         setError(
-          err instanceof Error
-            ? err.message
+          nextError instanceof Error
+            ? nextError.message
             : 'Failed to process OAuth callback',
         );
       }
@@ -62,11 +64,14 @@ export function OAuthCallbackPage() {
     void handleCallback();
   }, [navigate, provider, refreshSession, searchParams]);
 
-  if (error) {
+  if (error !== null) {
     const handleBackToLogin = () => {
-      void navigate(status === 'authenticated' ? '/account' : '/', {
-        replace: true,
-      });
+      void navigate(
+        status === 'authenticated' ? authenticatedFallbackTo : guestFallbackTo,
+        {
+          replace: true,
+        },
+      );
     };
 
     return (
