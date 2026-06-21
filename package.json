@@ -28,8 +28,8 @@
     "projects/*/plugins/*/*"
   ],
   "devDependencies": {
-    "@babel/core": "7.29.7",
-    "@babel/preset-react": "7.28.5",
+    "@babel/core": "8.0.1",
+    "@babel/preset-react": "8.0.1",
     "@nx/js": "23.0.0",
     "@nx/node": "23.0.0",
     "@nx/react": "23.0.0",
