@@ -18,6 +18,7 @@ When the task requires planning, do not start implementation until the plan is a
 - If a durable architecture decision is made, create or update an ADR.
 - Follow root-level defaults (TS, Oxlint, Prettier).
 - Treat plan acceptance as the gate to start delivery work.
+- When using this repository workflow, treat plan acceptance as the point where the delivery loop begins spawning subagents for each implementation step.
 
 ## 3) Delivery Loop
 
@@ -26,7 +27,8 @@ When the task requires planning, do not start implementation until the plan is a
 - Recommended model split for that skill:
   - Implementer and Tester use `gpt-5.4-mini`.
   - Choose the planning/review model based on task risk and scope.
-- Split the work into small implementation steps during planning, then spawn implementer and tester for each step.
+- Split the work into small implementation steps during planning, then spawn separate implementer and tester subagents for each accepted step in the loop.
+- Keep each spawned subagent scoped to one current step so the delivery loop stays auditable and step-local.
 - Treat review as the final gate after the planned steps are complete.
 - If review finds a gap, add a new corrective step and run implementer/tester for that step before reviewing again.
 - Keep the reviewer agent in the background when possible so review context is not lost between sessions.

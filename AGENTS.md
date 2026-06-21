@@ -2,8 +2,8 @@
 
 ## Repo Snapshot
 
-- This is an Nx 22 workspace (`nx`, `@nx/js` in `package.json`) organized around `apps/` and `libs/`.
-- Application projects live in `apps/` (`apps/api`, `apps/web`), and reusable code lives in `libs/` (`libs/shared`, `libs/ui`).
+- This is an Nx 22 workspace (`nx`, `@nx/js` in `package.json`) organized around product directories under `projects/` and shared libraries under `libs/`.
+- Product applications live in `projects/<product>/apps/` (`projects/rod-manager/apps/api`, `projects/rod-manager/apps/web`), and reusable code lives in `libs/` (`libs/shared`, `libs/ui`).
 - Treat root config as source of truth unless a project-level config overrides it intentionally.
 - Extended docs for agents and architecture are in `docs/` (`docs/agents/`, `docs/architecture/`, `docs/operations/`).
 
@@ -17,6 +17,7 @@
 - Monorepo orchestration is defined in `nx.json`; project tasks are expected to be inferred by Nx.
 - `@nx/js/typescript` plugin wires common targets: `build` and `typecheck` (see `nx.json` plugin options).
 - Shared cache inputs include `.github/workflows/ci.yml` via `namedInputs.sharedGlobals`; CI changes can invalidate task cache.
+- Product-specific feature plugins can live under `projects/<product>/plugins/`, while shared platform libraries remain under `libs/`.
 - TypeScript baseline lives in `tsconfig.base.json` with strict + composite settings and NodeNext module system.
 
 ## Terminal Command Handling
@@ -35,7 +36,7 @@
 - Before implementation work starts, check the current branch. If you are on `main`, create a new working branch first.
 - When running Nx commands as an AI agent, always pass `--no-tui`.
 - Install deps: `npm ci` (used in CI).
-- Start local SSR development as an AI agent with `npm run dev -- --no-tui`, then smoke test `https://localhost:3000/` and `https://localhost:3000/api`.
+- Start local SSR development as an AI agent with `npm run dev`, then smoke test `https://localhost:3000/` and `https://localhost:3000/api`.
 - If port `3000` is already in use, inspect the listener with `lsof -nP -iTCP:3000 -sTCP:LISTEN`. Reuse an existing `rod-manager` dev server when possible. Only stop the process automatically if it is clearly a stale server from this repository; otherwise report the conflict and ask the user.
 - Run lint via npm script: `npm run lint` (delegates to Nx `lint` targets).
 - Run formatting checks: `npm run format:check`; auto-fix formatting: `npm run format`.
@@ -58,7 +59,7 @@
 - Keep top-level declaration order as: exported types, local types, constants, exported functions, local functions.
 - Allow exceptions only when this order breaks compilation; in such cases add a local comment with a short reason.
 - TS output intent is declaration-focused (`emitDeclarationOnly: true` in `tsconfig.base.json`), so library packaging should expect `.d.ts` generation.
-- `customConditions` includes `@rod-manager/source`; keep this in mind when introducing conditional exports/resolution.
+- `customConditions` includes `@sojecki/platform-source`; keep this in mind when introducing conditional exports/resolution.
 - In `libs/ui`, prefer component names without a `Ui` prefix (for example `Button`, `Card`, `TextInput`).
 
 ## Integration Points
@@ -94,7 +95,7 @@ Provider credentials must be configured via environment variables:
    - User profile mapping helpers: `libs/server-platform/src/lib/plugins/oauth/userInfo.ts`.
    - PKCE helpers: `libs/server-platform/src/lib/plugins/oauth/pkce.ts`.
 3. **Update OAuth routes** (`libs/server-platform/src/lib/routes/oauth.ts`) if new authorization/callback flow differs from standard OAuth 2.0.
-4. **Update frontend OAuth controls** (`apps/web/src/app/auth/components/OAuthLoginButtons.tsx`, `apps/web/src/app/auth/components/OAuthRegisterButtons.tsx`, and shared `OAuthButtons.tsx`) to add provider buttons and call `initiateOAuth()`.
+4. **Update frontend OAuth controls** (`projects/rod-manager/apps/web/src/app/auth/components/OAuthLoginButtons.tsx`, `projects/rod-manager/apps/web/src/app/auth/components/OAuthRegisterButtons.tsx`, and shared `OAuthButtons.tsx`) to add provider buttons and call `initiateOAuth()`.
 
 ### Code Structure
 

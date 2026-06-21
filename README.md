@@ -1,15 +1,15 @@
-# RodManager
+# Sojecki Platform Workspace
 
-RodManager is an Nx 22 monorepo for a React SSR web app backed by a Fastify API and shared TypeScript libraries. The MVP stack is React Router, Fastify, SQLite, Vitest, Oxlint, and Prettier.
+This repository is an Nx 22 monorepo for the neutral shared platform workspace that currently hosts the RodManager React SSR web app, its Fastify API, and shared TypeScript libraries. The MVP stack is React Router, Fastify, SQLite, Vitest, Oxlint, and Prettier.
 
 ## Repository Layout
 
-- `apps/web` - React 19 web application with SSR entrypoints, routes, auth UI, account pages, and content-management pages.
-- `apps/api` - Fastify runtime entrypoint that serves API routes and production SSR artifacts.
+- `projects/rod-manager/apps/web` - React 19 web application with SSR entrypoints, routes, auth UI, account pages, and content-management pages.
+- `projects/rod-manager/apps/api` - Fastify runtime entrypoint that serves API routes and production SSR artifacts.
 - `libs/server-platform` - Fastify plugins, routes, OAuth/session/database integration, and server composition.
 - `libs/shared` - shared DTOs and cross-app contracts.
 - `libs/ui` - reusable React UI components.
-- `libs/plugins/pages/*` - page plugin packages split into server and UI concerns.
+- `projects/rod-manager/plugins/pages/*` - Rod Manager page plugin packages split into server and UI concerns.
 - `docs` - architecture, operations, and agent workflow documentation.
 - `scripts` - setup helpers, including development certificate generation.
 
@@ -51,6 +51,8 @@ Local smoke checks:
 Use `docs/architecture/` for the MVP plan and ADRs. OAuth/session/database logic lives in `libs/server-platform/src/lib/plugins/`; keep plugin entrypoints thin and move feature logic into focused files.
 
 Shared TypeScript settings live in `tsconfig.base.json` with strict, composite, NodeNext, declaration-focused output. Nx target inference is configured in `nx.json`; prefer changing root configuration over duplicating project-level settings.
+
+The root workspace package identity is `@sojecki/platform-source`; use that shared condition when working with source-first conditional exports at the workspace level.
 
 ## Contributing
 

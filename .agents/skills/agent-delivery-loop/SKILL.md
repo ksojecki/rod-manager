@@ -18,15 +18,17 @@ Use this skill when a task needs a controlled implementation cycle instead of a 
    - Restate the goal, constraints, and exact files likely to change.
    - Split the work into the smallest safe implementation steps.
    - Define the validation that proves each step is complete before moving on.
+   - Do not start the delivery loop until the plan is accepted.
 2. Implementer.
-   - Spawn an implementer for the current plan step only.
+   - After plan acceptance, spawn an implementer subagent for the current plan step only.
    - Keep edits scoped to that step's accepted objective.
 3. Tester.
+   - Spawn a tester subagent for that same current step.
    - Run the narrowest relevant validation commands first.
    - Validate the current step before moving to the next one.
    - Capture failures as concrete evidence, not guesses.
 4. Repeat per step.
-   - Continue implementer -> tester passes until every planned step is complete.
+   - Continue spawning step-scoped implementer -> tester subagents until every planned step is complete.
    - If a step fails validation, revise that step before broadening the change set.
 5. Review.
    - Compare the result against the original acceptance criteria and repo conventions.
