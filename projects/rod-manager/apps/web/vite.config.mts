@@ -1,7 +1,12 @@
 /// <reference types='vitest' />
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+
+const webPlatformSourcePath = fileURLToPath(
+  new URL('../../../../libs/web-platform/src/index.ts', import.meta.url),
+);
 
 export default defineConfig(({ command }) => {
   const nodeEnv =
@@ -34,6 +39,9 @@ export default defineConfig(({ command }) => {
     },
     plugins: [react(), tailwindcss()],
     resolve: {
+      alias: {
+        '@sojecki/platform-web-platform': webPlatformSourcePath,
+      },
       conditions: ['@sojecki/platform-source'],
     },
     ssr: {

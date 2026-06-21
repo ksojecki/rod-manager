@@ -207,6 +207,31 @@ Separate reusable platform code from `rod-manager` product code.
 - boundary notes in architecture docs
 - file movement plan before code changes begin
 
+#### Initial Boundary Audit Notes
+
+- Reusable frontend auth mechanics:
+  - `projects/rod-manager/apps/web/src/app/auth/AuthContext.tsx`
+  - `projects/rod-manager/apps/web/src/app/auth/authApi.ts`
+  - `projects/rod-manager/apps/web/src/app/auth/RequireAuth.tsx`
+  - `projects/rod-manager/apps/web/src/app/auth/OAuthCallbackPage.tsx`
+  - `projects/rod-manager/apps/web/src/app/auth/hooks/useAuthForm.ts`
+  - `projects/rod-manager/apps/web/src/app/auth/types/loginSchema.ts`
+  - `projects/rod-manager/apps/web/src/app/auth/types/registerSchema.ts`
+- Mixed frontend composition files that stay product-local for now:
+  - `projects/rod-manager/apps/web/src/app/auth/RegisterPage.tsx`
+  - `projects/rod-manager/apps/web/src/app/auth/components/LoginModal.tsx`
+  - `projects/rod-manager/apps/web/src/app/account/AccountPage.tsx`
+  - `projects/rod-manager/apps/web/src/app/layout/components/Navbar.tsx`
+  - `projects/rod-manager/apps/web/src/app/routes.tsx`
+- Product-local code that should not move into shared platform libraries:
+  - `projects/rod-manager/apps/web/src/app/content-management/*`
+  - `projects/rod-manager/plugins/pages/**/*`
+  - `libs/shared/src/lib/page.dto.ts`
+- First extraction pass:
+  - create `libs/web-platform`
+  - move only the reusable auth mechanics listed above
+  - keep route ownership, navigation, and account composition inside `projects/rod-manager`
+
 ### Phase 3: Create Reusable Frontend Platform Module
 
 #### Goal

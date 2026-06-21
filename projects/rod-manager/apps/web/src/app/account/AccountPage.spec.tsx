@@ -8,6 +8,7 @@ import type {
   OAuthProviderType,
   UpdatePasswordRequestBody,
 } from '@sojecki/platform-shared';
+import type * as PlatformWebPlatform from '@sojecki/platform-web-platform';
 import i18n from '../i18n/i18n';
 import { AccountPage } from './AccountPage';
 
@@ -41,17 +42,19 @@ const {
     vi.fn<(input: UpdatePasswordRequestBody) => Promise<void>>(),
 }));
 
-vi.mock('../auth/AuthContext', () => ({
-  useAuth: mockUseAuth,
-}));
+vi.mock('@sojecki/platform-web-platform', async (importOriginal) => {
+  const actual = await importOriginal<typeof PlatformWebPlatform>();
 
-vi.mock('../auth/authApi', () => ({
-  linkOAuthProvider: mockLinkOAuthProvider,
-  loadAuthenticationMethods: mockLoadAuthenticationMethods,
-  storeOAuthState: mockStoreOAuthState,
-  unlinkOAuthProvider: mockUnlinkOAuthProvider,
-  updatePassword: mockUpdatePassword,
-}));
+  return {
+    ...actual,
+    useAuth: mockUseAuth,
+    linkOAuthProvider: mockLinkOAuthProvider,
+    loadAuthenticationMethods: mockLoadAuthenticationMethods,
+    storeOAuthState: mockStoreOAuthState,
+    unlinkOAuthProvider: mockUnlinkOAuthProvider,
+    updatePassword: mockUpdatePassword,
+  };
+});
 
 describe('AccountPage', () => {
   beforeEach(async () => {

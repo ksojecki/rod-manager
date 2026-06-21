@@ -1,0 +1,68 @@
+{
+  "name": "@sojecki/platform-web-platform",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "../../dist/libs/web-platform/index.js",
+  "module": "../../dist/libs/web-platform/index.js",
+  "types": "../../dist/libs/web-platform/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "@sojecki/platform-source": "./src/index.ts",
+      "types": "../../dist/libs/web-platform/index.d.ts",
+      "import": "../../dist/libs/web-platform/index.js",
+      "default": "../../dist/libs/web-platform/index.js"
+    }
+  },
+  "files": [
+    "../../dist/libs/web-platform",
+    "!**/*.tsbuildinfo"
+  ],
+  "nx": {
+    "targets": {
+      "typecheck": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "libs/web-platform",
+          "command": "node ../../node_modules/typescript/bin/tsc --noEmit -p tsconfig.lib.json && node ../../node_modules/typescript/bin/tsc --noEmit -p tsconfig.spec.json"
+        }
+      },
+      "lint": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "node node_modules/oxlint/bin/oxlint libs/web-platform --config .oxlintrc.json"
+        }
+      },
+      "build": {
+        "executor": "nx:run-commands",
+        "outputs": [
+          "{workspaceRoot}/dist/libs/web-platform"
+        ],
+        "options": {
+          "cwd": "libs/web-platform",
+          "command": "node ../../node_modules/typescript/bin/tsc --build tsconfig.lib.json"
+        }
+      },
+      "format": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "libs/web-platform",
+          "command": "node ../../node_modules/prettier/bin/prettier.cjs --write ."
+        }
+      }
+    }
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.4.0",
+    "@sojecki/platform-shared": "0.0.1",
+    "@sojecki/platform-ui": "0.0.1",
+    "react-hook-form": "^7.79.0",
+    "react-i18next": "^17.0.8",
+    "react-router": "^8.0.1",
+    "zod": "^4.4.3"
+  }
+}

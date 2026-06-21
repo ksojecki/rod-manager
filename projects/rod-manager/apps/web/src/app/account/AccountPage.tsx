@@ -4,14 +4,14 @@ import type {
   AuthenticationMethodStatus,
   OAuthProviderType,
 } from '@sojecki/platform-shared';
-import { Button, Heading, Page } from '@sojecki/platform-ui';
-import { useAuth } from '../auth/AuthContext';
 import {
   linkOAuthProvider,
   loadAuthenticationMethods,
   storeOAuthState,
   unlinkOAuthProvider,
-} from '../auth/authApi';
+  useAuth,
+} from '@sojecki/platform-web-platform';
+import { Button, Heading, Page } from '@sojecki/platform-ui';
 import { LanguageSelector } from './LanguageSelector';
 import { PasswordMethodForm } from './PasswordMethodForm';
 

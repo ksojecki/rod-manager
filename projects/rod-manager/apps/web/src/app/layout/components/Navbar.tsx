@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@sojecki/platform-web-platform';
 import type { ModalWindowApi } from '@sojecki/platform-ui';
-import { useAuth } from '../../auth/AuthContext';
 import { LoginModal } from '../../auth/components/LoginModal';
 
 export const Navbar = () => {

@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@sojecki/platform-web-platform';
 import { Heading } from '@sojecki/platform-ui';
-import { useAuth } from './AuthContext';
 import { OAuthRegisterButtons } from './components/OAuthRegisterButtons';
 import { PasswordRegisterForm } from './components/PasswordRegisterForm';
 

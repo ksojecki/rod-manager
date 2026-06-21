@@ -16,12 +16,14 @@ export interface OAuthInitiateResponse {
   codeVerifier: string;
 }
 
+const JSON_HEADERS = {
+  'Content-Type': 'application/json',
+};
+
 export async function login(input: LoginRequestBody): Promise<SessionResponse> {
   return requestJson<SessionResponse>('/api/auth/login', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: JSON_HEADERS,
     body: JSON.stringify(input),
   });
 }
@@ -31,9 +33,7 @@ export async function register(
 ): Promise<SessionResponse> {
   return requestJson<SessionResponse>('/api/auth/register', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: JSON_HEADERS,
     body: JSON.stringify(input),
   });
 }
@@ -68,9 +68,7 @@ export async function completeOAuthCallback(
     `/api/auth/oauth/callback/${provider}`,
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: JSON_HEADERS,
       body: JSON.stringify(input),
     },
   );
@@ -87,9 +85,7 @@ export async function updatePassword(
 ): Promise<void> {
   const response = await fetch('/api/auth/password', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: JSON_HEADERS,
     credentials: 'include',
     body: JSON.stringify(input),
   });
@@ -126,46 +122,6 @@ export async function logout(): Promise<void> {
 
   if (!response.ok && response.status !== 204) {
     throw new Error(await parseErrorMessage(response));
-  }
-}
-
-/**
- * Store OAuth state and code verifier in session storage
- */
-export function storeOAuthState(state: string, codeVerifier: string): void {
-  sessionStorage.setItem(
-    `oauth_${state}`,
-    JSON.stringify({ state, codeVerifier, timestamp: Date.now() }),
-  );
-}
-
-/**
- * Retrieve and clear OAuth state from session storage
- */
-export function retrieveOAuthState(
-  state: string,
-): { state: string; codeVerifier: string } | null {
-  const stored = sessionStorage.getItem(`oauth_${state}`);
-  if (!stored) {
-    return null;
-  }
-
-  sessionStorage.removeItem(`oauth_${state}`);
-
-  try {
-    const parsed = JSON.parse(stored) as {
-      state: string;
-      codeVerifier: string;
-      timestamp: number;
-    };
-    // Check if state is not older than 15 minutes
-    if (Date.now() - parsed.timestamp > 15 * 60 * 1000) {
-      return null;
-    }
-
-    return { state: parsed.state, codeVerifier: parsed.codeVerifier };
-  } catch {
-    return null;
   }
 }
 
