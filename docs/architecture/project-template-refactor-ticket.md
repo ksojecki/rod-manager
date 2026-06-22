@@ -18,10 +18,11 @@ Implemented so far:
   - `types.ts`
   - `useAuthenticationMethods.ts`
 - `projects/rod-manager/apps/web/src/app/account/AccountPage.tsx` is now a product composition layer that keeps `LanguageSelector.tsx` product-local.
+- `libs/web-platform/src/lib/account/AccountShell.tsx` now owns shared account page framing, while product apps provide ordered account sections.
 
 Still pending:
 
-- a more generic account shell with product extension points
+- broader account extension primitives if more products need richer section metadata than ordered content blocks
 - backend boundary audit and cleanup of product assumptions
 - project scaffolding/generator work for new isolated products
 

@@ -6,6 +6,7 @@ export * from './lib/auth/storage';
 export * from './lib/auth/hooks/useAuthForm';
 export * from './lib/auth/schemas/loginSchema';
 export * from './lib/auth/schemas/registerSchema';
+export * from './lib/account/AccountShell';
 export * from './lib/account/AuthenticationMethodsPanel';
 export * from './lib/account/PasswordMethodForm';
 export * from './lib/account/passwordSchema';
