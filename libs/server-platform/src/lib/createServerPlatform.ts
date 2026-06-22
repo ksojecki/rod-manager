@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import type { ServerPlatformProjectConfig } from './contracts/bootstrap.contract';
 import type { ServerPlatformPlugin } from './contracts/plugin.contract';
 import { createPluginRegistrar } from './serverPluginRegistry';
 import databasePlugin from './plugins/database';
@@ -9,23 +10,24 @@ import authRoutes from './routes/auth';
 import oauthRoutes from './routes/oauth';
 import rootRoute from './routes/root';
 import ssrRoute from './routes/ssr';
-import type { ServerPlatformSsrOptions } from './routes/ssr';
 import userSettingsRoutes from './routes/user-settings';
 
 export interface ServerPlatformOptions {
   logLevel?: string;
+  project: ServerPlatformProjectConfig;
   plugins?: ServerPlatformPlugin[];
-  ssr?: ServerPlatformSsrOptions;
 }
 
 /** Registers all core plugins and routes on the given Fastify instance. */
 export async function createServerPlatform(
   fastify: FastifyInstance,
-  opts: ServerPlatformOptions = {},
+  opts: ServerPlatformOptions | undefined,
 ): Promise<void> {
+  assertProjectConfig(opts?.project);
+
   // Core plugins
   await fastify.register(sensiblePlugin);
-  await fastify.register(databasePlugin);
+  await fastify.register(databasePlugin, { project: opts.project });
   await fastify.register(sessionPlugin);
   await fastify.register(oauthPlugin);
 
@@ -34,12 +36,22 @@ export async function createServerPlatform(
   fastify.register(oauthRoutes);
   fastify.register(rootRoute);
   fastify.register(userSettingsRoutes);
-  if (opts.ssr) {
-    fastify.register(ssrRoute, opts.ssr);
+  if (opts.project.ssr) {
+    fastify.register(ssrRoute, opts.project.ssr);
   }
 
   // Feature plugins
   if (opts.plugins && opts.plugins.length > 0) {
     fastify.register(createPluginRegistrar(opts.plugins));
+  }
+}
+
+function assertProjectConfig(
+  project: ServerPlatformProjectConfig | undefined,
+): asserts project is ServerPlatformProjectConfig {
+  if (!project) {
+    throw new Error(
+      'createServerPlatform requires opts.project with database.path and database.seedInitialUser.',
+    );
   }
 }

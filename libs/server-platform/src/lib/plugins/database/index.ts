@@ -2,17 +2,17 @@ import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import Database from 'better-sqlite3';
 import {
-  getDatabasePath,
   initializeSchema,
   ensureUserSettingsModel,
   ensureUserRoleColumn,
   ensureNameColumns,
+  resolveDatabasePath,
   seedInitialUser,
-  shouldSeedInitialUser,
   ensureAdministratorExists,
 } from './init';
 import { createStore } from './store';
 import { createUserSettingsStore } from './userSettingsStore';
+import type { ServerPlatformProjectConfig } from '../../contracts/bootstrap.contract';
 import type { ServerPlatformDbClient } from '../../contracts/plugin.contract';
 
 export type {
@@ -25,18 +25,31 @@ export type {
 } from './types';
 export { createSessionExpiration } from './types';
 
+interface DatabasePluginOptions {
+  project: ServerPlatformProjectConfig;
+}
+
 /**
  * Registers SQLite-backed store for authentication and session persistence.
  */
-export default fp(function databasePlugin(fastify: FastifyInstance) {
-  const db = new Database(getDatabasePath());
+export default fp<DatabasePluginOptions>(function databasePlugin(
+  fastify: FastifyInstance,
+  opts,
+) {
+  if (!opts?.project) {
+    throw new Error(
+      'databasePlugin requires opts.project with database.path and database.seedInitialUser.',
+    );
+  }
+
+  const db = new Database(resolveDatabasePath(opts.project.database.path));
 
   initializeSchema(db);
   ensureUserSettingsModel(db);
   ensureUserRoleColumn(db);
   ensureNameColumns(db);
 
-  if (shouldSeedInitialUser()) {
+  if (opts.project.database.seedInitialUser) {
     seedInitialUser(db);
   }
 

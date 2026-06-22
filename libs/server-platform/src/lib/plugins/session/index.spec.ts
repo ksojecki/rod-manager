@@ -1,20 +1,25 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ServerPlatformProjectConfig } from '../../contracts/bootstrap.contract';
 import sessionPlugin, { SESSION_COOKIE_NAME } from './index';
 import databasePlugin from '../database';
 
+const testProjectConfig: ServerPlatformProjectConfig = {
+  projectId: 'test-project',
+  database: {
+    path: ':memory:',
+    seedInitialUser: true,
+  },
+};
+
 describe('session plugin', () => {
   beforeEach(() => {
-    process.env.AUTH_DB_PATH = ':memory:';
-    process.env.AUTH_SEED_INITIAL_USER = 'true';
     process.env.AUTH_INITIAL_USER_EMAIL = 'admin@rod-manager.local';
     process.env.AUTH_INITIAL_USER_PASSWORD = 'admin1234';
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    delete process.env.AUTH_DB_PATH;
-    delete process.env.AUTH_SEED_INITIAL_USER;
     delete process.env.AUTH_INITIAL_USER_EMAIL;
     delete process.env.AUTH_INITIAL_USER_PASSWORD;
   });
@@ -22,7 +27,7 @@ describe('session plugin', () => {
   it('starts a session and exposes it through request helpers', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     server.post('/start', async (request, reply) => {
       reply.startSession('initial-admin-user');
@@ -55,7 +60,7 @@ describe('session plugin', () => {
   it('removes an active session from the store', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     server.post('/start', async (_request, reply) => {
       reply.startSession('initial-admin-user');
@@ -97,7 +102,7 @@ describe('session plugin', () => {
   it('returns unauthorized when the session cookie is missing', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     server.get(
       '/protected',
@@ -123,7 +128,7 @@ describe('session plugin', () => {
   it('reads the session token through request.getSessionToken()', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     server.get('/token', async (request, reply) => {
       await reply.send({ token: request.getSessionToken() });
@@ -146,7 +151,7 @@ describe('session plugin', () => {
   it('deletes expired sessions and returns unauthorized', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     server.post('/start', async (_request, reply) => {
       reply.startSession('initial-admin-user');

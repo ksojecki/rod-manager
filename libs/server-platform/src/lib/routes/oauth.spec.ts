@@ -1,11 +1,20 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { OAuthProviderType } from '@sojecki/platform-shared';
+import type { ServerPlatformProjectConfig } from '../contracts/bootstrap.contract';
 import sessionPlugin, { SESSION_COOKIE_NAME } from '../plugins/session';
 import databasePlugin from '../plugins/database';
 import type { OAuthService } from '../plugins/oauth';
 import authRoutes from './auth';
 import oauthRoutes from './oauth';
+
+const testProjectConfig: ServerPlatformProjectConfig = {
+  projectId: 'test-project',
+  database: {
+    path: ':memory:',
+    seedInitialUser: true,
+  },
+};
 
 function createOAuthService(): OAuthService {
   return {
@@ -60,7 +69,7 @@ function createOAuthService(): OAuthService {
 async function createServer() {
   const server = Fastify();
   await server.register(sessionPlugin);
-  await server.register(databasePlugin);
+  await server.register(databasePlugin, { project: testProjectConfig });
   server.decorate('oauth', createOAuthService());
 
   authRoutes(server);
@@ -93,15 +102,11 @@ async function loginAsInitialAdministrator(
 
 describe('oauth routes', () => {
   beforeEach(() => {
-    process.env.AUTH_DB_PATH = ':memory:';
-    process.env.AUTH_SEED_INITIAL_USER = 'true';
     process.env.AUTH_INITIAL_USER_EMAIL = 'admin@rod-manager.local';
     process.env.AUTH_INITIAL_USER_PASSWORD = 'admin1234';
   });
 
   afterEach(() => {
-    delete process.env.AUTH_DB_PATH;
-    delete process.env.AUTH_SEED_INITIAL_USER;
     delete process.env.AUTH_INITIAL_USER_EMAIL;
     delete process.env.AUTH_INITIAL_USER_PASSWORD;
   });

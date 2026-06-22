@@ -2,8 +2,14 @@ import type {
   AuthenticationMethodStatus,
   OAuthProviderType,
 } from '@sojecki/platform-shared';
+import type { ReactNode } from 'react';
 
 export type AccountPendingMethod = OAuthProviderType | null;
+
+export interface AccountSection {
+  content: ReactNode;
+  id: string;
+}
 
 export interface AccountAuthenticationMethodsPanelProps {
   errorMessage: string | null;

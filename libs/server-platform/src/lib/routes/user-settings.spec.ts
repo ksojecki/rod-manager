@@ -1,21 +1,26 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import type { ServerPlatformProjectConfig } from '../contracts/bootstrap.contract';
 import sessionPlugin, { SESSION_COOKIE_NAME } from '../plugins/session';
 import databasePlugin from '../plugins/database';
 import authRoutes from './auth';
 import userSettingsRoutes from './user-settings';
 
+const testProjectConfig: ServerPlatformProjectConfig = {
+  projectId: 'test-project',
+  database: {
+    path: ':memory:',
+    seedInitialUser: true,
+  },
+};
+
 describe('user settings routes', () => {
   beforeEach(() => {
-    process.env.AUTH_DB_PATH = ':memory:';
-    process.env.AUTH_SEED_INITIAL_USER = 'true';
     process.env.AUTH_INITIAL_USER_EMAIL = 'admin@rod-manager.local';
     process.env.AUTH_INITIAL_USER_PASSWORD = 'admin1234';
   });
 
   afterEach(() => {
-    delete process.env.AUTH_DB_PATH;
-    delete process.env.AUTH_SEED_INITIAL_USER;
     delete process.env.AUTH_INITIAL_USER_EMAIL;
     delete process.env.AUTH_INITIAL_USER_PASSWORD;
   });
@@ -23,7 +28,7 @@ describe('user settings routes', () => {
   it('persists selected language for authenticated user', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     authRoutes(server);
     userSettingsRoutes(server);
@@ -63,7 +68,7 @@ describe('user settings routes', () => {
   it('returns unauthorized when updating language without a session cookie', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     userSettingsRoutes(server);
 
