@@ -1,22 +1,27 @@
 import Fastify from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { SessionResponse } from '@sojecki/platform-shared';
+import type { ServerPlatformProjectConfig } from '../contracts/bootstrap.contract';
 import databasePlugin from '../plugins/database';
 import sessionPlugin from '../plugins/session';
 import authRoutes from './auth';
 import { SESSION_COOKIE_NAME } from '../plugins/session';
 
+const testProjectConfig: ServerPlatformProjectConfig = {
+  projectId: 'test-project',
+  database: {
+    path: ':memory:',
+    seedInitialUser: true,
+  },
+};
+
 describe('auth routes', () => {
   beforeEach(() => {
-    process.env.AUTH_DB_PATH = ':memory:';
-    process.env.AUTH_SEED_INITIAL_USER = 'true';
     process.env.AUTH_INITIAL_USER_EMAIL = 'admin@rod-manager.local';
     process.env.AUTH_INITIAL_USER_PASSWORD = 'admin1234';
   });
 
   afterEach(() => {
-    delete process.env.AUTH_DB_PATH;
-    delete process.env.AUTH_SEED_INITIAL_USER;
     delete process.env.AUTH_INITIAL_USER_EMAIL;
     delete process.env.AUTH_INITIAL_USER_PASSWORD;
   });
@@ -24,7 +29,7 @@ describe('auth routes', () => {
   it('creates a session on successful login and returns it', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     authRoutes(server);
 
@@ -72,7 +77,7 @@ describe('auth routes', () => {
   it('returns unauthorized when requesting the session without a cookie', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     authRoutes(server);
 
@@ -90,7 +95,7 @@ describe('auth routes', () => {
   it('returns unauthorized for wrong credentials', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     authRoutes(server);
 
@@ -112,7 +117,7 @@ describe('auth routes', () => {
   it('registers a new user and creates a session', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     authRoutes(server);
 
@@ -148,7 +153,7 @@ describe('auth routes', () => {
   it('returns 400 when password is missing during registration', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     authRoutes(server);
 
@@ -173,7 +178,7 @@ describe('auth routes', () => {
   it('returns 409 when registering with an existing email', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     authRoutes(server);
 
@@ -199,7 +204,7 @@ describe('auth routes', () => {
   it('returns 400 when required fields are missing in registration', async () => {
     const server = Fastify();
     await server.register(sessionPlugin);
-    await server.register(databasePlugin);
+    await server.register(databasePlugin, { project: testProjectConfig });
 
     authRoutes(server);
 

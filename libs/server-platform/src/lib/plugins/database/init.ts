@@ -5,14 +5,12 @@ import type Database from 'better-sqlite3';
 import type { CountRow } from './types';
 import { hashPassword } from './store';
 
-export function getDatabasePath(): string {
-  const configuredPath = process.env.AUTH_DB_PATH ?? 'tmp/auth.sqlite';
-
-  if (configuredPath === ':memory:') {
-    return configuredPath;
+export function resolveDatabasePath(path: string): string {
+  if (path === ':memory:') {
+    return path;
   }
 
-  const resolvedPath = resolve(process.cwd(), configuredPath);
+  const resolvedPath = resolve(process.cwd(), path);
   mkdirSync(dirname(resolvedPath), { recursive: true });
 
   return resolvedPath;
@@ -182,10 +180,6 @@ export function seedInitialUser(db: Database.Database): void {
     display_name: 'Administrator',
     role: 'admin' satisfies UserRole,
   });
-}
-
-export function shouldSeedInitialUser(): boolean {
-  return process.env.AUTH_SEED_INITIAL_USER === 'true';
 }
 
 export function ensureAdministratorExists(db: Database.Database): void {

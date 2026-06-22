@@ -6,17 +6,21 @@ import {
 } from '@sojecki/platform-server-platform';
 import { pagesServerPlugin } from './plugin';
 
+const testProjectConfig = {
+  projectId: 'rod-manager-pages-server-test',
+  database: {
+    path: ':memory:',
+    seedInitialUser: true,
+  },
+} as const;
+
 describe('pages plugin contract tests', () => {
   beforeEach(() => {
-    process.env.AUTH_DB_PATH = ':memory:';
-    process.env.AUTH_SEED_INITIAL_USER = 'true';
     process.env.AUTH_INITIAL_USER_EMAIL = 'admin@rod-manager.local';
     process.env.AUTH_INITIAL_USER_PASSWORD = 'admin1234';
   });
 
   afterEach(() => {
-    delete process.env.AUTH_DB_PATH;
-    delete process.env.AUTH_SEED_INITIAL_USER;
     delete process.env.AUTH_INITIAL_USER_EMAIL;
     delete process.env.AUTH_INITIAL_USER_PASSWORD;
   });
@@ -24,7 +28,10 @@ describe('pages plugin contract tests', () => {
   it('GET /api/pages returns { pages: [...] } envelope for authenticated users', async () => {
     const server = Fastify();
     await server.register(async (instance) => {
-      await createServerPlatform(instance, { plugins: [pagesServerPlugin()] });
+      await createServerPlatform(instance, {
+        project: testProjectConfig,
+        plugins: [pagesServerPlugin()],
+      });
     });
 
     const loginResponse = await server.inject({
@@ -60,7 +67,10 @@ describe('pages plugin contract tests', () => {
   it('GET /api/pages/:slug returns { page: ... } envelope', async () => {
     const server = Fastify();
     await server.register(async (instance) => {
-      await createServerPlatform(instance, { plugins: [pagesServerPlugin()] });
+      await createServerPlatform(instance, {
+        project: testProjectConfig,
+        plugins: [pagesServerPlugin()],
+      });
     });
 
     const response = await server.inject({
@@ -81,7 +91,10 @@ describe('pages plugin contract tests', () => {
   it('GET /api/pages/:slug returns 404 with { message } for missing slug', async () => {
     const server = Fastify();
     await server.register(async (instance) => {
-      await createServerPlatform(instance, { plugins: [pagesServerPlugin()] });
+      await createServerPlatform(instance, {
+        project: testProjectConfig,
+        plugins: [pagesServerPlugin()],
+      });
     });
 
     const response = await server.inject({
@@ -100,7 +113,10 @@ describe('pages plugin contract tests', () => {
   it('GET /api/pages returns 401 for unauthenticated requests', async () => {
     const server = Fastify();
     await server.register(async (instance) => {
-      await createServerPlatform(instance, { plugins: [pagesServerPlugin()] });
+      await createServerPlatform(instance, {
+        project: testProjectConfig,
+        plugins: [pagesServerPlugin()],
+      });
     });
 
     const response = await server.inject({

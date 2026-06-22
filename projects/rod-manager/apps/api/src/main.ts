@@ -1,10 +1,10 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
 import { existsSync, readFileSync } from 'node:fs';
-import path from 'node:path';
 import type { FastifyInstance } from 'fastify';
 import { createServerPlatform } from '@sojecki/platform-server-platform';
 import { pagesServerPlugin } from '@sojecki/rod-manager-pages-server';
+import { rodManagerProjectConfig } from './productConfig';
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -47,20 +47,8 @@ function getHttpsOptions() {
 
 server.register(async (instance) => {
   await createServerPlatform(instance, {
+    project: rodManagerProjectConfig,
     plugins: [pagesServerPlugin()],
-    ssr: {
-      webRoot: path.resolve(process.cwd(), 'projects/rod-manager/apps/web'),
-      production: {
-        clientRoot: path.resolve(
-          process.cwd(),
-          'dist/projects/rod-manager/apps/web/client',
-        ),
-        serverEntryPath: path.resolve(
-          process.cwd(),
-          'dist/projects/rod-manager/apps/web/server/entry-server.mjs',
-        ),
-      },
-    },
   });
 });
 

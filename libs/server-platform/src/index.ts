@@ -1,5 +1,6 @@
 export { createServerPlatform } from './lib/createServerPlatform';
 export type { ServerPlatformOptions } from './lib/createServerPlatform';
+export type { ServerPlatformProjectConfig } from './lib/contracts/bootstrap.contract';
 export type {
   ServerPlatformSsrOptions,
   ServerPlatformSsrProductionPaths,

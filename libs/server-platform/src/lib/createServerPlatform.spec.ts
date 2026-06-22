@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ServerPlatformProjectConfig } from './contracts/bootstrap.contract';
 import type { ServerPlatformSsrOptions } from './routes/ssr';
 
 const mocks = vi.hoisted(() => ({
@@ -37,17 +38,50 @@ vi.mock('./serverPluginRegistry', () => ({
 
 import { createServerPlatform } from './createServerPlatform';
 
+const testProjectConfig: ServerPlatformProjectConfig = {
+  projectId: 'test-project',
+  database: {
+    path: ':memory:',
+    seedInitialUser: false,
+  },
+};
+
 describe('createServerPlatform', () => {
   beforeEach(() => {
     mocks.createPluginRegistrar.mockClear();
+  });
+
+  it('throws an actionable error when project config is missing', async () => {
+    const register = vi.fn<(plugin: unknown, options?: unknown) => void>();
+    const fastify = { register } as unknown as FastifyInstance;
+
+    await expect(
+      createServerPlatform(fastify, {} as never),
+    ).rejects.toThrowError(
+      'createServerPlatform requires opts.project with database.path and database.seedInitialUser.',
+    );
+    expect(register).not.toHaveBeenCalled();
+  });
+
+  it('throws the same actionable error when options are undefined', async () => {
+    const register = vi.fn<(plugin: unknown, options?: unknown) => void>();
+    const fastify = { register } as unknown as FastifyInstance;
+
+    await expect(createServerPlatform(fastify, undefined)).rejects.toThrowError(
+      'createServerPlatform requires opts.project with database.path and database.seedInitialUser.',
+    );
+    expect(register).not.toHaveBeenCalled();
   });
 
   it('skips SSR route registration when SSR options are not provided', async () => {
     const register = vi.fn<(plugin: unknown, options?: unknown) => void>();
     const fastify = { register } as unknown as FastifyInstance;
 
-    await createServerPlatform(fastify);
+    await createServerPlatform(fastify, { project: testProjectConfig });
 
+    expect(register).toHaveBeenCalledWith(mocks.databasePlugin, {
+      project: testProjectConfig,
+    });
     expect(register).not.toHaveBeenCalledWith(mocks.ssrRoute);
   });
 
@@ -62,7 +96,12 @@ describe('createServerPlatform', () => {
       },
     };
 
-    await createServerPlatform(fastify, { ssr });
+    await createServerPlatform(fastify, {
+      project: {
+        ...testProjectConfig,
+        ssr,
+      },
+    });
 
     expect(register).toHaveBeenCalledWith(mocks.ssrRoute, ssr);
   });

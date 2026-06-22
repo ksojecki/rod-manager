@@ -7,7 +7,7 @@ description: Run a reusable plan -> stepwise implementer/tester passes -> final 
 
 Use this skill when a task needs a controlled implementation cycle instead of a single pass.
 
-## Recommended Model Split
+## Model Split
 
 - Use `gpt-5.4-mini` for the implementer pass.
 - Use `gpt-5.4-mini` for the tester pass.
