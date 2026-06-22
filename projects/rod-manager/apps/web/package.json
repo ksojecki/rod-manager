@@ -49,7 +49,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@sojecki/platform-web-platform": "0.0.1",
-    "react-hook-form": "^7.79.0",
+    "react-hook-form": "^7.80.0",
     "zod": "^4.4.3"
   }
 }
