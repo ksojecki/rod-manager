@@ -336,6 +336,30 @@ describe('AppRoutes', () => {
     expect(screen.getByText('Język')).toBeInTheDocument();
   });
 
+  it('renders account sections in product-defined order', async () => {
+    mockAuthenticatedAccountSession();
+
+    render(
+      <MemoryRouter initialEntries={['/account']}>
+        <I18nextProvider i18n={i18n}>
+          <AppRoutes />
+        </I18nextProvider>
+      </MemoryRouter>,
+    );
+
+    const languageHeading = await screen.findByRole('heading', {
+      name: 'Language',
+    });
+    const authenticationHeading = await screen.findByRole('heading', {
+      name: 'Authentication methods',
+    });
+
+    expect(
+      languageHeading.compareDocumentPosition(authenticationHeading) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).not.toBe(0);
+  });
+
   it('renders content management page for authenticated users', async () => {
     mockAuthenticatedContentSession();
 

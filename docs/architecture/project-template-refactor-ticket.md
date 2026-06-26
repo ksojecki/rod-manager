@@ -93,6 +93,8 @@ The following refactor steps are already reflected in the repository:
 - reusable account shell mechanics already live in `libs/web-platform`, including the account shell, authentication methods panel, password management form, and related types.
 - `projects/rod-manager` now composes shared account/auth pieces instead of owning all of those mechanics directly.
 - `rod-manager` account content is already split between shared platform sections and product-local composition through `projects/rod-manager/apps/web/src/app/account/rodManagerAccountSections.tsx`.
+- the account section extension contract is intentionally kept as an ordered content-block API, with product-local account configuration deciding which sections render and in what order.
+- language and user-settings persistence remain product-local in `rod-manager` instead of moving into `libs/web-platform` before a second product proves a shared settings contract is needed.
 
 ### Boundaries That Must Stay Intact
 
@@ -111,7 +113,6 @@ The repository still needs a more explicit frontend product-configuration surfac
 
 - public home route
 - post-login route
-- account sections
 - navigation items
 - branding choices
 - whether registration is enabled
