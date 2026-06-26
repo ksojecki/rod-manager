@@ -13,13 +13,7 @@
     "format:check": "prettier --check .",
     "postinstall": "node ./scripts/postinstall.mjs",
     "setup:certs": "node ./scripts/setup-dev-certs.mjs",
-    "start:ssr": "NODE_ENV=production node dist/projects/rod-manager/apps/api/main.js",
-    "codedrift:status": ".venv-codrift/bin/python ./scripts/codedrift-local.py status",
-    "codedrift:update": "./scripts/codedrift-update.sh",
-    "codedrift:recall": ".venv-codrift/bin/python ./scripts/codedrift-local.py memory recall",
-    "codedrift:record": ".venv-codrift/bin/python ./scripts/codedrift-local.py memory record",
-    "codedrift:dashboard": ".venv-codrift/bin/python ./scripts/codedrift-local.py dashboard",
-    "codedrift:api": ".venv-codrift/bin/python ./scripts/codedrift-local.py api"
+    "start:ssr": "NODE_ENV=production node dist/projects/rod-manager/apps/api/main.js"
   },
   "private": true,
   "workspaces": [
