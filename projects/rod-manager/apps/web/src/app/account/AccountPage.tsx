@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { AccountShell, useAuth } from '@sojecki/platform-web-platform';
-import { useRodManagerAccountSections } from './rodManagerAccountSections';
+import { rodManagerAccountConfig } from './rodManagerAccountConfig';
 
 export const AccountPage = () => {
   const { t } = useTranslation('account');
   const { user } = useAuth();
-  const sections = useRodManagerAccountSections();
+  const sections = rodManagerAccountConfig.useSections();
 
   return (
     <AccountShell

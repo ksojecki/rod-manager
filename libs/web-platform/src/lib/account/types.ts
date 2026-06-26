@@ -6,10 +6,17 @@ import type { ReactNode } from 'react';
 
 export type AccountPendingMethod = OAuthProviderType | null;
 
+/**
+ * Product account pages extend the shared shell with ordered content blocks.
+ * Shared code renders sections in array order and does not interpret section ids
+ * beyond stable keying and test targeting.
+ */
 export interface AccountSection {
   content: ReactNode;
   id: string;
 }
+
+export type AccountSectionsHook = () => AccountSection[];
 
 export interface AccountAuthenticationMethodsPanelProps {
   errorMessage: string | null;
