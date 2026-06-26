@@ -52,10 +52,6 @@
 - Apply Nx Cloud CI remediation hints: `npx nx fix-ci --no-tui`.
 - Explore project/task graph: `npx nx graph --json --no-tui` (use `--json` to avoid browser).
 - Keep TS project refs consistent after adding projects: `npx nx sync --no-tui` (or `npx nx sync:check --no-tui` in CI).
-- CodeDrift MCP is mandatory during discovery, planning, implementation, validation, and review in this repository.
-- Use CodeDrift MCP tools for repository overview, symbol search, symbol resolution, and session-aware reads throughout the delivery loop.
-- After editing a file, prefer re-reading it through CodeDrift MCP instead of shell reads so follow-up inspection returns a session-aware diff when available.
-- For cross-session context, start follow-up work with CodeDrift memory recall and record reusable context at handoff. Setup and commands live in `docs/agents/codedrift.md`.
 
 ## Project-Specific Conventions
 

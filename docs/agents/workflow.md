@@ -9,8 +9,6 @@ When the task requires planning, do not start implementation until the plan is a
 - Check `README.md`, `AGENTS.md`, and `docs/README.md`.
 - Confirm the current Nx workspace state (`nx.json`, `package.json`).
 - Check the current git branch before starting delivery work. If the current branch is `main`, create a new working branch before making changes.
-- Start with CodeDrift memory recall for the current task before broader search/read steps.
-- Use CodeDrift MCP throughout discovery for repository overview, symbol search, symbol resolution, and file reads.
 - For new features, identify MVP scope vs non-goals.
 
 ## 2) Plan
@@ -36,7 +34,6 @@ When the task requires planning, do not start implementation until the plan is a
 - The implementer executes the accepted current step and does not re-review or re-plan it.
 - Do not spawn implementers for multiple future steps in parallel by default; prefer the smallest active step to reduce token usage and keep context narrow.
 - Keep each spawned subagent scoped to one current step so the delivery loop stays auditable, step-local, and cheap.
-- Use CodeDrift MCP during implementation, validation, and review.
 - Treat review as the final gate after the planned steps are complete.
 - If review finds a gap, add a new corrective step and run the same sequential implementer -> tester flow for that step before reviewing again.
 - Keep the reviewer agent in the background when possible so review context is not lost between sessions.
@@ -56,7 +53,6 @@ When the task requires planning, do not start implementation until the plan is a
 ## 5) Validation
 
 - Run lint/format and a quick smoke-check after major changes.
-- When inspecting an edited file, prefer CodeDrift session-aware reads over shell file reads so the review pass can use diffs from prior reads.
 - Before a PR, verify whether documentation updates are required.
 
 ## 6) Handover
@@ -65,4 +61,3 @@ When the task requires planning, do not start implementation until the plan is a
 - Add links to updated docs and ADRs when relevant.
 - When task status changes materially, update the corresponding GitHub issue instead of adding live progress notes to repository docs.
 - When the user asks to publish completed work, commit the accepted changes and push the working branch to `origin`.
-- If the session produced reusable context, record it in CodeDrift memory before ending the task.
