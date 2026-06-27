@@ -1,0 +1,11 @@
+{
+  "name": "@sojecki/platform-source",
+  "version": "0.1",
+  "generators": {
+    "project-template": {
+      "factory": "./generators/project-template/generator",
+      "schema": "./generators/project-template/schema.json",
+      "description": "Generate a new template-based product with API and web apps."
+    }
+  }
+}
