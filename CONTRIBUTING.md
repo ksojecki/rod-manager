@@ -22,7 +22,7 @@ npm run setup:certs
 Start the SSR development server:
 
 ```sh
-npm run dev
+npm run dev:rod-manager
 ```
 
 Smoke checks:
@@ -52,8 +52,10 @@ npx nx run-many -t lint test build typecheck --no-tui
 Build and start the production SSR bundle:
 
 ```sh
-npm run build:ssr
-npm run start:ssr
+npx nx run @sojecki/rod-manager-web:build --no-tui
+npx nx run @sojecki/rod-manager-web:build-server --no-tui
+npx nx run @sojecki/rod-manager-api:build --no-tui
+NODE_ENV=production node dist/projects/rod-manager/apps/api/main.js
 ```
 
 ## Release

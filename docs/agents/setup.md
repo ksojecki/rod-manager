@@ -26,7 +26,7 @@ npm run setup:certs
 ## 3) Run Locally
 
 ```sh
-npm run dev
+npm run dev:rod-manager
 ```
 
 This starts the SSR app through the Fastify API server.
@@ -34,7 +34,7 @@ This starts the SSR app through the Fastify API server.
 When running as an AI agent, prefer:
 
 ```sh
-npm run dev -- --no-tui
+npm run dev:rod-manager
 ```
 
 Smoke checks:

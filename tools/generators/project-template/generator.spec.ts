@@ -9,6 +9,21 @@ describe('projectTemplateGenerator', () => {
   beforeEach(() => {
     tree = createTreeWithEmptyWorkspace();
     tree.write(
+      'package.json',
+      JSON.stringify(
+        {
+          name: '@sojecki/platform-source',
+          private: true,
+          scripts: {
+            'dev:rod-manager':
+              'node ./node_modules/nx/dist/bin/nx.js run @sojecki/rod-manager-api:serve --no-tui',
+          },
+        },
+        null,
+        2,
+      ),
+    );
+    tree.write(
       'tsconfig.json',
       JSON.stringify(
         {
@@ -70,6 +85,19 @@ describe('projectTemplateGenerator', () => {
         '@sojecki/platform-web-platform': '0.0.1',
       }),
     );
+
+    const rootPackageJson = readJson(tree, 'package.json') as {
+      scripts: Record<string, string>;
+    };
+    expect(rootPackageJson.scripts).toEqual(
+      expect.objectContaining({
+        'dev:rod-manager':
+          'node ./node_modules/nx/dist/bin/nx.js run @sojecki/rod-manager-api:serve --no-tui',
+        'dev:sample-portal':
+          'node ./node_modules/nx/dist/bin/nx.js run @sojecki/sample-portal-api:serve --no-tui',
+      }),
+    );
+    expect(rootPackageJson.scripts).not.toHaveProperty('dev');
 
     const productConfig = tree.read(
       'projects/sample-portal/apps/api/src/productConfig.ts',

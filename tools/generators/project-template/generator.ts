@@ -29,6 +29,7 @@ export async function projectTemplateGenerator(
 
   writeApiApp(tree, options);
   writeWebApp(tree, options);
+  updateRootPackageScripts(tree, options);
   updateRootTsConfigReferences(tree, options);
 
   await formatFiles(tree);
@@ -1340,6 +1341,23 @@ function writeJson(tree: Tree, filePath: string, value: unknown): void {
 
 function writeFile(tree: Tree, filePath: string, content: string): void {
   tree.write(filePath, content);
+}
+
+function updateRootPackageScripts(
+  tree: Tree,
+  options: NormalizedOptions,
+): void {
+  updateJson(
+    tree,
+    'package.json',
+    (value: { scripts?: Record<string, string>; [key: string]: unknown }) => {
+      const scripts = value.scripts ?? {};
+      scripts[`dev:${options.name}`] =
+        `node ./node_modules/nx/dist/bin/nx.js run ${options.apiPackageName}:serve --no-tui`;
+      value.scripts = scripts;
+      return value;
+    },
+  );
 }
 
 function updateRootTsConfigReferences(
