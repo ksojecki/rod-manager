@@ -57,7 +57,7 @@ npm run setup:certs
 Run the SSR development stack:
 
 ```sh
-npm run dev
+npm run dev:rod-manager
 ```
 
 This starts the SSR app through the Fastify API server.

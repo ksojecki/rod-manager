@@ -3,18 +3,15 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "node ./node_modules/nx/dist/bin/nx.js run @sojecki/rod-manager-api:serve --no-tui",
-    "build:ssr": "npm run build:web && npm run build:api",
-    "build:web": "npx nx run @sojecki/rod-manager-web:build --no-tui && npx nx run @sojecki/rod-manager-web:build-server --no-tui",
-    "build:api": "npx nx run @sojecki/rod-manager-api:build --no-tui",
+    "dev:rod-manager": "node ./node_modules/nx/dist/bin/nx.js run @sojecki/rod-manager-api:serve --no-tui",
+    "dev:sample-portal": "node ./node_modules/nx/dist/bin/nx.js run @sojecki/sample-portal-api:serve --no-tui",
     "generate:project": "npx nx g ./tools/generators.json:project-template",
     "lint": "node ./node_modules/nx/dist/bin/nx.js run-many -t lint --no-tui",
     "typecheck": "node ./node_modules/nx/dist/bin/nx.js run-many -t typecheck --no-tui",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "postinstall": "node ./scripts/postinstall.mjs",
-    "setup:certs": "node ./scripts/setup-dev-certs.mjs",
-    "start:ssr": "NODE_ENV=production node dist/projects/rod-manager/apps/api/main.js"
+    "setup:certs": "node ./scripts/setup-dev-certs.mjs"
   },
   "private": true,
   "workspaces": [
