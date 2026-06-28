@@ -127,6 +127,29 @@ describe('projectTemplateGenerator', () => {
     expect(routesSource).not.toContain('@sojecki/rod-manager');
     expect(routesSource).toContain('<RegisterPage');
 
+    const webProductConfig = tree.read(
+      'projects/sample-portal/apps/web/src/app/productConfig.ts',
+      'utf-8',
+    );
+    expect(webProductConfig).toContain(
+      'buildLoginPromptHref as buildSharedLoginPromptHref',
+    );
+    expect(webProductConfig).toContain('type LoginPromptConfig');
+    expect(webProductConfig).toContain(
+      "routes: {\n    home: '/',\n    account: '/account',\n    register: '/register',\n  },",
+    );
+    expect(webProductConfig).toContain(
+      "auth: {\n    guestRedirectTo: '/?login=1',\n    postLoginRedirectTo: '/account',\n    postRegistrationRedirectTo: '/account',\n    oauthAuthenticatedFallbackTo: '/account',\n    oauthGuestFallbackTo: '/',\n  },",
+    );
+    expect(webProductConfig).toContain(
+      "registration: {\n    enabled: true,\n    disabledRedirectTo: '/',\n  },",
+    );
+    expect(webProductConfig).toContain(
+      "loginPrompt: {\n    queryParam: 'login',\n    queryValue: '1',\n  },",
+    );
+    expect(webProductConfig).toContain('return buildSharedLoginPromptHref(');
+    expect(webProductConfig).toContain('frontendProductConfig.loginPrompt');
+
     const appLayoutSource = tree.read(
       'projects/sample-portal/apps/web/src/app/layout/AppLayout.tsx',
       'utf-8',
