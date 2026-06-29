@@ -6,6 +6,7 @@ Use this page to prepare a coding-agent session for this repository.
 
 - Read `README.md`, `AGENTS.md`, and `docs/README.md`.
 - During Codex initialization for this repository, always load `.agents/skills/agent-delivery-loop/SKILL.md`.
+- If Nx MCP is available in the session, use it first for Nx docs, graph inspection, and running-task introspection before falling back to broader file reads.
 - Check current worktree state with `git --no-pager status --short`.
 - Inspect `package.json`, `nx.json`, and the touched project package/config files before changing code.
 - Inspect `.husky/pre-commit` and `.lintstagedrc.mjs` before changing staged-file validation behavior.
@@ -22,7 +23,7 @@ npx nx show projects --json
 npx nx show project <project-name> --json
 ```
 
-Only read full files after `rg` or `nx show` tells you which file or project matters.
+Only read full files after `rg`, Nx MCP, or `nx show` tells you which file or project matters.
 
 ## 2) Install
 
@@ -76,6 +77,8 @@ npx nx run-many -t lint test build typecheck --no-tui
 ```
 
 Prefer `--no-tui` for task-running Nx commands when the command supports it. Prefer `npx nx show ... --json` for cheap structured inspection. Use `npx nx graph --print` for stdout or `npx nx graph --file=/tmp/nx-graph.json` only when you specifically need dependency-graph data.
+
+Nx MCP can assist with read-only exploration and Nx documentation, but keep CLI commands as the executable validation contract for this repo.
 
 Pre-commit behavior is defined by `.husky/pre-commit` and `.lintstagedrc.mjs`. Keep them aligned with the staged-file checks you expect contributors and agents to run locally.
 
