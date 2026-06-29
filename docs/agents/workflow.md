@@ -8,6 +8,7 @@ When the task requires planning, do not start implementation until the plan is a
 
 - Check `README.md`, `AGENTS.md`, and `docs/README.md`.
 - Confirm the current Nx workspace state (`nx.json`, `package.json`).
+- If Nx MCP is available in the session, use it first for Nx-specific documentation questions and read-only workspace exploration such as graph inspection or running-task introspection.
 - When commands target generated product apps, distinguish filesystem paths from
   package ids: use `projects/<product>/apps/*` for files and
   `@ksojecki/<product>-api` or `@ksojecki/<product>-web` for Nx/package ids.
@@ -62,6 +63,7 @@ When the task requires planning, do not start implementation until the plan is a
 ## 5) Validation
 
 - Run lint/format and a quick smoke-check after major changes.
+- Keep Nx CLI commands as the validation contract even when Nx MCP is available. Use `npx nx show ...`, `npx nx sync:check --no-tui`, and task-running commands such as `npx nx run-many ... --no-tui` for executable verification.
 - Avoid low-signal parent-session validation commands. Add coverage or extra reporting runs only when the output is decision-relevant for the current step or final review.
 - Before a PR, verify whether documentation updates are required.
 

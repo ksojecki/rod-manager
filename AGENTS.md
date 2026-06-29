@@ -33,6 +33,7 @@
 
 - During Codex initialization for this repository, always load `.agents/skills/agent-delivery-loop/SKILL.md` before starting substantial work.
 - Default delivery mechanism for non-trivial work: use the Agent Workflow in `docs/agents/workflow.md`.
+- For Nx-specific questions and read-only workspace exploration, prefer the Nx MCP server first when it is available in the current session. Use it for docs lookups, graph inspection, and running-task introspection, then use the Nx CLI for repo-contract commands and validation.
 - Track task progress in GitHub issues. Always start by finding the relevant GitHub issue; if the work has no issue yet, create one before implementation. Use repository docs for durable guidance, ADRs, and implementation plans, not as the live status tracker for active work.
 - For features, bug fixes, and error remediation, first agree on a plan when the task calls for planning, then execute that accepted plan through the delivery loop in `.agents/skills/agent-delivery-loop/SKILL.md`.
 - In that delivery loop, divide the plan into small, easy-to-implement steps before execution.
@@ -74,9 +75,11 @@
 
 - Start with task-local context before broad repo reads: issue/PR text, `git --no-pager status --short`, then `rg -n` in the likely area.
 - Prefer `rg` and `rg --files` over opening full files. Read only the matching sections with `sed -n` or `rg -n -C`.
+- If Nx MCP is available, use it first for read-only Nx help: docs, graph views, and running-task inspection.
 - Use `npx nx show projects --json` to list workspace projects without opening the graph.
 - Use `npx nx show project <project-name> --json` to inspect one project's resolved root, targets, and metadata.
 - Use `npx nx show target <project-name>:<target>` when you need one target's resolved inputs or outputs.
+- Use Nx CLI commands for executable repo checks and validation, including `npx nx show ...`, `npx nx sync:check --no-tui`, and `npx nx run-many ... --no-tui`.
 - Use `npx nx graph --print` or `npx nx graph --file=/tmp/nx-graph.json` only when project relationships are still unclear after `nx show`; the graph output is much larger.
 - For task execution, prefer the narrowest command that proves the change instead of jumping to workspace-wide `run-many`.
 - When a task spans sessions, keep the issue or PR updated with touched files, commands tried, current blocker, and next safe step so the next agent does not rediscover context.
