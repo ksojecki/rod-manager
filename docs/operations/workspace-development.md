@@ -47,8 +47,8 @@ npm run dev:rod-manager
 
 Smoke checks:
 
-- `https://localhost:3000/` should return SSR HTML
-- `https://localhost:3000/api` should return Fastify API JSON
+- `https://localhost:3000/` should be checked through an authenticated session and return SSR HTML
+- `https://localhost:3000/api` should be checked through the same authenticated session and return Fastify API JSON
 
 ## Naming Rules
 

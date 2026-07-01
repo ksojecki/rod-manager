@@ -17,6 +17,7 @@ export interface PlatformNavbarProps {
   items?: PlatformNavigationItem[];
   loginLabel: string;
   loginPrompt: LoginPromptConfig;
+  loadingLabel: string;
   logoutLabel: string;
   postLoginRedirectTo: string;
   registerLabel?: string;
@@ -33,6 +34,7 @@ export function PlatformNavbar({
   items = [],
   loginLabel,
   loginPrompt,
+  loadingLabel,
   logoutLabel,
   postLoginRedirectTo,
   registerLabel,
@@ -80,14 +82,19 @@ export function PlatformNavbar({
           <Link className="text-lg" to={brandTo}>
             {brandLabel}
           </Link>
-          <nav className="flex items-center gap-2">
+          <nav className="flex flex-wrap items-center justify-end gap-2">
             {visibleItems.map((item) => (
               <Link className="btn btn-ghost btn-sm" key={item.to} to={item.to}>
                 {item.label}
               </Link>
             ))}
 
-            {status === 'authenticated' ? (
+            {status === 'loading' ? (
+              <button className="btn btn-ghost btn-sm" disabled type="button">
+                <span className="loading loading-spinner loading-xs" />
+                {loadingLabel}
+              </button>
+            ) : status === 'authenticated' ? (
               <div className="dropdown dropdown-end">
                 <button
                   className="btn btn-outline btn-sm"

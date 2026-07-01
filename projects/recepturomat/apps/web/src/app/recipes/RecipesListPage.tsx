@@ -1,6 +1,12 @@
 import { useState, type ChangeEventHandler } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import {
+  Card,
+  Link,
+  PageHeader,
+  Paragraph,
+  Section,
+} from '@ksojecki/platform-ui';
 import { useAuth } from '@ksojecki/platform-web-platform';
 import { buildRecipeDetailPath, frontendProductConfig } from '../productConfig';
 import { RecipeAccessPrompt } from './RecipeAccessPrompt';
@@ -20,7 +26,18 @@ export function RecipesListPage() {
   };
 
   if (status === 'loading') {
-    return <p>{t('loading')}</p>;
+    return (
+      <Section
+        className="mx-auto max-w-5xl"
+        description={t('list.loadingDescription')}
+        title={t('loading')}
+      >
+        <div className="flex items-center gap-2 text-sm text-base-content/70">
+          <span className="loading loading-spinner loading-sm" />
+          {t('list.loadingHint')}
+        </div>
+      </Section>
+    );
   }
 
   if (status === 'guest') {
@@ -28,72 +45,104 @@ export function RecipesListPage() {
   }
 
   if (isLoading) {
-    return <p>{t('loading')}</p>;
+    return (
+      <Section
+        className="mx-auto max-w-5xl"
+        description={t('list.loadingDescription')}
+        title={t('loading')}
+      >
+        <div className="flex items-center gap-2 text-sm text-base-content/70">
+          <span className="loading loading-spinner loading-sm" />
+          {t('list.loadingHint')}
+        </div>
+      </Section>
+    );
   }
 
   if (error !== null) {
     return (
-      <p className="alert alert-error" role="alert">
-        {error.message}
-      </p>
+      <Section className="mx-auto max-w-5xl" title={t('errors.loadFailed')}>
+        <p className="alert alert-error" role="alert">
+          {error.message}
+        </p>
+      </Section>
     );
   }
 
   return (
-    <section className="mx-auto flex max-w-4xl flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="flex-1">
-          <h1 className="text-3xl font-semibold">{t('list.title')}</h1>
-        </div>
-        <Link
-          className="btn btn-primary"
-          to={frontendProductConfig.routes.recipeNew}
-        >
-          {t('actions.add')}
-        </Link>
-      </div>
+    <div className="mx-auto flex max-w-5xl flex-col gap-6">
+      <PageHeader
+        actions={
+          <Link asButton to={frontendProductConfig.routes.recipeNew}>
+            {t('actions.add')}
+          </Link>
+        }
+        description={t('list.description')}
+        meta={
+          <span>
+            {t('list.count', {
+              count: recipes.length,
+            })}
+          </span>
+        }
+        title={t('list.title')}
+      />
 
-      <div className="flex gap-2">
+      <Section
+        actions={
+          <button
+            className="btn btn-ghost"
+            onClick={() => {
+              setSearchQuery('');
+            }}
+            type="button"
+          >
+            {t('actions.clear')}
+          </button>
+        }
+        description={t('list.searchHint')}
+        title={t('list.searchTitle')}
+      >
         <input
-          className="input input-bordered flex-1"
+          className="input input-bordered w-full"
           onChange={handleSearchChange}
           placeholder={t('list.search')}
           type="search"
           value={searchQuery}
         />
-        <button
-          className="btn btn-ghost"
-          onClick={() => {
-            setSearchQuery('');
-          }}
-          type="button"
-        >
-          {t('actions.clear')}
-        </button>
-      </div>
+      </Section>
 
       {recipes.length === 0 ? (
-        <p className="rounded-box border border-dashed border-base-300 bg-base-100 p-6 text-center text-base-content/70">
-          {t('list.empty')}
-        </p>
+        <Section
+          className="border-dashed"
+          description={t('list.emptyHint')}
+          title={t('list.emptyTitle')}
+        >
+          <Paragraph tone="muted">{t('list.empty')}</Paragraph>
+        </Section>
       ) : (
-        <ul className="grid gap-3">
+        <section className="grid gap-4">
           {recipes.map((recipe) => (
-            <li key={recipe.recipeId}>
+            <Card key={recipe.recipeId}>
               <Link
-                className="flex items-center justify-between rounded-box border border-base-300 bg-base-100 p-4 shadow-sm transition hover:border-base-content/30 hover:shadow"
+                className="flex items-start justify-between gap-4 no-underline"
                 to={buildRecipeDetailPath(recipe.recipeId)}
               >
-                <span className="text-lg font-medium">{recipe.name}</span>
-                <span className="text-sm text-base-content/60">
+                <div className="flex flex-col gap-2">
+                  <span className="text-lg font-semibold text-base-content">
+                    {recipe.name}
+                  </span>
+                  <Paragraph tone="muted">{t('list.openRecipe')}</Paragraph>
+                </div>
+                <span className="rounded-full bg-base-200 px-3 py-1 text-sm text-base-content/70">
                   {recipe.recipeId}
                 </span>
               </Link>
-            </li>
+            </Card>
           ))}
-        </ul>
+        </section>
       )}
-    </section>
+    </div>
   );
 }
 

@@ -7,6 +7,7 @@ const en: TranslationResources = {
     menuAccount: 'Account',
     menuLogin: 'Log in',
     menuLogout: 'Log out',
+    sessionLoading: 'Checking session',
     menuContentManagement: 'Content Management',
     languageLabel: 'Language',
     languageEnglish: 'EN',

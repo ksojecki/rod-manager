@@ -5,6 +5,7 @@ const pl = {
     menuAccount: 'Konto',
     menuLogin: 'Zaloguj',
     menuLogout: 'Wyloguj',
+    sessionLoading: 'Sprawdzanie sesji',
     menuContentManagement: 'Content Management',
     languageLabel: 'Język',
     languageEnglish: 'EN',

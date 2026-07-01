@@ -8,6 +8,9 @@ Component names should stay free of the `Ui` prefix. Prefer names like `Button`,
 
 - `Button`
 - `Card`
+- `PageHeader`
+- `Paragraph`
+- `Section`
 
 ## Example
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
+import { Section } from '@ksojecki/platform-ui';
 import { useAuth } from '@ksojecki/platform-web-platform';
 import { buildRecipeDetailPath } from '../productConfig';
 import { RecipeAccessPrompt } from './RecipeAccessPrompt';
@@ -25,7 +26,18 @@ export function EditRecipePage() {
   });
 
   if (status === 'loading') {
-    return <p>{t('loading')}</p>;
+    return (
+      <Section
+        className="mx-auto max-w-5xl"
+        description={t('form.loadingDescription')}
+        title={t('loading')}
+      >
+        <div className="flex items-center gap-2 text-sm text-base-content/70">
+          <span className="loading loading-spinner loading-sm" />
+          {t('form.loadingHint')}
+        </div>
+      </Section>
+    );
   }
 
   if (status === 'guest') {
@@ -34,26 +46,41 @@ export function EditRecipePage() {
 
   if (recipeId === undefined) {
     return (
-      <p className="alert alert-error" role="alert">
-        {t('detail.missingRecipeId')}
-      </p>
+      <Section className="mx-auto max-w-5xl" title={t('detail.invalidTitle')}>
+        <p className="alert alert-error" role="alert">
+          {t('detail.missingRecipeId')}
+        </p>
+      </Section>
     );
   }
 
   if (error !== null) {
     return (
-      <p className="alert alert-error" role="alert">
-        {error.message}
-      </p>
+      <Section className="mx-auto max-w-5xl" title={t('errors.loadFailed')}>
+        <p className="alert alert-error" role="alert">
+          {error.message}
+        </p>
+      </Section>
     );
   }
 
   if (isLoading || recipe === null) {
-    return <p>{t('loading')}</p>;
+    return (
+      <Section
+        className="mx-auto max-w-5xl"
+        description={t('form.loadingDescription')}
+        title={t('loading')}
+      >
+        <div className="flex items-center gap-2 text-sm text-base-content/70">
+          <span className="loading loading-spinner loading-sm" />
+          {t('form.loadingHint')}
+        </div>
+      </Section>
+    );
   }
 
   return (
-    <section className="mx-auto max-w-4xl">
+    <section className="mx-auto max-w-5xl">
       <RecipeForm
         initialRecipe={recipe}
         isSubmitting={isSubmitting}

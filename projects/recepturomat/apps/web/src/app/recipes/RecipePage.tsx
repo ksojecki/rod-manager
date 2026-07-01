@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router';
+import { Card, PageHeader, Paragraph, Section } from '@ksojecki/platform-ui';
 import { useAuth } from '@ksojecki/platform-web-platform';
 import {
   buildRecipeDetailPath,
@@ -41,7 +42,18 @@ export function RecipePage() {
   }, [reset, setNewWeight, weightInput, weightUnit]);
 
   if (status === 'loading') {
-    return <p>{t('loading')}</p>;
+    return (
+      <Section
+        className="mx-auto max-w-5xl"
+        description={t('detail.loadingDescription')}
+        title={t('loading')}
+      >
+        <div className="flex items-center gap-2 text-sm text-base-content/70">
+          <span className="loading loading-spinner loading-sm" />
+          {t('detail.loadingHint')}
+        </div>
+      </Section>
+    );
   }
 
   if (status === 'guest') {
@@ -50,23 +62,40 @@ export function RecipePage() {
 
   if (recipeId === undefined) {
     return (
-      <p className="alert alert-error" role="alert">
-        {t('detail.missingRecipeId')}
-      </p>
+      <Section className="mx-auto max-w-5xl" title={t('detail.invalidTitle')}>
+        <p className="alert alert-error" role="alert">
+          {t('detail.missingRecipeId')}
+        </p>
+      </Section>
     );
   }
 
   if (error !== null) {
     return (
-      <p className="alert alert-error" role="alert">
-        {error.message}
-      </p>
+      <Section className="mx-auto max-w-5xl" title={t('errors.loadFailed')}>
+        <p className="alert alert-error" role="alert">
+          {error.message}
+        </p>
+      </Section>
     );
   }
 
   if (isLoading || recalculatedRecipe === null) {
-    return <p>{t('loading')}</p>;
+    return (
+      <Section
+        className="mx-auto max-w-5xl"
+        description={t('detail.loadingDescription')}
+        title={t('loading')}
+      >
+        <div className="flex items-center gap-2 text-sm text-base-content/70">
+          <span className="loading loading-spinner loading-sm" />
+          {t('detail.loadingHint')}
+        </div>
+      </Section>
+    );
   }
+
+  const defaultWeight = recipe?.defaultWeight ?? recalculatedRecipe.weight;
 
   async function handleDelete(): Promise<void> {
     setDeleteError(null);
@@ -84,61 +113,52 @@ export function RecipePage() {
   }
 
   return (
-    <section className="mx-auto flex max-w-4xl flex-col gap-4">
-      <div className="flex flex-col gap-3 rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <div className="flex-1">
-            <div className="text-sm text-base-content/60">{recipeId}</div>
-            <h1 className="text-3xl font-semibold">
-              {recalculatedRecipe.name}
-            </h1>
-          </div>
-          <div className="flex flex-wrap gap-2">
+    <div className="mx-auto flex max-w-5xl flex-col gap-6">
+      <PageHeader
+        actions={
+          <>
             <Link
               className="btn btn-ghost"
               to={frontendProductConfig.routes.home}
             >
               {t('actions.back')}
             </Link>
-            <button className="btn btn-ghost" disabled type="button">
-              {t('detail.print')}
-            </button>
             <Link
-              className="btn btn-outline"
+              className="btn btn-secondary"
               to={buildRecipeEditPath(recipeId)}
             >
               {t('actions.edit')}
             </Link>
             <button
-              className="btn btn-error btn-outline"
+              className="btn btn-outline btn-error"
               onClick={() => void handleDelete()}
               type="button"
             >
               {t('actions.delete')}
             </button>
-          </div>
-        </div>
+          </>
+        }
+        description={t('detail.description')}
+        eyebrow={`${t('detail.recipeIdLabel')}: ${recipeId}`}
+        meta={
+          <>
+            <span>
+              {t('detail.defaultYield', {
+                weight: defaultWeight,
+              })}
+            </span>
+            <span>
+              {t('detail.ingredientsCount', {
+                count: recalculatedRecipe.ingredients.length,
+              })}
+            </span>
+          </>
+        }
+        title={recalculatedRecipe.name}
+      />
 
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <input
-            className="input input-bordered flex-1"
-            onChange={(event) => {
-              setWeightInput(event.target.value);
-            }}
-            placeholder={t('detail.newWeight')}
-            type="number"
-            value={weightInput}
-          />
-          <select
-            className="select select-bordered w-full sm:w-32"
-            onChange={(event) => {
-              setWeightUnit(event.target.value as 'g' | 'pcs');
-            }}
-            value={weightUnit}
-          >
-            <option value="g">{t('units.g')}</option>
-            <option value="pcs">{t('detail.pieces')}</option>
-          </select>
+      <Section
+        actions={
           <button
             className="btn btn-ghost"
             onClick={() => {
@@ -148,12 +168,43 @@ export function RecipePage() {
           >
             {t('actions.clear')}
           </button>
-        </div>
+        }
+        description={t('detail.scalingDescription')}
+        title={t('detail.scalingTitle')}
+      >
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_auto]">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input
+              className="input input-bordered flex-1"
+              onChange={(event) => {
+                setWeightInput(event.target.value);
+              }}
+              placeholder={t('detail.newWeight')}
+              type="number"
+              value={weightInput}
+            />
+            <select
+              className="select select-bordered w-full sm:w-40"
+              onChange={(event) => {
+                setWeightUnit(event.target.value as 'g' | 'pcs');
+              }}
+              value={weightUnit}
+            >
+              <option value="g">{t('units.g')}</option>
+              <option value="pcs">{t('detail.pieces')}</option>
+            </select>
+          </div>
 
-        <p className="text-sm text-base-content/70">
-          {recalculatedRecipe.weight} {t('units.g')}
-        </p>
-      </div>
+          <Card className="border border-base-200 bg-base-200/50 shadow-none">
+            <div className="text-xs font-medium uppercase tracking-[0.16em] text-base-content/50">
+              {t('detail.currentYieldLabel')}
+            </div>
+            <div className="mt-2 text-2xl font-semibold text-base-content">
+              {recalculatedRecipe.weight} {t('units.g')}
+            </div>
+          </Card>
+        </div>
+      </Section>
 
       {deleteError !== null ? (
         <p className="alert alert-error" role="alert">
@@ -161,36 +212,41 @@ export function RecipePage() {
         </p>
       ) : null}
 
-      <section className="rounded-box border border-base-300 bg-base-100 p-4 shadow-sm">
-        <h2 className="mb-4 text-xl font-semibold">
-          {t('detail.ingredients')}
-        </h2>
-        <ul className="grid gap-3">
+      <Section
+        description={t('detail.ingredientsDescription')}
+        title={t('detail.ingredients')}
+      >
+        <ul className="grid gap-4">
           {recalculatedRecipe.ingredients.map((ingredient, index) => (
-            <li
-              className="rounded-box border border-base-200 bg-base-200/40 p-3"
-              key={`${ingredient.name}-${index}`}
-            >
-              <div className="font-medium">{ingredient.name}</div>
-              <div className="text-sm text-base-content/70">
-                {formatAmount(ingredient.amount)}{' '}
-                {t(`units.${ingredient.unit}`)}
-              </div>
-              {ingredient.recipeId !== undefined ? (
-                <Link
-                  className="link link-hover text-sm"
-                  to={buildRecipeDetailPath(ingredient.recipeId)}
-                >
-                  {t('detail.ingredientRecipe', {
-                    recipeId: ingredient.recipeId,
-                  })}
-                </Link>
-              ) : null}
+            <li key={`${ingredient.name}-${index}`}>
+              <Card className="border border-base-200 bg-base-100 shadow-none">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex flex-col gap-2">
+                    <div className="text-lg font-semibold">
+                      {ingredient.name}
+                    </div>
+                    <Paragraph tone="muted">
+                      {formatAmount(ingredient.amount)}{' '}
+                      {t(`units.${ingredient.unit}`)}
+                    </Paragraph>
+                  </div>
+                  {ingredient.recipeId !== undefined ? (
+                    <Link
+                      className="link link-hover text-sm"
+                      to={buildRecipeDetailPath(ingredient.recipeId)}
+                    >
+                      {t('detail.ingredientRecipe', {
+                        recipeId: ingredient.recipeId,
+                      })}
+                    </Link>
+                  ) : null}
+                </div>
+              </Card>
             </li>
           ))}
         </ul>
-      </section>
-    </section>
+      </Section>
+    </div>
   );
 }
 

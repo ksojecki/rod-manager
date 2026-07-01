@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { Section } from '@ksojecki/platform-ui';
 import { useAuth } from '@ksojecki/platform-web-platform';
 import { buildRecipeDetailPath } from '../productConfig';
 import { createRecipe } from './api';
@@ -27,7 +28,18 @@ export function NewRecipePage() {
   });
 
   if (status === 'loading') {
-    return <p>{t('loading')}</p>;
+    return (
+      <Section
+        className="mx-auto max-w-5xl"
+        description={t('form.loadingDescription')}
+        title={t('loading')}
+      >
+        <div className="flex items-center gap-2 text-sm text-base-content/70">
+          <span className="loading loading-spinner loading-sm" />
+          {t('form.loadingHint')}
+        </div>
+      </Section>
+    );
   }
 
   if (status === 'guest') {
@@ -35,7 +47,7 @@ export function NewRecipePage() {
   }
 
   return (
-    <section className="mx-auto max-w-4xl">
+    <section className="mx-auto max-w-5xl">
       <RecipeForm
         initialRecipe={emptyRecipe}
         isSubmitting={isSubmitting}
