@@ -18,7 +18,7 @@ export function AccountShell({
   welcomeMessage,
 }: AccountShellProps) {
   return (
-    <Page>
+    <Page className="mx-auto max-w-5xl">
       <Page.Title>{title}</Page.Title>
       <Page.Content>
         <p>{welcomeMessage}</p>

@@ -47,11 +47,12 @@
 - Before implementation work starts, check the current branch. If you are on `main`, create a new working branch first.
 - When running task-oriented Nx commands as an AI agent, prefer `--no-tui` to suppress interactive output when the command supports it.
 - Install deps: `npm ci` (used in CI).
-- Start local SSR development as an AI agent with `npm run dev:rod-manager`, then smoke test `https://localhost:3000/` and `https://localhost:3000/api`.
+- Start local SSR development as an AI agent with `npm run dev:rod-manager`, then smoke test `https://localhost:3000/` and `https://localhost:3000/api` through an authenticated session.
 - If port `3000` is already in use, inspect the listener with `lsof -nP -iTCP:3000 -sTCP:LISTEN`. Reuse an existing `rod-manager` dev server when possible. Only stop the process automatically if it is clearly a stale server from this repository; otherwise report the conflict and ask the user.
 - Run lint via npm script: `npm run lint` (delegates to Nx `lint` targets).
 - Run formatting checks: `npm run format:check`; auto-fix formatting: `npm run format`.
 - Run CI-equivalent checks locally: `npx nx run-many -t lint test build typecheck --no-tui`.
+- For frontend review work, inspect the rendered localhost page before judging the UI from source alone. Reuse an existing local server on port `3000` when available, authenticate the localhost session before evaluating page or API behavior, compare the first SSR shell with the hydrated/authenticated state, and capture concrete evidence from rendered HTML, API payloads, or browser automation. If browser access is blocked by the environment, report that blocker explicitly and fall back to the best available rendered-page evidence instead of guessing from code only.
 - Keep Husky hooks in sync with CI check categories using staged-file equivalents where possible; `.husky/pre-commit` should run `lint-staged`, and the `lint-staged` config should track CI lint/format expectations for staged files.
 - Apply Nx Cloud CI remediation hints: `npx nx fix-ci --no-tui`.
 - Explore project/task graph: `npx nx graph --print` for stdout or `npx nx graph --file=/tmp/nx-graph.json` for machine-readable output. Prefer `nx show` first because graph output is much larger.

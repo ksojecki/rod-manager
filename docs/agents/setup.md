@@ -53,8 +53,8 @@ npm run dev:rod-manager
 
 Smoke checks:
 
-- `https://localhost:3000/` returns SSR HTML.
-- `https://localhost:3000/api` returns API JSON.
+- `https://localhost:3000/` should be verified through an authenticated session and return SSR HTML.
+- `https://localhost:3000/api` should be verified through the same authenticated session and return API JSON.
 
 If port `3000` is already in use, inspect the listener with:
 

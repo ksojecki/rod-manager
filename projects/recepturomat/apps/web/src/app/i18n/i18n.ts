@@ -11,11 +11,14 @@ void i18n.use(initReactI18next).init({
     en: {
       layout: {
         appName: 'Recepturomat',
+        footerBrowseTitle: 'Recipes',
+        menuAddRecipe: 'Add recipe',
         menuHome: 'Recipes',
         menuAccount: 'Account',
         menuLogin: 'Log in',
         menuLogout: 'Log out',
         menuRegister: 'Register',
+        sessionLoading: 'Checking session',
         footerText: 'Recepturomat',
       },
       auth: {
@@ -94,16 +97,31 @@ void i18n.use(initReactI18next).init({
           action: 'Log in to continue',
           description:
             'Recipe pages now use the shared platform session. Sign in to browse and edit recipes.',
+          hint: 'Use your existing account to open the full recipe workspace.',
           title: 'Authentication required',
         },
         detail: {
+          currentYieldLabel: 'Current yield',
+          defaultYield: 'Base recipe: {{weight}} g',
+          description:
+            'Adjust the target batch size and follow linked sub-recipes from the same page.',
           ingredientRecipe: 'Recipe reference: {{recipeId}}',
+          ingredientsCount: '{{count}} ingredients',
+          ingredientsDescription:
+            'Amounts update automatically when you change the target yield.',
           ingredients: 'Ingredients',
+          invalidTitle: 'Recipe unavailable',
+          loadingDescription:
+            'Preparing the recipe workspace and checking your current session.',
+          loadingHint: 'Fetching recipe details and recalculating ingredients.',
           missingRecipeId: 'Missing recipe identifier.',
           newWeight: 'New weight',
           notFound: 'Recipe not found.',
           pieces: 'pieces',
-          print: 'Print',
+          recipeIdLabel: 'Recipe id',
+          scalingDescription:
+            'Enter a target amount in grams or pieces to recalculate ingredient quantities.',
+          scalingTitle: 'Scale recipe',
           title: '{{name}}',
         },
         errors: {
@@ -116,10 +134,21 @@ void i18n.use(initReactI18next).init({
           addIngredient: 'Add ingredient',
           amount: 'Amount',
           defaultWeight: 'Default weight',
+          description:
+            'Keep the recipe id stable and describe ingredients the same way they are used during production.',
+          detailsDescription:
+            'Define the recipe name, stable identifier, and base yield used for recalculation.',
+          detailsTitle: 'Recipe details',
           emptyIngredients: 'Add at least one ingredient.',
+          ingredientCardTitle: 'Ingredient',
           ingredientName: 'Ingredient name',
           ingredientRecipeId: 'Referenced recipe id',
+          ingredientsDescription:
+            'List all ingredients in production order and optionally connect them to another recipe.',
           ingredients: 'Ingredients',
+          loadingDescription:
+            'Opening the recipe editor and loading the latest saved values.',
+          loadingHint: 'Preparing editable recipe data.',
           name: 'Recipe name',
           recipeId: 'Recipe id',
           removeIngredient: 'Remove ingredient',
@@ -128,8 +157,21 @@ void i18n.use(initReactI18next).init({
           unit: 'Unit',
         },
         list: {
+          count: '{{count}} recipes',
+          description:
+            'Browse saved recipes, open details, and jump into editing from a single consistent workspace.',
           empty: 'No recipes match this search.',
+          emptyHint:
+            'Try a broader phrase or add a new recipe to start the collection.',
+          emptyTitle: 'No matching recipes',
+          loadingDescription:
+            'Preparing the recipe catalog and confirming your current session.',
+          loadingHint: 'Loading recipe list and search index.',
+          openRecipe: 'Open recipe details',
           search: 'Search recipes',
+          searchHint:
+            'Search by recipe name or identifier. Results update as you type.',
+          searchTitle: 'Find recipe',
           title: 'Recipes',
         },
       },

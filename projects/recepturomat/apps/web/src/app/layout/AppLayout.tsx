@@ -4,17 +4,42 @@ import {
   PlatformFooter,
   PlatformNavbar,
   type PlatformNavigationItem,
+  useAuth,
 } from '@ksojecki/platform-web-platform';
 import { frontendProductConfig } from '../productConfig';
 
 export function AppLayout() {
   const { t } = useTranslation('layout');
+  const { status } = useAuth();
   const navigationItems: PlatformNavigationItem[] = [
     {
       label: t('menuHome'),
       to: frontendProductConfig.routes.home,
     },
+    {
+      label: t('menuAddRecipe'),
+      to: frontendProductConfig.routes.recipeNew,
+      visibility: 'authenticated',
+    },
   ];
+  const footerSections =
+    status === 'authenticated'
+      ? [
+          {
+            title: t('footerBrowseTitle'),
+            links: [
+              {
+                label: t('menuHome'),
+                to: frontendProductConfig.routes.home,
+              },
+              {
+                label: t('menuAddRecipe'),
+                to: frontendProductConfig.routes.recipeNew,
+              },
+            ],
+          },
+        ]
+      : [];
 
   return (
     <div className="min-h-screen bg-base-200">
@@ -26,6 +51,7 @@ export function AppLayout() {
         items={navigationItems}
         loginLabel={t('menuLogin')}
         loginPrompt={frontendProductConfig.loginPrompt}
+        loadingLabel={t('sessionLoading')}
         logoutLabel={t('menuLogout')}
         postLoginRedirectTo={frontendProductConfig.auth.postLoginRedirectTo}
         registerLabel={t('menuRegister')}
@@ -33,10 +59,10 @@ export function AppLayout() {
         registrationEnabled={frontendProductConfig.registration.enabled}
         showGuestRegisterLink
       />
-      <main className="px-4 py-6">
+      <main className="px-4 py-8">
         <Outlet />
       </main>
-      <PlatformFooter text={t('footerText')} />
+      <PlatformFooter sections={footerSections} text={t('footerText')} />
     </div>
   );
 }

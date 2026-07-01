@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { Button } from './Button';
 import { Card } from './Card';
+import { PageHeader } from './PageHeader';
+import { Paragraph } from './Paragraph';
+import { Section } from './Section';
 
 describe('@ksojecki/platform-ui', () => {
   it('renders a shared card title and content', () => {
@@ -20,5 +23,26 @@ describe('@ksojecki/platform-ui', () => {
     const button = screen.getByRole('button', { name: 'Save changes' });
 
     expect((button as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('renders structural content primitives', () => {
+    render(
+      <>
+        <PageHeader
+          description="Header description"
+          eyebrow="Recipe"
+          meta={<span>Yield 400 g</span>}
+          title="Vanilla cupcakes"
+        />
+        <Section description="Section description" title="Ingredients">
+          <Paragraph tone="muted">Flour, sugar, butter</Paragraph>
+        </Section>
+      </>,
+    );
+
+    expect(screen.getByText('Vanilla cupcakes')).toBeTruthy();
+    expect(screen.getByText('Header description')).toBeTruthy();
+    expect(screen.getByText('Ingredients')).toBeTruthy();
+    expect(screen.getByText('Flour, sugar, butter')).toBeTruthy();
   });
 });
